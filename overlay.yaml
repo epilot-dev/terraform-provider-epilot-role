@@ -2,6 +2,7 @@ overlay: 1.0.0
 info:
   title: Speakeasy overlay for epilot role API
   version: 0.0.1
+
 actions:
   - target: $
     update:
@@ -55,6 +56,6 @@ actions:
   # - target: $["components"]["schemas"]["BaseSystemFields"]
   #   update:
   #     x-speakeasy-param-suppress-computed-diff: true
-  # - target: $["components"]["schemas"]["Dashboard"]["properties"]["tiles"]
-  #   update:
-  #     x-speakeasy-type-override: any
+  - target: $["components"]["schemas"]["RolePayload"]["allOf"][0]["properties"]
+    update:
+      x-speakeasy-type-override: any
