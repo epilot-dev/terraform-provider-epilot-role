@@ -1,0 +1,439 @@
+lockVersion: 2.0.0
+id: 5a857039-7f4b-42d5-86fd-449767242ed2
+management:
+  docChecksum: dd5eb608fd0e0ea556a472c6122d83a7
+  docVersion: 0.0.1
+  speakeasyVersion: 1.477.0
+  generationVersion: 2.497.0
+  releaseVersion: 0.15.2
+  configChecksum: 6cf307147e8ddd1dcd9dba2d693aeace
+  repoURL: https://github.com/epilot-dev/terraform-provider-epilot-product.git
+  repoSubDirectory: .
+  published: true
+features:
+  go:
+    additionalProperties: 0.1.1
+    constsAndDefaults: 0.1.1
+    core: 3.1.4
+    flattening: 2.81.1
+    globalSecurity: 2.82.2
+    globalServerURLs: 2.82.0
+    unions: 2.85.0
+  terraform:
+    additionalDependencies: 0.1.0
+    additionalProperties: 0.1.2
+    core: 3.29.0
+    envVarSecurityUsage: 0.1.0
+    globalSecurity: 2.81.9
+    globalServerURLs: 2.82.1
+    retries: 2.81.2
+    typeOverrides: 2.81.1
+generatedFiles:
+  - .gitattributes
+  - USAGE.md
+  - examples/README.md
+  - examples/data-sources/epilot-dashboard_dashboard/data-source.tf
+  - examples/provider/provider.tf
+  - examples/resources/epilot-dashboard_dashboard/import.sh
+  - examples/resources/epilot-dashboard_dashboard/resource.tf
+  - go.mod
+  - go.sum
+  - internal/planmodifiers/boolplanmodifier/suppress_diff.go
+  - internal/planmodifiers/float64planmodifier/suppress_diff.go
+  - internal/planmodifiers/int64planmodifier/suppress_diff.go
+  - internal/planmodifiers/listplanmodifier/suppress_diff.go
+  - internal/planmodifiers/mapplanmodifier/suppress_diff.go
+  - internal/planmodifiers/numberplanmodifier/suppress_diff.go
+  - internal/planmodifiers/objectplanmodifier/suppress_diff.go
+  - internal/planmodifiers/setplanmodifier/suppress_diff.go
+  - internal/planmodifiers/stringplanmodifier/suppress_diff.go
+  - internal/planmodifiers/utils/state_check.go
+  - internal/provider/dashboard_data_source.go
+  - internal/provider/dashboard_data_source_sdk.go
+  - internal/provider/dashboard_resource.go
+  - internal/provider/dashboard_resource_sdk.go
+  - internal/provider/provider.go
+  - internal/provider/reflect/diags.go
+  - internal/provider/reflect/doc.go
+  - internal/provider/reflect/generic_attr_value.go
+  - internal/provider/reflect/helpers.go
+  - internal/provider/reflect/interfaces.go
+  - internal/provider/reflect/into.go
+  - internal/provider/reflect/map.go
+  - internal/provider/reflect/number.go
+  - internal/provider/reflect/options.go
+  - internal/provider/reflect/outof.go
+  - internal/provider/reflect/pointer.go
+  - internal/provider/reflect/primitive.go
+  - internal/provider/reflect/slice.go
+  - internal/provider/reflect/struct.go
+  - internal/provider/utils.go
+  - internal/sdk/.gitattributes
+  - internal/sdk/dashboards.go
+  - internal/sdk/examples.go
+  - internal/sdk/internal/hooks/hooks.go
+  - internal/sdk/internal/utils/contenttype.go
+  - internal/sdk/internal/utils/env.go
+  - internal/sdk/internal/utils/form.go
+  - internal/sdk/internal/utils/headers.go
+  - internal/sdk/internal/utils/json.go
+  - internal/sdk/internal/utils/pathparams.go
+  - internal/sdk/internal/utils/queryparams.go
+  - internal/sdk/internal/utils/requestbody.go
+  - internal/sdk/internal/utils/retries.go
+  - internal/sdk/internal/utils/security.go
+  - internal/sdk/internal/utils/utils.go
+  - internal/sdk/models/errors/sdkerror.go
+  - internal/sdk/models/operations/createdashboard.go
+  - internal/sdk/models/operations/deletedashboard.go
+  - internal/sdk/models/operations/getdashboard.go
+  - internal/sdk/models/operations/listavailableexamples.go
+  - internal/sdk/models/operations/listavailablevisualisations.go
+  - internal/sdk/models/operations/listdashboards.go
+  - internal/sdk/models/operations/options.go
+  - internal/sdk/models/operations/putdashboard.go
+  - internal/sdk/models/shared/dashboard.go
+  - internal/sdk/models/shared/datalakequery.go
+  - internal/sdk/models/shared/example.go
+  - internal/sdk/models/shared/security.go
+  - internal/sdk/models/shared/visualisation.go
+  - internal/sdk/models/shared/visualisationid.go
+  - internal/sdk/retry/config.go
+  - internal/sdk/sdk.go
+  - internal/sdk/types/bigint.go
+  - internal/sdk/types/date.go
+  - internal/sdk/types/datetime.go
+  - internal/sdk/types/decimal.go
+  - internal/sdk/types/pointers.go
+  - internal/sdk/visualisations.go
+  - internal/validators/DateValidator.go
+  - internal/validators/ExactlyOneChild.go
+  - internal/validators/JSONParseValidator.go
+  - internal/validators/RFC3339Validator.go
+  - internal/validators/boolvalidators/not_null.go
+  - internal/validators/float64validators/not_null.go
+  - internal/validators/int64validators/not_null.go
+  - internal/validators/listvalidators/not_null.go
+  - internal/validators/mapvalidators/not_null.go
+  - internal/validators/numbervalidators/not_null.go
+  - internal/validators/objectvalidators/not_null.go
+  - internal/validators/setvalidators/not_null.go
+  - internal/validators/stringvalidators/not_null.go
+  - main.go
+  - terraform-registry-manifest.json
+  - tools/tools.go
+examples:
+  createCoupon:
+    speakeasy-default-create-coupon:
+      requestBody:
+        application/json: {"_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "active": false, "category": "discount", "fixed_value_currency": "EUR", "name": "<value>", "prices": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "fixed"}
+      responses:
+        "201":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "coupon", "active": false, "category": "discount", "fixed_value_currency": "EUR", "name": "<value>", "prices": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "percentage"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  deleteCoupon:
+    speakeasy-default-delete-coupon:
+      parameters:
+        path:
+          couponId: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}], "_schema": "coupon", "active": true, "category": "discount", "fixed_value_currency": "EUR", "name": "<value>", "prices": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "percentage"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  getCoupon:
+    speakeasy-default-get-coupon:
+      parameters:
+        path:
+          couponId: "123e4567-e89b-12d3-a456-426614174000"
+        query:
+          hydrate: false
+          strict: false
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "coupon", "active": true, "category": "discount", "fixed_value_currency": "EUR", "name": "<value>", "prices": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "fixed"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  patchCoupon:
+    speakeasy-default-patch-coupon:
+      parameters:
+        path:
+          couponId: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        application/json: {"_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "fixed_value_currency": "EUR", "prices": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}}
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "coupon", "active": false, "category": "cashback", "fixed_value_currency": "EUR", "name": "<value>", "prices": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "fixed"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  updateCoupon:
+    speakeasy-default-update-coupon:
+      parameters:
+        path:
+          couponId: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        application/json: {"_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "active": true, "category": "discount", "fixed_value_currency": "EUR", "name": "<value>", "prices": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "fixed"}
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}], "_schema": "coupon", "active": false, "category": "discount", "fixed_value_currency": "EUR", "name": "<value>", "prices": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "percentage"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  createPrice:
+    speakeasy-default-create-price:
+      requestBody:
+        application/json: {"_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "active": true, "description": "cap likewise off same tensely outside veg married worth", "is_tax_inclusive": false, "pricing_model": "per_unit", "type": "one_time", "unit_amount_currency": "EUR", "variable_price": false}
+      responses:
+        "201":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "price", "active": true, "description": "psst rout bus", "is_tax_inclusive": false, "pricing_model": "per_unit", "type": "one_time", "unit_amount_currency": "EUR", "variable_price": false}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  deletePrice:
+    speakeasy-default-delete-price:
+      parameters:
+        path:
+          priceId: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}], "_schema": "price", "active": true, "description": "manipulate ugh upon discontinue major however", "is_tax_inclusive": false, "pricing_model": "per_unit", "type": "one_time", "unit_amount_currency": "EUR", "variable_price": false}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  getPrice:
+    speakeasy-default-get-price:
+      parameters:
+        path:
+          priceId: "123e4567-e89b-12d3-a456-426614174000"
+        query:
+          hydrate: false
+          strict: false
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "price", "active": false, "description": "bah popularity capsize per mostly bravely whereas when", "is_tax_inclusive": false, "pricing_model": "per_unit", "type": "one_time", "unit_amount_currency": "EUR", "variable_price": false}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  patchPrice:
+    speakeasy-default-patch-price:
+      parameters:
+        path:
+          priceId: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        application/json: {"_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "is_tax_inclusive": false, "pricing_model": "per_unit", "type": "one_time", "unit_amount_currency": "EUR", "variable_price": false}
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}], "_schema": "price", "active": false, "description": "voluntarily considering phew and when old gah valuable and", "is_tax_inclusive": false, "pricing_model": "per_unit", "type": "one_time", "unit_amount_currency": "EUR", "variable_price": false}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  updatePrice:
+    speakeasy-default-update-price:
+      parameters:
+        path:
+          priceId: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        application/json: {"_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "active": true, "description": "wherever between ah tuber stiffen fraternise", "is_tax_inclusive": false, "pricing_model": "per_unit", "type": "one_time", "unit_amount_currency": "EUR", "variable_price": false}
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "price", "active": false, "description": "what horse majestically hm relieve jaywalk", "is_tax_inclusive": false, "pricing_model": "per_unit", "type": "one_time", "unit_amount_currency": "EUR", "variable_price": false}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  createProduct:
+    speakeasy-default-create-product:
+      requestBody:
+        application/json: {"_availability_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "active": false, "name": "<value>", "price_options": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_downloads": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_images": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "product"}
+      responses:
+        "201":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_availability_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "product", "active": false, "name": "<value>", "price_options": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_downloads": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_images": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "product"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  deleteProduct:
+    speakeasy-default-delete-product:
+      parameters:
+        path:
+          productId: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_availability_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "product", "active": true, "name": "<value>", "price_options": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_downloads": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_images": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "product"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  getProduct:
+    speakeasy-default-get-product:
+      parameters:
+        path:
+          productId: "123e4567-e89b-12d3-a456-426614174000"
+        query:
+          hydrate: false
+          strict: false
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_availability_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "product", "active": true, "name": "<value>", "price_options": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_downloads": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_images": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "product"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  patchProduct:
+    speakeasy-default-patch-product:
+      parameters:
+        path:
+          productId: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        application/json: {"_availability_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "price_options": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_downloads": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_images": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "product"}
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_availability_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}], "_schema": "product", "active": false, "name": "<value>", "price_options": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_downloads": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_images": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "product"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  updateProduct:
+    speakeasy-default-update-product:
+      parameters:
+        path:
+          productId: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        application/json: {"_availability_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "active": false, "name": "<value>", "price_options": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_downloads": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_images": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "product"}
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_availability_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "product", "active": true, "name": "<value>", "price_options": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_downloads": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "product_images": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "type": "product"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  createTax:
+    speakeasy-default-create-tax:
+      requestBody:
+        application/json: {"_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "active": false, "rate": "<value>", "region": "DE", "type": "VAT"}
+      responses:
+        "201":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "tax", "active": false, "rate": "<value>", "region": "DE", "type": "VAT"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  deleteTax:
+    speakeasy-default-delete-tax:
+      parameters:
+        path:
+          taxId: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "tax", "active": false, "rate": "<value>", "region": "DE", "type": "VAT"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  getTax:
+    speakeasy-default-get-tax:
+      parameters:
+        path:
+          taxId: "123e4567-e89b-12d3-a456-426614174000"
+        query:
+          hydrate: false
+          strict: false
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "tax", "active": false, "rate": "<value>", "region": "DE", "type": "VAT"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  patchTax:
+    speakeasy-default-patch-tax:
+      parameters:
+        path:
+          taxId: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        application/json: {"_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "region": "DE"}
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "tax", "active": false, "rate": "<value>", "region": "DE", "type": "VAT"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  updateTax:
+    speakeasy-default-update-tax:
+      parameters:
+        path:
+          taxId: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        application/json: {"_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "active": true, "rate": "<value>", "region": "DE", "type": "VAT"}
+      responses:
+        "200":
+          application/json: {"_acl": {"delete": ["org:456"], "edit": ["org:456"], "view": ["org:456"]}, "_files": {"$relation": [{"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}, {"entity_id": "123e4567-e89b-12d3-a456-426614174000"}]}, "_id": "123e4567-e89b-12d3-a456-426614174000", "_manifest": ["123e4567-e89b-12d3-a456-426614174000"], "_org": "<value>", "_owners": [{"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}, {"org_id": "123", "user_id": "123"}], "_schema": "tax", "active": true, "rate": "<value>", "region": "DE", "type": "VAT"}
+        "400":
+          application/json: {"message": "Entity not found", "status": 404}
+        "500":
+          application/json: {"message": "Entity not found", "status": 404}
+  createDashboard:
+    speakeasy-default-create-dashboard:
+      requestBody:
+        application/json: {"id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "tiles": [{"coordinates": {}, "id": "e4af1297-1fd6-440f-9846-f475f580d40f", "visualisation_config": {"options": {"type": "bar"}, "query": {"dataset": "entity_operations", "dimensions": [{"time_with_granularity": "year-month"}], "filters": [{"entity_schema": "opportunity"}], "measure": "count_operations"}}}], "title": "Employee Dashboard"}
+      responses:
+        "201":
+          application/json: {"id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "tiles": [{"coordinates": {}, "id": "e4af1297-1fd6-440f-9846-f475f580d40f", "visualisation_config": {"options": {"type": "bar"}, "query": {"dataset": "entity_operations", "dimensions": [{"time_with_granularity": "year-month"}], "filters": [{"entity_schema": "opportunity"}], "measure": "count_operations"}}}], "title": "Employee Dashboard"}
+  deleteDashboard:
+    speakeasy-default-delete-dashboard:
+      parameters:
+        path:
+          id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      responses:
+        "200":
+          application/json: {"id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "tiles": [{"coordinates": {}, "id": "e4af1297-1fd6-440f-9846-f475f580d40f", "visualisation_config": {"options": {"type": "bar"}, "query": {"dataset": "entity_operations", "dimensions": [{"time_with_granularity": "year-month"}], "filters": [{"entity_schema": "opportunity"}], "measure": "count_operations"}}}], "title": "Employee Dashboard"}
+  getDashboard:
+    speakeasy-default-get-dashboard:
+      parameters:
+        path:
+          id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      responses:
+        "200":
+          application/json: {"id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "tiles": [{"coordinates": {}, "id": "e4af1297-1fd6-440f-9846-f475f580d40f", "visualisation_config": {"options": {"type": "bar"}, "query": {"dataset": "entity_operations", "dimensions": [{"time_with_granularity": "year-month"}], "filters": [{"entity_schema": "opportunity"}], "measure": "count_operations"}}}], "title": "Employee Dashboard"}
+  listDashboards:
+    speakeasy-default-list-dashboards:
+      responses:
+        "200":
+          application/json: {"results": [{"id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "tiles": [{"coordinates": {}, "id": "e4af1297-1fd6-440f-9846-f475f580d40f", "visualisation_config": {"options": {"type": "bar"}, "query": {"dataset": "entity_operations", "dimensions": [{"time_with_granularity": "year-month"}], "filters": [{"entity_schema": "opportunity"}], "measure": "count_operations"}}}], "title": "Employee Dashboard"}, {"id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "tiles": [{"coordinates": {}, "id": "e4af1297-1fd6-440f-9846-f475f580d40f", "visualisation_config": {"options": {"type": "bar"}, "query": {"dataset": "entity_operations", "dimensions": [{"time_with_granularity": "year-month"}], "filters": [{"entity_schema": "opportunity"}], "measure": "count_operations"}}}], "title": "Employee Dashboard"}]}
+  putDashboard:
+    speakeasy-default-put-dashboard:
+      parameters:
+        path:
+          id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      requestBody:
+        application/json: {"id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "tiles": [{"coordinates": {}, "id": "e4af1297-1fd6-440f-9846-f475f580d40f", "visualisation_config": {"options": {"type": "bar"}, "query": {"dataset": "entity_operations", "dimensions": [{"time_with_granularity": "year-month"}], "filters": [{"entity_schema": "opportunity"}], "measure": "count_operations"}}}], "title": "Employee Dashboard"}
+      responses:
+        "200":
+          application/json: {"id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "tiles": [{"coordinates": {}, "id": "e4af1297-1fd6-440f-9846-f475f580d40f", "visualisation_config": {"options": {"type": "bar"}, "query": {"dataset": "entity_operations", "dimensions": [{"time_with_granularity": "year-month"}], "filters": [{"entity_schema": "opportunity"}], "measure": "count_operations"}}}], "title": "Employee Dashboard"}
+  listAvailableExamples:
+    speakeasy-default-list-available-examples:
+      responses:
+        "200":
+          application/json: {"results": [{"id": "e4af1297-1fd6-440f-9846-f475f580d40f", "query": {"0": "<", "1": "v", "2": "a", "3": "l", "4": "u", "5": "e", "6": ">", "dataset": "entity_operations", "dimensions": [{"time_with_granularity": "year-month"}], "filters": [{"entity_schema": "opportunity"}], "measure": "count_operations"}, "title": "Number of opportunities created by journeys every month", "visualisation": "timechart"}]}
+  listAvailableVisualisations:
+    speakeasy-default-list-available-visualisations:
+      responses:
+        "200":
+          application/json: {"results": [{"description": "Visualise your metrics with respect to time series", "package_name": "@epilot360/highcharts", "title": "Time Series Visualisation", "visualisation": "timechart"}, {"description": "Visualise your key performance indicators", "package_name": "@epilot360/highcharts", "title": "Time Series Visualisation", "visualisation": "timechart"}]}
+examplesVersion: 1.0.0
+generatedTests: {}
