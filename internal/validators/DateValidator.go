@@ -4,7 +4,7 @@ package validators
 
 import (
 	"context"
-	"github.com/epilot-dev/terraform-provider-epilot-dashboard/internal/sdk/types"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/types"
 	"github.com/hashicorp/terraform-plugin-framework-validators/helpers/validatordiag"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )

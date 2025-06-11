@@ -4,7 +4,7 @@ package boolplanmodifier
 
 import (
 	"context"
-	"github.com/epilot-dev/terraform-provider-epilot-dashboard/internal/planmodifiers/utils"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/planmodifiers/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 )

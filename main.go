@@ -7,7 +7,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/epilot-dev/terraform-provider-epilot-dashboard/internal/provider"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 
@@ -15,7 +15,7 @@ import (
 
 // Run the docs generation tool, check its repository for more information on how it works and how docs
 // can be customized.
-//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-name terraform-provider-epilot-dashboard --rendered-provider-name terraform-provider-epilot-dashboard
+//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-name terraform-provider-epilot-role --rendered-provider-name terraform-provider-epilot-role
 
 var (
 	// these will be set by the goreleaser configuration
@@ -30,7 +30,7 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		Address: "registry.terraform.io/epilot-dev/epilot-dashboard",
+		Address: "registry.terraform.io/epilot-dev/epilot-role",
 		Debug:   debug,
 	}
 

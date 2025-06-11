@@ -12,14 +12,18 @@ import (
 
 	"github.com/ericlagergren/decimal"
 
-	"github.com/epilot-dev/terraform-provider-epilot-dashboard/internal/sdk/types"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/types"
 )
 
-func populateForm(paramName string, explode bool, objType reflect.Type, objValue reflect.Value, delimiter string, getFieldName func(reflect.StructField) string) url.Values {
+func populateForm(paramName string, explode bool, objType reflect.Type, objValue reflect.Value, delimiter string, defaultValue *string, getFieldName func(reflect.StructField) string) url.Values {
 
 	formValues := url.Values{}
 
 	if isNil(objType, objValue) {
+		if defaultValue != nil {
+			formValues.Add(paramName, *defaultValue)
+		}
+
 		return formValues
 	}
 

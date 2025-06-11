@@ -2,23 +2,26 @@
 
 package sdk
 
+// Generated from OpenAPI doc version 1.0.0 and generator version 2.625.0
+
 import (
 	"context"
 	"fmt"
-	"github.com/epilot-dev/terraform-provider-epilot-dashboard/internal/sdk/internal/hooks"
-	"github.com/epilot-dev/terraform-provider-epilot-dashboard/internal/sdk/internal/utils"
-	"github.com/epilot-dev/terraform-provider-epilot-dashboard/internal/sdk/models/shared"
-	"github.com/epilot-dev/terraform-provider-epilot-dashboard/internal/sdk/retry"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/config"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/hooks"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/utils"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/shared"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/retry"
 	"net/http"
 	"time"
 )
 
 // ServerList contains the list of servers available to the SDK
 var ServerList = []string{
-	"https://dashboard.sls.epilot.io",
+	"https://permissions.sls.epilot.io",
 }
 
-// HTTPClient provides an interface for suplying the SDK with a custom HTTP client
+// HTTPClient provides an interface for supplying the SDK with a custom HTTP client
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
@@ -44,36 +47,16 @@ func Float64(f float64) *float64 { return &f }
 // Pointer provides a helper function to return a pointer to a type
 func Pointer[T any](v T) *T { return &v }
 
-type sdkConfiguration struct {
-	Client            HTTPClient
-	Security          func(context.Context) (interface{}, error)
-	ServerURL         string
-	ServerIndex       int
-	Language          string
-	OpenAPIDocVersion string
-	SDKVersion        string
-	GenVersion        string
-	UserAgent         string
-	RetryConfig       *retry.Config
-	Hooks             *hooks.Hooks
-	Timeout           *time.Duration
-}
-
-func (c *sdkConfiguration) GetServerDetails() (string, map[string]string) {
-	if c.ServerURL != "" {
-		return c.ServerURL, nil
-	}
-
-	return ServerList[c.ServerIndex], nil
-}
-
-// SDK - Dashboard API: API to store the dashboard configuration for the epilot 360 dashboard
+// SDK - Permissions API: Flexible Role-based Access Control for epilot
 type SDK struct {
-	Dashboards     *Dashboards
-	Examples       *Examples
-	Visualisations *Visualisations
+	SDKVersion string
+	// Assign roles to users
+	Assignments *Assignments
+	// Manage roles and grants
+	Roles *Roles
 
-	sdkConfiguration sdkConfiguration
+	sdkConfiguration config.SDKConfiguration
+	hooks            *hooks.Hooks
 }
 
 type SDKOption func(*SDK)
@@ -146,14 +129,12 @@ func WithTimeout(timeout time.Duration) SDKOption {
 // New creates a new instance of the SDK with the provided options
 func New(opts ...SDKOption) *SDK {
 	sdk := &SDK{
-		sdkConfiguration: sdkConfiguration{
-			Language:          "go",
-			OpenAPIDocVersion: "0.0.1",
-			SDKVersion:        "0.15.2",
-			GenVersion:        "2.497.0",
-			UserAgent:         "speakeasy-sdk/terraform 0.15.2 2.497.0 0.0.1 github.com/epilot-dev/terraform-provider-epilot-dashboard/internal/sdk",
-			Hooks:             hooks.New(),
+		SDKVersion: "0.16.1",
+		sdkConfiguration: config.SDKConfiguration{
+			UserAgent:  "speakeasy-sdk/terraform 0.16.1 2.625.0 1.0.0 github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk",
+			ServerList: ServerList,
 		},
+		hooks: hooks.New(),
 	}
 	for _, opt := range opts {
 		opt(sdk)
@@ -166,16 +147,13 @@ func New(opts ...SDKOption) *SDK {
 
 	currentServerURL, _ := sdk.sdkConfiguration.GetServerDetails()
 	serverURL := currentServerURL
-	serverURL, sdk.sdkConfiguration.Client = sdk.sdkConfiguration.Hooks.SDKInit(currentServerURL, sdk.sdkConfiguration.Client)
-	if serverURL != currentServerURL {
+	serverURL, sdk.sdkConfiguration.Client = sdk.hooks.SDKInit(currentServerURL, sdk.sdkConfiguration.Client)
+	if currentServerURL != serverURL {
 		sdk.sdkConfiguration.ServerURL = serverURL
 	}
 
-	sdk.Dashboards = newDashboards(sdk.sdkConfiguration)
-
-	sdk.Examples = newExamples(sdk.sdkConfiguration)
-
-	sdk.Visualisations = newVisualisations(sdk.sdkConfiguration)
+	sdk.Assignments = newAssignments(sdk, sdk.sdkConfiguration, sdk.hooks)
+	sdk.Roles = newRoles(sdk, sdk.sdkConfiguration, sdk.hooks)
 
 	return sdk
 }

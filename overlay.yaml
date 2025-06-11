@@ -1,6 +1,6 @@
 overlay: 1.0.0
 info:
-  title: Speakeasy overlay for epilot dashboard API
+  title: Speakeasy overlay for epilot role API
   version: 0.0.1
 actions:
   - target: $
@@ -16,22 +16,37 @@ actions:
           - 5XX
         retryConnectionErrors: true
 
-  # Dashboard
-  - target: $["paths"]["/v1/dashboard/dashboards"]["post"]
+  # Role
+  # - target: $["paths"]["/v1/dashboard/dashboards"]["post"]
+  #   update:
+  #     x-speakeasy-entity-operation: Dashboard#create
+  - target: $["paths"]["/v1/permissions/roles/{roleId}"]["get"]
     update:
-      x-speakeasy-entity-operation: Dashboard#create
-  - target: $["paths"]["/v1/dashboard/dashboards/{id}"]["get"]
+      x-speakeasy-entity-operation: Role#get
+
+  - target: $["paths"]["/v1/permissions/roles/{roleId}"]["put"]
     update:
-      x-speakeasy-entity-operation: Dashboard#get
-  - target: $["paths"]["/v1/dashboard/dashboards/{id}"]["put"]
+      x-speakeasy-entity-operation: Role#create,update
+
+  - target: $["paths"]["/v1/permissions/roles/{roleId}"]["delete"]
     update:
-      x-speakeasy-entity-operation: Dashboard#update
-  - target: $["paths"]["/v1/dashboard/dashboards/{id}"]["delete"]
+      x-speakeasy-entity-operation: Role#delete
+
+  - target: $["components"]["schemas"]["Role"]
     update:
-      x-speakeasy-entity-operation: Dashboard#delete
-  - target: $["components"]["schemas"]["Dashboard"]
+      x-speakeasy-entity: Role
+
+  - target: $["paths"]["/v1/permissions/roles/{roleId}"]["get"]["parameters"][0]
     update:
-      x-speakeasy-entity: Dashboard
+      x-speakeasy-match: id
+
+  - target: $["paths"]["/v1/permissions/roles/{roleId}"]["put"]["parameters"][0]
+    update:
+      x-speakeasy-match: id
+  - target: $["paths"]["/v1/permissions/roles/{roleId}"]["delete"]["parameters"][0]
+    update:
+      x-speakeasy-match: id
+
 
   # # overrides
   # - target: $["components"]["schemas"]["BaseSystemReadonlyFields"]
@@ -40,6 +55,6 @@ actions:
   # - target: $["components"]["schemas"]["BaseSystemFields"]
   #   update:
   #     x-speakeasy-param-suppress-computed-diff: true
-  - target: $["components"]["schemas"]["Dashboard"]["properties"]["tiles"]
-    update:
-      x-speakeasy-type-override: any
+  # - target: $["components"]["schemas"]["Dashboard"]["properties"]["tiles"]
+  #   update:
+  #     x-speakeasy-type-override: any

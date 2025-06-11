@@ -13,7 +13,7 @@ Terraform Provider for the *epilot-dashboard* API.
 <!-- Start Summary [summary] -->
 ## Summary
 
-Dashboard API: API to store the dashboard configuration for the epilot 360 dashboard
+Permissions API: Flexible Role-based Access Control for epilot
 <!-- End Summary [summary] -->
 
 <!-- Start Table of Contents [toc] -->
@@ -36,14 +36,14 @@ To install this provider, copy and paste this code into your Terraform configura
 ```hcl
 terraform {
   required_providers {
-    epilot-dashboard = {
-      source  = "epilot-dev/epilot-dashboard"
-      version = "0.15.2"
+    epilot-role = {
+      source  = "epilot-dev/epilot-role"
+      version = "0.16.1"
     }
   }
 }
 
-provider "epilot-dashboard" {
+provider "epilot-role" {
   # Configuration options
 }
 ```
@@ -54,10 +54,10 @@ provider "epilot-dashboard" {
 
 ### Resources
 
-* [epilot-dashboard_dashboard](docs/resources/dashboard.md)
+* [epilot-role_role](docs/resources/role.md)
 ### Data Sources
 
-* [epilot-dashboard_dashboard](docs/data-sources/dashboard.md)
+* [epilot-role_role](docs/data-sources/role.md)
 <!-- End Available Resources and Data Sources [operations] -->
 
 <!-- Start Testing the provider locally [usage] -->
@@ -82,7 +82,7 @@ TF_REATTACH_PROVIDERS=... terraform apply
 
 Terraform allows you to use local provider builds by setting a `dev_overrides` block in a configuration file called `.terraformrc`. This block overrides all other configured installation methods.
 
-1. Execute `go build` to construct a binary called `terraform-provider-epilot-dashboard`
+1. Execute `go build` to construct a binary called `terraform-provider-epilot-role`
 2. Ensure that the `.terraformrc` file is configured with a `dev_overrides` section such that your local copy of terraform can see the provider binary
 
 Terraform searches for the `.terraformrc` file in your home directory and applies any configuration settings you set.
@@ -91,7 +91,7 @@ Terraform searches for the `.terraformrc` file in your home directory and applie
 provider_installation {
 
   dev_overrides {
-      "registry.terraform.io/epilot-dev/epilot-dashboard" = "<PATH>"
+      "registry.terraform.io/epilot-dev/epilot-role" = "<PATH>"
   }
 
   # For all other providers, install them directly from their origin provider
