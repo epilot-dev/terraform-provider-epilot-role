@@ -9,7 +9,6 @@ Terraform Provider for the *epilot-dashboard* API.
     </a>
 </div>
 
-
 <!-- Start Summary [summary] -->
 ## Summary
 
@@ -38,7 +37,7 @@ terraform {
   required_providers {
     epilot-role = {
       source  = "epilot-dev/epilot-role"
-      version = "0.16.1"
+      version = "0.17.0"
     }
   }
 }

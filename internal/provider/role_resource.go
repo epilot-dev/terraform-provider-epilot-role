@@ -7,6 +7,7 @@ import (
 	"fmt"
 	tfTypes "github.com/epilot-dev/terraform-provider-epilot-role/internal/provider/types"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/operations"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/validators"
 	speakeasy_listvalidators "github.com/epilot-dev/terraform-provider-epilot-role/internal/validators/listvalidators"
 	speakeasy_objectvalidators "github.com/epilot-dev/terraform-provider-epilot-role/internal/validators/objectvalidators"
@@ -40,7 +41,7 @@ type RoleResourceModel struct {
 	ID             types.String     `tfsdk:"id"`
 	Name           types.String     `tfsdk:"name"`
 	OrganizationID types.String     `tfsdk:"organization_id"`
-	Schemas        *tfTypes.Schemas `queryParam:"inline" tfsdk:"schemas" tfPlanOnly:"true"`
+	Schemas        *tfTypes.Schemas `tfsdk:"schemas" tfPlanOnly:"true"`
 	Slug           types.String     `tfsdk:"slug"`
 }
 
@@ -201,7 +202,7 @@ func (r *RoleResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 											"effect": schema.StringAttribute{
 												Computed:    true,
 												Optional:    true,
-												Default:     stringdefault.StaticString(`allow`),
+												Default:     stringdefault.StaticString("allow"),
 												Description: `Default: "allow"; must be one of ["allow", "deny"]`,
 												Validators: []validator.String{
 													stringvalidator.OneOf(
@@ -221,7 +222,7 @@ func (r *RoleResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 								"effect": schema.StringAttribute{
 									Computed:    true,
 									Optional:    true,
-									Default:     stringdefault.StaticString(`allow`),
+									Default:     stringdefault.StaticString("allow"),
 									Description: `Default: "allow"; must be one of ["allow", "deny"]`,
 									Validators: []validator.String{
 										stringvalidator.OneOf(
@@ -294,7 +295,7 @@ func (r *RoleResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						},
 					},
 				},
-				Description: `A role that is applied to end customers and installers using the Portals`,
+				Description: `A standard user role. Must be explicitly assigned to users.`,
 			},
 			"slug": schema.StringAttribute{
 				Computed:    true,
@@ -342,13 +343,15 @@ func (r *RoleResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	request, requestDiags := data.ToOperationsPutRoleRequest(ctx)
-	resp.Diagnostics.Append(requestDiags...)
+	rolePayload := data.ToSharedRolePayload()
+	var roleID string
+	roleID = data.ID.ValueString()
 
-	if resp.Diagnostics.HasError() {
-		return
+	request := operations.PutRoleRequest{
+		RolePayload: rolePayload,
+		RoleID:      roleID,
 	}
-	res, err := r.client.Roles.PutRole(ctx, *request)
+	res, err := r.client.Roles.PutRole(ctx, request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res != nil && res.RawResponse != nil {
@@ -368,24 +371,15 @@ func (r *RoleResource) Create(ctx context.Context, req resource.CreateRequest, r
 		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res.RawResponse))
 		return
 	}
-	resp.Diagnostics.Append(data.RefreshFromSharedRole(ctx, res.Role)...)
+	data.RefreshFromSharedRole(res.Role)
+	refreshPlan(ctx, plan, &data, resp.Diagnostics)
+	var roleId1 string
+	roleId1 = data.ID.ValueString()
 
-	if resp.Diagnostics.HasError() {
-		return
+	request1 := operations.GetRoleRequest{
+		RoleID: roleId1,
 	}
-
-	resp.Diagnostics.Append(refreshPlan(ctx, plan, &data)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	request1, request1Diags := data.ToOperationsGetRoleRequest(ctx)
-	resp.Diagnostics.Append(request1Diags...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	res1, err := r.client.Roles.GetRole(ctx, *request1)
+	res1, err := r.client.Roles.GetRole(ctx, request1)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res1 != nil && res1.RawResponse != nil {
@@ -405,17 +399,8 @@ func (r *RoleResource) Create(ctx context.Context, req resource.CreateRequest, r
 		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res1.RawResponse))
 		return
 	}
-	resp.Diagnostics.Append(data.RefreshFromSharedRole(ctx, res1.Role)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	resp.Diagnostics.Append(refreshPlan(ctx, plan, &data)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	data.RefreshFromSharedRole(res1.Role)
+	refreshPlan(ctx, plan, &data, resp.Diagnostics)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -439,13 +424,13 @@ func (r *RoleResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	request, requestDiags := data.ToOperationsGetRoleRequest(ctx)
-	resp.Diagnostics.Append(requestDiags...)
+	var roleID string
+	roleID = data.ID.ValueString()
 
-	if resp.Diagnostics.HasError() {
-		return
+	request := operations.GetRoleRequest{
+		RoleID: roleID,
 	}
-	res, err := r.client.Roles.GetRole(ctx, *request)
+	res, err := r.client.Roles.GetRole(ctx, request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res != nil && res.RawResponse != nil {
@@ -469,11 +454,7 @@ func (r *RoleResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res.RawResponse))
 		return
 	}
-	resp.Diagnostics.Append(data.RefreshFromSharedRole(ctx, res.Role)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	data.RefreshFromSharedRole(res.Role)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -493,13 +474,15 @@ func (r *RoleResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	request, requestDiags := data.ToOperationsPutRoleRequest(ctx)
-	resp.Diagnostics.Append(requestDiags...)
+	rolePayload := data.ToSharedRolePayload()
+	var roleID string
+	roleID = data.ID.ValueString()
 
-	if resp.Diagnostics.HasError() {
-		return
+	request := operations.PutRoleRequest{
+		RolePayload: rolePayload,
+		RoleID:      roleID,
 	}
-	res, err := r.client.Roles.PutRole(ctx, *request)
+	res, err := r.client.Roles.PutRole(ctx, request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res != nil && res.RawResponse != nil {
@@ -519,24 +502,15 @@ func (r *RoleResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res.RawResponse))
 		return
 	}
-	resp.Diagnostics.Append(data.RefreshFromSharedRole(ctx, res.Role)...)
+	data.RefreshFromSharedRole(res.Role)
+	refreshPlan(ctx, plan, &data, resp.Diagnostics)
+	var roleId1 string
+	roleId1 = data.ID.ValueString()
 
-	if resp.Diagnostics.HasError() {
-		return
+	request1 := operations.GetRoleRequest{
+		RoleID: roleId1,
 	}
-
-	resp.Diagnostics.Append(refreshPlan(ctx, plan, &data)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	request1, request1Diags := data.ToOperationsGetRoleRequest(ctx)
-	resp.Diagnostics.Append(request1Diags...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	res1, err := r.client.Roles.GetRole(ctx, *request1)
+	res1, err := r.client.Roles.GetRole(ctx, request1)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res1 != nil && res1.RawResponse != nil {
@@ -556,17 +530,8 @@ func (r *RoleResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res1.RawResponse))
 		return
 	}
-	resp.Diagnostics.Append(data.RefreshFromSharedRole(ctx, res1.Role)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	resp.Diagnostics.Append(refreshPlan(ctx, plan, &data)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	data.RefreshFromSharedRole(res1.Role)
+	refreshPlan(ctx, plan, &data, resp.Diagnostics)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -590,13 +555,13 @@ func (r *RoleResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 		return
 	}
 
-	request, requestDiags := data.ToOperationsDeleteRoleRequest(ctx)
-	resp.Diagnostics.Append(requestDiags...)
+	var roleID string
+	roleID = data.ID.ValueString()
 
-	if resp.Diagnostics.HasError() {
-		return
+	request := operations.DeleteRoleRequest{
+		RoleID: roleID,
 	}
-	res, err := r.client.Roles.DeleteRole(ctx, *request)
+	res, err := r.client.Roles.DeleteRole(ctx, request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res != nil && res.RawResponse != nil {

@@ -68,7 +68,7 @@ resource "epilot-role_role" "my_role" {
 
 ### Optional
 
-- `schemas` (Attributes) A role that is applied to end customers and installers using the Portals (see [below for nested schema](#nestedatt--schemas))
+- `schemas` (Attributes) A standard user role. Must be explicitly assigned to users. (see [below for nested schema](#nestedatt--schemas))
 
 ### Read-Only
 

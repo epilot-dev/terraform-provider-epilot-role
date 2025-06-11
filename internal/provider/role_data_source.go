@@ -7,6 +7,7 @@ import (
 	"fmt"
 	tfTypes "github.com/epilot-dev/terraform-provider-epilot-role/internal/provider/types"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/operations"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -31,7 +32,7 @@ type RoleDataSourceModel struct {
 	ID             types.String      `tfsdk:"id"`
 	Name           types.String      `tfsdk:"name"`
 	OrganizationID types.String      `tfsdk:"organization_id"`
-	Schemas        *tfTypes.Schemas1 `queryParam:"inline" tfsdk:"schemas" tfPlanOnly:"true"`
+	Schemas        *tfTypes.Schemas1 `tfsdk:"schemas" tfPlanOnly:"true"`
 	Slug           types.String      `tfsdk:"slug"`
 }
 
@@ -132,7 +133,7 @@ func (r *RoleDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 						Computed: true,
 					},
 				},
-				Description: `A role that is applied to end customers and installers using the Portals`,
+				Description: `A standard user role. Must be explicitly assigned to users.`,
 			},
 			"slug": schema.StringAttribute{
 				Computed:    true,
@@ -180,13 +181,13 @@ func (r *RoleDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		return
 	}
 
-	request, requestDiags := data.ToOperationsGetRoleRequest(ctx)
-	resp.Diagnostics.Append(requestDiags...)
+	var roleID string
+	roleID = data.ID.ValueString()
 
-	if resp.Diagnostics.HasError() {
-		return
+	request := operations.GetRoleRequest{
+		RoleID: roleID,
 	}
-	res, err := r.client.Roles.GetRole(ctx, *request)
+	res, err := r.client.Roles.GetRole(ctx, request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res != nil && res.RawResponse != nil {
@@ -198,6 +199,10 @@ func (r *RoleDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		resp.Diagnostics.AddError("unexpected response from API", fmt.Sprintf("%v", res))
 		return
 	}
+	if res.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if res.StatusCode != 200 {
 		resp.Diagnostics.AddError(fmt.Sprintf("unexpected response from API. Got an unexpected response code %v", res.StatusCode), debugResponse(res.RawResponse))
 		return
@@ -206,11 +211,7 @@ func (r *RoleDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res.RawResponse))
 		return
 	}
-	resp.Diagnostics.Append(data.RefreshFromSharedRole(ctx, res.Role)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	data.RefreshFromSharedRole(res.Role)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

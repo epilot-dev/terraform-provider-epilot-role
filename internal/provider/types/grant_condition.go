@@ -3,5 +3,5 @@
 package types
 
 type GrantCondition struct {
-	EqualsCondition *EqualsCondition `queryParam:"inline" tfsdk:"equals_condition" tfPlanOnly:"true"`
+	EqualsCondition *EqualsCondition `tfsdk:"equals_condition" tfPlanOnly:"true"`
 }

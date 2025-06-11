@@ -3,20 +3,14 @@
 package provider
 
 import (
-	"context"
 	"encoding/json"
-	"github.com/epilot-dev/terraform-provider-epilot-role/internal/provider/typeconvert"
 	tfTypes "github.com/epilot-dev/terraform-provider-epilot-role/internal/provider/types"
-	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/operations"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/shared"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"time"
 )
 
-func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.RolePayload, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
+func (r *RoleResourceModel) ToSharedRolePayload() *shared.RolePayload {
 	var out shared.RolePayload
 	var userRoleSchemas1 *shared.UserRoleSchemas1
 	if r.Schemas != nil {
@@ -26,19 +20,19 @@ func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.Ro
 		} else {
 			expiresAt = nil
 		}
-		grants := make([]shared.GrantWithDependencies, 0, len(r.Schemas.Grants))
+		var grants []shared.GrantWithDependencies = []shared.GrantWithDependencies{}
 		for _, grantsItem := range r.Schemas.Grants {
 			var action string
 			action = grantsItem.Action.ValueString()
 
-			conditions := make([]shared.GrantCondition, 0, len(grantsItem.Conditions))
+			var conditions []shared.GrantCondition = []shared.GrantCondition{}
 			for _, conditionsItem := range grantsItem.Conditions {
 				if conditionsItem.EqualsCondition != nil {
 					var attribute string
 					attribute = conditionsItem.EqualsCondition.Attribute.ValueString()
 
 					operation := shared.Operation(conditionsItem.EqualsCondition.Operation.ValueString())
-					values := make([]interface{}, 0, len(conditionsItem.EqualsCondition.Values))
+					var values []interface{} = []interface{}{}
 					for _, valuesItem := range conditionsItem.EqualsCondition.Values {
 						var valuesTmp interface{}
 						_ = json.Unmarshal([]byte(valuesItem.ValueString()), &valuesTmp)
@@ -54,19 +48,19 @@ func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.Ro
 					})
 				}
 			}
-			dependencies := make([]shared.Grant, 0, len(grantsItem.Dependencies))
+			var dependencies []shared.Grant = []shared.Grant{}
 			for _, dependenciesItem := range grantsItem.Dependencies {
 				var action1 string
 				action1 = dependenciesItem.Action.ValueString()
 
-				conditions1 := make([]shared.GrantCondition, 0, len(dependenciesItem.Conditions))
+				var conditions1 []shared.GrantCondition = []shared.GrantCondition{}
 				for _, conditionsItem1 := range dependenciesItem.Conditions {
 					if conditionsItem1.EqualsCondition != nil {
 						var attribute1 string
 						attribute1 = conditionsItem1.EqualsCondition.Attribute.ValueString()
 
 						operation1 := shared.Operation(conditionsItem1.EqualsCondition.Operation.ValueString())
-						values1 := make([]interface{}, 0, len(conditionsItem1.EqualsCondition.Values))
+						var values1 []interface{} = []interface{}{}
 						for _, valuesItem1 := range conditionsItem1.EqualsCondition.Values {
 							var valuesTmp1 interface{}
 							_ = json.Unmarshal([]byte(valuesItem1.ValueString()), &valuesTmp1)
@@ -157,19 +151,19 @@ func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.Ro
 		} else {
 			expiresAt1 = nil
 		}
-		grants1 := make([]shared.GrantWithDependencies, 0, len(r.Schemas.Grants))
+		var grants1 []shared.GrantWithDependencies = []shared.GrantWithDependencies{}
 		for _, grantsItem1 := range r.Schemas.Grants {
 			var action2 string
 			action2 = grantsItem1.Action.ValueString()
 
-			conditions2 := make([]shared.GrantCondition, 0, len(grantsItem1.Conditions))
+			var conditions2 []shared.GrantCondition = []shared.GrantCondition{}
 			for _, conditionsItem2 := range grantsItem1.Conditions {
 				if conditionsItem2.EqualsCondition != nil {
 					var attribute2 string
 					attribute2 = conditionsItem2.EqualsCondition.Attribute.ValueString()
 
 					operation2 := shared.Operation(conditionsItem2.EqualsCondition.Operation.ValueString())
-					values2 := make([]interface{}, 0, len(conditionsItem2.EqualsCondition.Values))
+					var values2 []interface{} = []interface{}{}
 					for _, valuesItem2 := range conditionsItem2.EqualsCondition.Values {
 						var valuesTmp2 interface{}
 						_ = json.Unmarshal([]byte(valuesItem2.ValueString()), &valuesTmp2)
@@ -185,19 +179,19 @@ func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.Ro
 					})
 				}
 			}
-			dependencies1 := make([]shared.Grant, 0, len(grantsItem1.Dependencies))
+			var dependencies1 []shared.Grant = []shared.Grant{}
 			for _, dependenciesItem1 := range grantsItem1.Dependencies {
 				var action3 string
 				action3 = dependenciesItem1.Action.ValueString()
 
-				conditions3 := make([]shared.GrantCondition, 0, len(dependenciesItem1.Conditions))
+				var conditions3 []shared.GrantCondition = []shared.GrantCondition{}
 				for _, conditionsItem3 := range dependenciesItem1.Conditions {
 					if conditionsItem3.EqualsCondition != nil {
 						var attribute3 string
 						attribute3 = conditionsItem3.EqualsCondition.Attribute.ValueString()
 
 						operation3 := shared.Operation(conditionsItem3.EqualsCondition.Operation.ValueString())
-						values3 := make([]interface{}, 0, len(conditionsItem3.EqualsCondition.Values))
+						var values3 []interface{} = []interface{}{}
 						for _, valuesItem3 := range conditionsItem3.EqualsCondition.Values {
 							var valuesTmp3 interface{}
 							_ = json.Unmarshal([]byte(valuesItem3.ValueString()), &valuesTmp3)
@@ -295,19 +289,19 @@ func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.Ro
 		} else {
 			expiresAt2 = nil
 		}
-		grants2 := make([]shared.GrantWithDependencies, 0, len(r.Schemas.Grants))
+		var grants2 []shared.GrantWithDependencies = []shared.GrantWithDependencies{}
 		for _, grantsItem2 := range r.Schemas.Grants {
 			var action4 string
 			action4 = grantsItem2.Action.ValueString()
 
-			conditions4 := make([]shared.GrantCondition, 0, len(grantsItem2.Conditions))
+			var conditions4 []shared.GrantCondition = []shared.GrantCondition{}
 			for _, conditionsItem4 := range grantsItem2.Conditions {
 				if conditionsItem4.EqualsCondition != nil {
 					var attribute4 string
 					attribute4 = conditionsItem4.EqualsCondition.Attribute.ValueString()
 
 					operation4 := shared.Operation(conditionsItem4.EqualsCondition.Operation.ValueString())
-					values4 := make([]interface{}, 0, len(conditionsItem4.EqualsCondition.Values))
+					var values4 []interface{} = []interface{}{}
 					for _, valuesItem4 := range conditionsItem4.EqualsCondition.Values {
 						var valuesTmp4 interface{}
 						_ = json.Unmarshal([]byte(valuesItem4.ValueString()), &valuesTmp4)
@@ -323,19 +317,19 @@ func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.Ro
 					})
 				}
 			}
-			dependencies2 := make([]shared.Grant, 0, len(grantsItem2.Dependencies))
+			var dependencies2 []shared.Grant = []shared.Grant{}
 			for _, dependenciesItem2 := range grantsItem2.Dependencies {
 				var action5 string
 				action5 = dependenciesItem2.Action.ValueString()
 
-				conditions5 := make([]shared.GrantCondition, 0, len(dependenciesItem2.Conditions))
+				var conditions5 []shared.GrantCondition = []shared.GrantCondition{}
 				for _, conditionsItem5 := range dependenciesItem2.Conditions {
 					if conditionsItem5.EqualsCondition != nil {
 						var attribute5 string
 						attribute5 = conditionsItem5.EqualsCondition.Attribute.ValueString()
 
 						operation5 := shared.Operation(conditionsItem5.EqualsCondition.Operation.ValueString())
-						values5 := make([]interface{}, 0, len(conditionsItem5.EqualsCondition.Values))
+						var values5 []interface{} = []interface{}{}
 						for _, valuesItem5 := range conditionsItem5.EqualsCondition.Values {
 							var valuesTmp5 interface{}
 							_ = json.Unmarshal([]byte(valuesItem5.ValueString()), &valuesTmp5)
@@ -426,19 +420,19 @@ func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.Ro
 		} else {
 			expiresAt3 = nil
 		}
-		grants3 := make([]shared.GrantWithDependencies, 0, len(r.Schemas.Grants))
+		var grants3 []shared.GrantWithDependencies = []shared.GrantWithDependencies{}
 		for _, grantsItem3 := range r.Schemas.Grants {
 			var action6 string
 			action6 = grantsItem3.Action.ValueString()
 
-			conditions6 := make([]shared.GrantCondition, 0, len(grantsItem3.Conditions))
+			var conditions6 []shared.GrantCondition = []shared.GrantCondition{}
 			for _, conditionsItem6 := range grantsItem3.Conditions {
 				if conditionsItem6.EqualsCondition != nil {
 					var attribute6 string
 					attribute6 = conditionsItem6.EqualsCondition.Attribute.ValueString()
 
 					operation6 := shared.Operation(conditionsItem6.EqualsCondition.Operation.ValueString())
-					values6 := make([]interface{}, 0, len(conditionsItem6.EqualsCondition.Values))
+					var values6 []interface{} = []interface{}{}
 					for _, valuesItem6 := range conditionsItem6.EqualsCondition.Values {
 						var valuesTmp6 interface{}
 						_ = json.Unmarshal([]byte(valuesItem6.ValueString()), &valuesTmp6)
@@ -454,19 +448,19 @@ func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.Ro
 					})
 				}
 			}
-			dependencies3 := make([]shared.Grant, 0, len(grantsItem3.Dependencies))
+			var dependencies3 []shared.Grant = []shared.Grant{}
 			for _, dependenciesItem3 := range grantsItem3.Dependencies {
 				var action7 string
 				action7 = dependenciesItem3.Action.ValueString()
 
-				conditions7 := make([]shared.GrantCondition, 0, len(dependenciesItem3.Conditions))
+				var conditions7 []shared.GrantCondition = []shared.GrantCondition{}
 				for _, conditionsItem7 := range dependenciesItem3.Conditions {
 					if conditionsItem7.EqualsCondition != nil {
 						var attribute7 string
 						attribute7 = conditionsItem7.EqualsCondition.Attribute.ValueString()
 
 						operation7 := shared.Operation(conditionsItem7.EqualsCondition.Operation.ValueString())
-						values7 := make([]interface{}, 0, len(conditionsItem7.EqualsCondition.Values))
+						var values7 []interface{} = []interface{}{}
 						for _, valuesItem7 := range conditionsItem7.EqualsCondition.Values {
 							var valuesTmp7 interface{}
 							_ = json.Unmarshal([]byte(valuesItem7.ValueString()), &valuesTmp7)
@@ -564,19 +558,19 @@ func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.Ro
 		} else {
 			expiresAt4 = nil
 		}
-		grants4 := make([]shared.GrantWithDependencies, 0, len(r.Schemas.Grants))
+		var grants4 []shared.GrantWithDependencies = []shared.GrantWithDependencies{}
 		for _, grantsItem4 := range r.Schemas.Grants {
 			var action8 string
 			action8 = grantsItem4.Action.ValueString()
 
-			conditions8 := make([]shared.GrantCondition, 0, len(grantsItem4.Conditions))
+			var conditions8 []shared.GrantCondition = []shared.GrantCondition{}
 			for _, conditionsItem8 := range grantsItem4.Conditions {
 				if conditionsItem8.EqualsCondition != nil {
 					var attribute8 string
 					attribute8 = conditionsItem8.EqualsCondition.Attribute.ValueString()
 
 					operation8 := shared.Operation(conditionsItem8.EqualsCondition.Operation.ValueString())
-					values8 := make([]interface{}, 0, len(conditionsItem8.EqualsCondition.Values))
+					var values8 []interface{} = []interface{}{}
 					for _, valuesItem8 := range conditionsItem8.EqualsCondition.Values {
 						var valuesTmp8 interface{}
 						_ = json.Unmarshal([]byte(valuesItem8.ValueString()), &valuesTmp8)
@@ -592,19 +586,19 @@ func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.Ro
 					})
 				}
 			}
-			dependencies4 := make([]shared.Grant, 0, len(grantsItem4.Dependencies))
+			var dependencies4 []shared.Grant = []shared.Grant{}
 			for _, dependenciesItem4 := range grantsItem4.Dependencies {
 				var action9 string
 				action9 = dependenciesItem4.Action.ValueString()
 
-				conditions9 := make([]shared.GrantCondition, 0, len(dependenciesItem4.Conditions))
+				var conditions9 []shared.GrantCondition = []shared.GrantCondition{}
 				for _, conditionsItem9 := range dependenciesItem4.Conditions {
 					if conditionsItem9.EqualsCondition != nil {
 						var attribute9 string
 						attribute9 = conditionsItem9.EqualsCondition.Attribute.ValueString()
 
 						operation9 := shared.Operation(conditionsItem9.EqualsCondition.Operation.ValueString())
-						values9 := make([]interface{}, 0, len(conditionsItem9.EqualsCondition.Values))
+						var values9 []interface{} = []interface{}{}
 						for _, valuesItem9 := range conditionsItem9.EqualsCondition.Values {
 							var valuesTmp9 interface{}
 							_ = json.Unmarshal([]byte(valuesItem9.ValueString()), &valuesTmp9)
@@ -687,105 +681,59 @@ func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.Ro
 			PortalRoleSchemas1: portalRoleSchemas1,
 		}
 	}
-
-	return &out, diags
+	return &out
 }
 
-func (r *RoleResourceModel) ToOperationsPutRoleRequest(ctx context.Context) (*operations.PutRoleRequest, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	rolePayload, rolePayloadDiags := r.ToSharedRolePayload(ctx)
-	diags.Append(rolePayloadDiags...)
-
-	if diags.HasError() {
-		return nil, diags
-	}
-
-	var roleID string
-	roleID = r.ID.ValueString()
-
-	out := operations.PutRoleRequest{
-		RolePayload: rolePayload,
-		RoleID:      roleID,
-	}
-
-	return &out, diags
-}
-
-func (r *RoleResourceModel) ToOperationsGetRoleRequest(ctx context.Context) (*operations.GetRoleRequest, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	var roleID string
-	roleID = r.ID.ValueString()
-
-	out := operations.GetRoleRequest{
-		RoleID: roleID,
-	}
-
-	return &out, diags
-}
-
-func (r *RoleResourceModel) ToOperationsDeleteRoleRequest(ctx context.Context) (*operations.DeleteRoleRequest, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	var roleID string
-	roleID = r.ID.ValueString()
-
-	out := operations.DeleteRoleRequest{
-		RoleID: roleID,
-	}
-
-	return &out, diags
-}
-
-func (r *RoleResourceModel) RefreshFromSharedRole(ctx context.Context, resp *shared.Role) diag.Diagnostics {
-	var diags diag.Diagnostics
-
+func (r *RoleResourceModel) RefreshFromSharedRole(resp *shared.Role) {
 	if resp != nil {
 		if resp.UserRoleSchemas != nil {
 			r.Schemas = &tfTypes.Schemas{}
-			r.Schemas.ExpiresAt = types.StringPointerValue(typeconvert.TimePointerToStringPointer(resp.UserRoleSchemas.ExpiresAt))
+			if resp.UserRoleSchemas.ExpiresAt != nil {
+				r.Schemas.ExpiresAt = types.StringValue(resp.UserRoleSchemas.ExpiresAt.Format(time.RFC3339Nano))
+			} else {
+				r.Schemas.ExpiresAt = types.StringNull()
+			}
 			r.Schemas.Grants = []tfTypes.Grant{}
 			if len(r.Schemas.Grants) > len(resp.UserRoleSchemas.Grants) {
 				r.Schemas.Grants = r.Schemas.Grants[:len(resp.UserRoleSchemas.Grants)]
 			}
 			for grantsCount, grantsItem := range resp.UserRoleSchemas.Grants {
-				var grants tfTypes.Grant
-				grants.Action = types.StringValue(grantsItem.Action)
-				grants.Conditions = []tfTypes.GrantCondition{}
+				var grants1 tfTypes.Grant
+				grants1.Action = types.StringValue(grantsItem.Action)
+				grants1.Conditions = []tfTypes.GrantCondition{}
 				for conditionsCount, conditionsItem := range grantsItem.Conditions {
-					var conditions tfTypes.GrantCondition
+					var conditions1 tfTypes.GrantCondition
 					if conditionsItem.EqualsCondition != nil {
-						conditions.EqualsCondition = &tfTypes.EqualsCondition{}
-						conditions.EqualsCondition.Attribute = types.StringValue(conditionsItem.EqualsCondition.Attribute)
-						conditions.EqualsCondition.Operation = types.StringValue(string(conditionsItem.EqualsCondition.Operation))
-						conditions.EqualsCondition.Values = nil
+						conditions1.EqualsCondition = &tfTypes.EqualsCondition{}
+						conditions1.EqualsCondition.Attribute = types.StringValue(conditionsItem.EqualsCondition.Attribute)
+						conditions1.EqualsCondition.Operation = types.StringValue(string(conditionsItem.EqualsCondition.Operation))
+						conditions1.EqualsCondition.Values = nil
 						for _, valuesItem := range conditionsItem.EqualsCondition.Values {
-							var values types.String
-							valuesResult, _ := json.Marshal(valuesItem)
-							values = types.StringValue(string(valuesResult))
-							conditions.EqualsCondition.Values = append(conditions.EqualsCondition.Values, values)
+							var values1 types.String
+							values1Result, _ := json.Marshal(valuesItem)
+							values1 = types.StringValue(string(values1Result))
+							conditions1.EqualsCondition.Values = append(conditions1.EqualsCondition.Values, values1)
 						}
 					}
-					if conditionsCount+1 > len(grants.Conditions) {
-						grants.Conditions = append(grants.Conditions, conditions)
+					if conditionsCount+1 > len(grants1.Conditions) {
+						grants1.Conditions = append(grants1.Conditions, conditions1)
 					} else {
-						grants.Conditions[conditionsCount].EqualsCondition = conditions.EqualsCondition
+						grants1.Conditions[conditionsCount].EqualsCondition = conditions1.EqualsCondition
 					}
 				}
 				if grantsItem.Effect != nil {
-					grants.Effect = types.StringValue(string(*grantsItem.Effect))
+					grants1.Effect = types.StringValue(string(*grantsItem.Effect))
 				} else {
-					grants.Effect = types.StringNull()
+					grants1.Effect = types.StringNull()
 				}
-				grants.Resource = types.StringPointerValue(grantsItem.Resource)
+				grants1.Resource = types.StringPointerValue(grantsItem.Resource)
 				if grantsCount+1 > len(r.Schemas.Grants) {
-					r.Schemas.Grants = append(r.Schemas.Grants, grants)
+					r.Schemas.Grants = append(r.Schemas.Grants, grants1)
 				} else {
-					r.Schemas.Grants[grantsCount].Action = grants.Action
-					r.Schemas.Grants[grantsCount].Conditions = grants.Conditions
-					r.Schemas.Grants[grantsCount].Effect = grants.Effect
-					r.Schemas.Grants[grantsCount].Resource = grants.Resource
+					r.Schemas.Grants[grantsCount].Action = grants1.Action
+					r.Schemas.Grants[grantsCount].Conditions = grants1.Conditions
+					r.Schemas.Grants[grantsCount].Effect = grants1.Effect
+					r.Schemas.Grants[grantsCount].Resource = grants1.Resource
 				}
 			}
 			r.Schemas.ID = types.StringValue(resp.UserRoleSchemas.ID)
@@ -799,6 +747,4 @@ func (r *RoleResourceModel) RefreshFromSharedRole(ctx context.Context, resp *sha
 			r.Schemas.Type = types.StringValue(string(resp.UserRoleSchemas.Type))
 		}
 	}
-
-	return diags
 }

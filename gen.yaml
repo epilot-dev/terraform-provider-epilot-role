@@ -5,9 +5,10 @@ generation:
     optionalPropertyRendering: withExample
     sdkInitStyle: constructor
   fixes:
-    nameResolutionFeb2025: false
+    nameResolutionDec2023: false
     parameterOrderingFeb2024: false
     requestResponseComponentNamesFeb2024: false
+    nameResolutionFeb2025: false
     securityFeb2025: false
     sharedErrorComponentsApr2025: false
   auth:
@@ -31,7 +32,7 @@ go:
   outputModelSuffix: output
   packageName: openapi
 terraform:
-  version: 0.16.1
+  version: 0.17.0
   additionalDataSources: []
   additionalDependencies: {}
   additionalEphemeralResources: []

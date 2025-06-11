@@ -7,7 +7,6 @@ import (
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/shared"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,8 +14,7 @@ import (
 	"net/http"
 )
 
-var _ provider.Provider = (*EpilotRoleProvider)(nil)
-var _ provider.ProviderWithEphemeralResources = (*EpilotRoleProvider)(nil)
+var _ provider.Provider = &EpilotRoleProvider{}
 
 type EpilotRoleProvider struct {
 	// version is set to the provider version on release, "dev" when the
@@ -27,9 +25,9 @@ type EpilotRoleProvider struct {
 
 // EpilotRoleProviderModel describes the provider data model.
 type EpilotRoleProviderModel struct {
+	ServerURL  types.String `tfsdk:"server_url"`
 	EpilotAuth types.String `tfsdk:"epilot_auth"`
 	EpilotOrg  types.String `tfsdk:"epilot_org"`
-	ServerURL  types.String `tfsdk:"server_url"`
 }
 
 func (p *EpilotRoleProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -39,21 +37,22 @@ func (p *EpilotRoleProvider) Metadata(ctx context.Context, req provider.Metadata
 
 func (p *EpilotRoleProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: `Permissions API: Flexible Role-based Access Control for epilot`,
 		Attributes: map[string]schema.Attribute{
+			"server_url": schema.StringAttribute{
+				MarkdownDescription: "Server URL (defaults to https://permissions.sls.epilot.io)",
+				Optional:            true,
+				Required:            false,
+			},
 			"epilot_auth": schema.StringAttribute{
-				Optional:  true,
 				Sensitive: true,
+				Optional:  true,
 			},
 			"epilot_org": schema.StringAttribute{
-				Optional:  true,
 				Sensitive: true,
-			},
-			"server_url": schema.StringAttribute{
-				Description: `Server URL (defaults to https://permissions.sls.epilot.io)`,
-				Optional:    true,
+				Optional:  true,
 			},
 		},
-		MarkdownDescription: `Permissions API: Flexible Role-based Access Control for epilot`,
 	}
 }
 
@@ -72,23 +71,25 @@ func (p *EpilotRoleProvider) Configure(ctx context.Context, req provider.Configu
 		ServerURL = "https://permissions.sls.epilot.io"
 	}
 
-	security := shared.Security{}
-
-	if !data.EpilotAuth.IsUnknown() {
-		security.EpilotAuth = data.EpilotAuth.ValueStringPointer()
+	epilotAuth := new(string)
+	if !data.EpilotAuth.IsUnknown() && !data.EpilotAuth.IsNull() {
+		*epilotAuth = data.EpilotAuth.ValueString()
+	} else {
+		epilotAuth = nil
 	}
-
-	if !data.EpilotOrg.IsUnknown() {
-		security.EpilotOrg = data.EpilotOrg.ValueStringPointer()
+	epilotOrg := new(string)
+	if !data.EpilotOrg.IsUnknown() && !data.EpilotOrg.IsNull() {
+		*epilotOrg = data.EpilotOrg.ValueString()
+	} else {
+		epilotOrg = nil
 	}
-
-	providerHTTPTransportOpts := ProviderHTTPTransportOpts{
-		SetHeaders: make(map[string]string),
-		Transport:  http.DefaultTransport,
+	security := shared.Security{
+		EpilotAuth: epilotAuth,
+		EpilotOrg:  epilotOrg,
 	}
 
 	httpClient := http.DefaultClient
-	httpClient.Transport = NewProviderHTTPTransport(providerHTTPTransportOpts)
+	httpClient.Transport = NewLoggingHTTPTransport(http.DefaultTransport)
 
 	opts := []sdk.SDKOption{
 		sdk.WithServerURL(ServerURL),
@@ -98,7 +99,6 @@ func (p *EpilotRoleProvider) Configure(ctx context.Context, req provider.Configu
 	client := sdk.New(opts...)
 
 	resp.DataSourceData = client
-	resp.EphemeralResourceData = client
 	resp.ResourceData = client
 }
 
@@ -112,10 +112,6 @@ func (p *EpilotRoleProvider) DataSources(ctx context.Context) []func() datasourc
 	return []func() datasource.DataSource{
 		NewRoleDataSource,
 	}
-}
-
-func (p *EpilotRoleProvider) EphemeralResources(ctx context.Context) []func() ephemeral.EphemeralResource {
-	return []func() ephemeral.EphemeralResource{}
 }
 
 func New(version string) func() provider.Provider {
