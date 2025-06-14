@@ -9,20 +9,20 @@ import (
 	"time"
 )
 
-type RoleType string
+type RolePayloadType string
 
 const (
-	RoleTypeUserRole    RoleType = "user_role"
-	RoleTypeOrgRole     RoleType = "org_role"
-	RoleTypeShareRole   RoleType = "share_role"
-	RoleTypePartnerRole RoleType = "partner_role"
-	RoleTypePortalRole  RoleType = "portal_role"
+	RolePayloadTypeUserRole    RolePayloadType = "user_role"
+	RolePayloadTypeOrgRole     RolePayloadType = "org_role"
+	RolePayloadTypeShareRole   RolePayloadType = "share_role"
+	RolePayloadTypePartnerRole RolePayloadType = "partner_role"
+	RolePayloadTypePortalRole  RolePayloadType = "portal_role"
 )
 
-func (e RoleType) ToPointer() *RoleType {
+func (e RolePayloadType) ToPointer() *RolePayloadType {
 	return &e
 }
-func (e *RoleType) UnmarshalJSON(data []byte) error {
+func (e *RolePayloadType) UnmarshalJSON(data []byte) error {
 	var v string
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
@@ -37,19 +37,18 @@ func (e *RoleType) UnmarshalJSON(data []byte) error {
 	case "partner_role":
 		fallthrough
 	case "portal_role":
-		*e = RoleType(v)
+		*e = RolePayloadType(v)
 		return nil
 	default:
-		return fmt.Errorf("invalid value for RoleType: %v", v)
+		return fmt.Errorf("invalid value for RolePayloadType: %v", v)
 	}
 }
 
-// Role - Represents any type of role that a user or partner might have.
-type Role struct {
+// RolePayload - A payload to create or update a role with attached grants.
+type RolePayload struct {
 	// date and time then the role will expire
-	ExpiresAt *time.Time `json:"expires_at,omitempty"`
-	// List of grants (permissions) applied to the role
-	Grants []Grant `json:"grants"`
+	ExpiresAt *time.Time              `json:"expires_at,omitempty"`
+	Grants    []GrantWithDependencies `json:"grants"`
 	// Format: <organization_id>:<slug>
 	ID string `json:"id"`
 	// Human-friendly name for the role
@@ -60,80 +59,80 @@ type Role struct {
 	// The pricing tier of the organization this root role is based on
 	PricingTier *string `json:"pricing_tier,omitempty"`
 	// URL-friendly name for the role
-	Slug string   `json:"slug"`
-	Type RoleType `json:"type"`
+	Slug string          `json:"slug"`
+	Type RolePayloadType `json:"type"`
 }
 
-func (r Role) MarshalJSON() ([]byte, error) {
+func (r RolePayload) MarshalJSON() ([]byte, error) {
 	return utils.MarshalJSON(r, "", false)
 }
 
-func (r *Role) UnmarshalJSON(data []byte) error {
+func (r *RolePayload) UnmarshalJSON(data []byte) error {
 	if err := utils.UnmarshalJSON(data, &r, "", false, false); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *Role) GetExpiresAt() *time.Time {
+func (o *RolePayload) GetExpiresAt() *time.Time {
 	if o == nil {
 		return nil
 	}
 	return o.ExpiresAt
 }
 
-func (o *Role) GetGrants() []Grant {
+func (o *RolePayload) GetGrants() []GrantWithDependencies {
 	if o == nil {
-		return []Grant{}
+		return []GrantWithDependencies{}
 	}
 	return o.Grants
 }
 
-func (o *Role) GetID() string {
+func (o *RolePayload) GetID() string {
 	if o == nil {
 		return ""
 	}
 	return o.ID
 }
 
-func (o *Role) GetName() string {
+func (o *RolePayload) GetName() string {
 	if o == nil {
 		return ""
 	}
 	return o.Name
 }
 
-func (o *Role) GetOrganizationID() string {
+func (o *RolePayload) GetOrganizationID() string {
 	if o == nil {
 		return ""
 	}
 	return o.OrganizationID
 }
 
-func (o *Role) GetPartnerOrgID() *string {
+func (o *RolePayload) GetPartnerOrgID() *string {
 	if o == nil {
 		return nil
 	}
 	return o.PartnerOrgID
 }
 
-func (o *Role) GetPricingTier() *string {
+func (o *RolePayload) GetPricingTier() *string {
 	if o == nil {
 		return nil
 	}
 	return o.PricingTier
 }
 
-func (o *Role) GetSlug() string {
+func (o *RolePayload) GetSlug() string {
 	if o == nil {
 		return ""
 	}
 	return o.Slug
 }
 
-func (o *Role) GetType() RoleType {
+func (o *RolePayload) GetType() RolePayloadType {
 	if o == nil {
-		return RoleType("")
+		return RolePayloadType("")
 	}
 	return o.Type
 }

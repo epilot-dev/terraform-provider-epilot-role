@@ -38,7 +38,7 @@ type GrantWithDependencies struct {
 	Action     string           `json:"action"`
 	Conditions []GrantCondition `json:"conditions,omitempty"`
 	// Provided additional dependencies, exploded when storing the role
-	Dependencies []Grant                      `json:"dependencies,omitempty"`
+	Dependencies any                          `json:"dependencies,omitempty"`
 	Effect       *GrantWithDependenciesEffect `default:"allow" json:"effect"`
 	Resource     *string                      `json:"resource,omitempty"`
 }
@@ -68,7 +68,7 @@ func (o *GrantWithDependencies) GetConditions() []GrantCondition {
 	return o.Conditions
 }
 
-func (o *GrantWithDependencies) GetDependencies() []Grant {
+func (o *GrantWithDependencies) GetDependencies() any {
 	if o == nil {
 		return nil
 	}

@@ -2,7 +2,7 @@ terraform {
   required_providers {
     epilot-role = {
       source  = "epilot-dev/epilot-role"
-      version = "0.17.0"
+      version = "0.20.8"
     }
   }
 }

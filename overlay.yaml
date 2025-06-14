@@ -18,16 +18,17 @@ actions:
         retryConnectionErrors: true
 
   # Role
-  # - target: $["paths"]["/v1/dashboard/dashboards"]["post"]
-  #   update:
-  #     x-speakeasy-entity-operation: Dashboard#create
+  - target: $["paths"]["/v1/permissions/roles"]["post"]
+    update:
+      x-speakeasy-entity-operation: Role#create
+
   - target: $["paths"]["/v1/permissions/roles/{roleId}"]["get"]
     update:
       x-speakeasy-entity-operation: Role#get
 
   - target: $["paths"]["/v1/permissions/roles/{roleId}"]["put"]
     update:
-      x-speakeasy-entity-operation: Role#create,update
+      x-speakeasy-entity-operation: Role#update
 
   - target: $["paths"]["/v1/permissions/roles/{roleId}"]["delete"]
     update:
@@ -48,14 +49,6 @@ actions:
     update:
       x-speakeasy-match: id
 
-
-  # # overrides
-  # - target: $["components"]["schemas"]["BaseSystemReadonlyFields"]
-  #   update:
-  #     x-speakeasy-param-suppress-computed-diff: true
-  # - target: $["components"]["schemas"]["BaseSystemFields"]
-  #   update:
-  #     x-speakeasy-param-suppress-computed-diff: true
-  - target: $["components"]["schemas"]["RolePayload"]["allOf"][0]["properties"]
+  - target: $["components"]["schemas"]["GrantWithDependencies"]["allOf"][1]["properties"]["dependencies"]
     update:
       x-speakeasy-type-override: any

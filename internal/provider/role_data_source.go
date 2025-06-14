@@ -29,11 +29,15 @@ type RoleDataSource struct {
 
 // RoleDataSourceModel describes the data model.
 type RoleDataSourceModel struct {
-	ID             types.String      `tfsdk:"id"`
-	Name           types.String      `tfsdk:"name"`
-	OrganizationID types.String      `tfsdk:"organization_id"`
-	Schemas        *tfTypes.Schemas1 `tfsdk:"schemas" tfPlanOnly:"true"`
-	Slug           types.String      `tfsdk:"slug"`
+	ExpiresAt      types.String     `tfsdk:"expires_at"`
+	Grants         []tfTypes.Grant1 `tfsdk:"grants"`
+	ID             types.String     `tfsdk:"id"`
+	Name           types.String     `tfsdk:"name"`
+	OrganizationID types.String     `tfsdk:"organization_id"`
+	PartnerOrgID   types.String     `tfsdk:"partner_org_id"`
+	PricingTier    types.String     `tfsdk:"pricing_tier"`
+	Slug           types.String     `tfsdk:"slug"`
+	Type           types.String     `tfsdk:"type"`
 }
 
 // Metadata returns the data source type name.
@@ -47,6 +51,50 @@ func (r *RoleDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 		MarkdownDescription: "Role DataSource",
 
 		Attributes: map[string]schema.Attribute{
+			"expires_at": schema.StringAttribute{
+				Computed:    true,
+				Description: `date and time then the role will expire`,
+			},
+			"grants": schema.ListNestedAttribute{
+				Computed: true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"action": schema.StringAttribute{
+							Computed: true,
+						},
+						"conditions": schema.ListNestedAttribute{
+							Computed: true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"equals_condition": schema.SingleNestedAttribute{
+										Computed: true,
+										Attributes: map[string]schema.Attribute{
+											"attribute": schema.StringAttribute{
+												Computed: true,
+											},
+											"operation": schema.StringAttribute{
+												Computed: true,
+											},
+											"values": schema.ListAttribute{
+												Computed:    true,
+												ElementType: types.StringType,
+											},
+										},
+										Description: `Check if attribute equals to any of the values`,
+									},
+								},
+							},
+						},
+						"effect": schema.StringAttribute{
+							Computed: true,
+						},
+						"resource": schema.StringAttribute{
+							Computed: true,
+						},
+					},
+				},
+				Description: `List of grants (permissions) applied to the role`,
+			},
 			"id": schema.StringAttribute{
 				Computed:    true,
 				Description: `Format: <organization_id>:<slug>`,
@@ -59,85 +107,19 @@ func (r *RoleDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 				Computed:    true,
 				Description: `Id of an organization`,
 			},
-			"schemas": schema.SingleNestedAttribute{
+			"partner_org_id": schema.StringAttribute{
 				Computed: true,
-				Attributes: map[string]schema.Attribute{
-					"expires_at": schema.StringAttribute{
-						Computed:    true,
-						Description: `date and time then the role will expire`,
-					},
-					"grants": schema.ListNestedAttribute{
-						Computed: true,
-						NestedObject: schema.NestedAttributeObject{
-							Attributes: map[string]schema.Attribute{
-								"action": schema.StringAttribute{
-									Computed: true,
-								},
-								"conditions": schema.ListNestedAttribute{
-									Computed: true,
-									NestedObject: schema.NestedAttributeObject{
-										Attributes: map[string]schema.Attribute{
-											"equals_condition": schema.SingleNestedAttribute{
-												Computed: true,
-												Attributes: map[string]schema.Attribute{
-													"attribute": schema.StringAttribute{
-														Computed: true,
-													},
-													"operation": schema.StringAttribute{
-														Computed: true,
-													},
-													"values": schema.ListAttribute{
-														Computed:    true,
-														ElementType: types.StringType,
-													},
-												},
-												Description: `Check if attribute equals to any of the values`,
-											},
-										},
-									},
-								},
-								"effect": schema.StringAttribute{
-									Computed: true,
-								},
-								"resource": schema.StringAttribute{
-									Computed: true,
-								},
-							},
-						},
-						Description: `List of grants (permissions) applied to the role`,
-					},
-					"id": schema.StringAttribute{
-						Computed:    true,
-						Description: `Format: <organization_id>:<slug>`,
-					},
-					"name": schema.StringAttribute{
-						Computed:    true,
-						Description: `Human-friendly name for the role`,
-					},
-					"organization_id": schema.StringAttribute{
-						Computed:    true,
-						Description: `Id of an organization`,
-					},
-					"partner_org_id": schema.StringAttribute{
-						Computed: true,
-					},
-					"pricing_tier": schema.StringAttribute{
-						Computed:    true,
-						Description: `The pricing tier of the organization this root role is based on`,
-					},
-					"slug": schema.StringAttribute{
-						Computed:    true,
-						Description: `URL-friendly name for the role`,
-					},
-					"type": schema.StringAttribute{
-						Computed: true,
-					},
-				},
-				Description: `A standard user role. Must be explicitly assigned to users.`,
+			},
+			"pricing_tier": schema.StringAttribute{
+				Computed:    true,
+				Description: `The pricing tier of the organization this root role is based on`,
 			},
 			"slug": schema.StringAttribute{
 				Computed:    true,
 				Description: `URL-friendly name for the role`,
+			},
+			"type": schema.StringAttribute{
+				Computed: true,
 			},
 		},
 	}

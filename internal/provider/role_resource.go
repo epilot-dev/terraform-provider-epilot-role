@@ -38,11 +38,15 @@ type RoleResource struct {
 
 // RoleResourceModel describes the resource data model.
 type RoleResourceModel struct {
-	ID             types.String     `tfsdk:"id"`
-	Name           types.String     `tfsdk:"name"`
-	OrganizationID types.String     `tfsdk:"organization_id"`
-	Schemas        *tfTypes.Schemas `tfsdk:"schemas" tfPlanOnly:"true"`
-	Slug           types.String     `tfsdk:"slug"`
+	ExpiresAt      types.String    `tfsdk:"expires_at"`
+	Grants         []tfTypes.Grant `tfsdk:"grants"`
+	ID             types.String    `tfsdk:"id"`
+	Name           types.String    `tfsdk:"name"`
+	OrganizationID types.String    `tfsdk:"organization_id"`
+	PartnerOrgID   types.String    `tfsdk:"partner_org_id"`
+	PricingTier    types.String    `tfsdk:"pricing_tier"`
+	Slug           types.String    `tfsdk:"slug"`
+	Type           types.String    `tfsdk:"type"`
 }
 
 func (r *RoleResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -53,100 +57,42 @@ func (r *RoleResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Role Resource",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+			"expires_at": schema.StringAttribute{
 				Computed:    true,
-				Description: `Format: <organization_id>:<slug>`,
+				Optional:    true,
+				Description: `date and time then the role will expire`,
+				Validators: []validator.String{
+					validators.IsRFC3339(),
+				},
 			},
-			"name": schema.StringAttribute{
-				Computed:    true,
-				Description: `Human-friendly name for the role`,
-			},
-			"organization_id": schema.StringAttribute{
-				Computed:    true,
-				Description: `Id of an organization`,
-			},
-			"schemas": schema.SingleNestedAttribute{
-				Computed: true,
-				Optional: true,
-				Attributes: map[string]schema.Attribute{
-					"expires_at": schema.StringAttribute{
-						Computed:    true,
-						Optional:    true,
-						Description: `date and time then the role will expire`,
-						Validators: []validator.String{
-							validators.IsRFC3339(),
-						},
+			"grants": schema.ListNestedAttribute{
+				Required: true,
+				NestedObject: schema.NestedAttributeObject{
+					Validators: []validator.Object{
+						speakeasy_objectvalidators.NotNull(),
 					},
-					"grants": schema.ListNestedAttribute{
-						Computed: true,
-						Optional: true,
-						NestedObject: schema.NestedAttributeObject{
-							Validators: []validator.Object{
-								speakeasy_objectvalidators.NotNull(),
+					Attributes: map[string]schema.Attribute{
+						"action": schema.StringAttribute{
+							Computed:    true,
+							Optional:    true,
+							Description: `Not Null`,
+							Validators: []validator.String{
+								speakeasy_stringvalidators.NotNull(),
 							},
-							Attributes: map[string]schema.Attribute{
-								"action": schema.StringAttribute{
-									Computed:    true,
-									Optional:    true,
-									Description: `Not Null`,
-									Validators: []validator.String{
-										speakeasy_stringvalidators.NotNull(),
-									},
+						},
+						"conditions": schema.ListNestedAttribute{
+							Computed: true,
+							Optional: true,
+							NestedObject: schema.NestedAttributeObject{
+								Validators: []validator.Object{
+									speakeasy_objectvalidators.NotNull(),
 								},
-								"conditions": schema.ListNestedAttribute{
-									Computed: true,
-									Optional: true,
-									NestedObject: schema.NestedAttributeObject{
-										Validators: []validator.Object{
-											speakeasy_objectvalidators.NotNull(),
-										},
+								Attributes: map[string]schema.Attribute{
+									"equals_condition": schema.SingleNestedAttribute{
+										Computed: true,
+										Optional: true,
 										Attributes: map[string]schema.Attribute{
-											"equals_condition": schema.SingleNestedAttribute{
-												Computed: true,
-												Optional: true,
-												Attributes: map[string]schema.Attribute{
-													"attribute": schema.StringAttribute{
-														Computed:    true,
-														Optional:    true,
-														Description: `Not Null`,
-														Validators: []validator.String{
-															speakeasy_stringvalidators.NotNull(),
-														},
-													},
-													"operation": schema.StringAttribute{
-														Computed:    true,
-														Optional:    true,
-														Description: `Not Null; must be "equals"`,
-														Validators: []validator.String{
-															speakeasy_stringvalidators.NotNull(),
-															stringvalidator.OneOf("equals"),
-														},
-													},
-													"values": schema.ListAttribute{
-														Computed:    true,
-														Optional:    true,
-														ElementType: types.StringType,
-														Description: `Not Null`,
-														Validators: []validator.List{
-															speakeasy_listvalidators.NotNull(),
-															listvalidator.ValueStringsAre(validators.IsValidJSON()),
-														},
-													},
-												},
-												Description: `Check if attribute equals to any of the values`,
-											},
-										},
-									},
-								},
-								"dependencies": schema.ListNestedAttribute{
-									Computed: true,
-									Optional: true,
-									NestedObject: schema.NestedAttributeObject{
-										Validators: []validator.Object{
-											speakeasy_objectvalidators.NotNull(),
-										},
-										Attributes: map[string]schema.Attribute{
-											"action": schema.StringAttribute{
+											"attribute": schema.StringAttribute{
 												Computed:    true,
 												Optional:    true,
 												Description: `Not Null`,
@@ -154,152 +100,97 @@ func (r *RoleResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 													speakeasy_stringvalidators.NotNull(),
 												},
 											},
-											"conditions": schema.ListNestedAttribute{
-												Computed: true,
-												Optional: true,
-												NestedObject: schema.NestedAttributeObject{
-													Validators: []validator.Object{
-														speakeasy_objectvalidators.NotNull(),
-													},
-													Attributes: map[string]schema.Attribute{
-														"equals_condition": schema.SingleNestedAttribute{
-															Computed: true,
-															Optional: true,
-															Attributes: map[string]schema.Attribute{
-																"attribute": schema.StringAttribute{
-																	Computed:    true,
-																	Optional:    true,
-																	Description: `Not Null`,
-																	Validators: []validator.String{
-																		speakeasy_stringvalidators.NotNull(),
-																	},
-																},
-																"operation": schema.StringAttribute{
-																	Computed:    true,
-																	Optional:    true,
-																	Description: `Not Null; must be "equals"`,
-																	Validators: []validator.String{
-																		speakeasy_stringvalidators.NotNull(),
-																		stringvalidator.OneOf("equals"),
-																	},
-																},
-																"values": schema.ListAttribute{
-																	Computed:    true,
-																	Optional:    true,
-																	ElementType: types.StringType,
-																	Description: `Not Null`,
-																	Validators: []validator.List{
-																		speakeasy_listvalidators.NotNull(),
-																		listvalidator.ValueStringsAre(validators.IsValidJSON()),
-																	},
-																},
-															},
-															Description: `Check if attribute equals to any of the values`,
-														},
-													},
-												},
-											},
-											"effect": schema.StringAttribute{
+											"operation": schema.StringAttribute{
 												Computed:    true,
 												Optional:    true,
-												Default:     stringdefault.StaticString("allow"),
-												Description: `Default: "allow"; must be one of ["allow", "deny"]`,
+												Description: `Not Null; must be "equals"`,
 												Validators: []validator.String{
-													stringvalidator.OneOf(
-														"allow",
-														"deny",
-													),
+													speakeasy_stringvalidators.NotNull(),
+													stringvalidator.OneOf("equals"),
 												},
 											},
-											"resource": schema.StringAttribute{
-												Computed: true,
-												Optional: true,
+											"values": schema.ListAttribute{
+												Computed:    true,
+												Optional:    true,
+												ElementType: types.StringType,
+												Description: `Not Null`,
+												Validators: []validator.List{
+													speakeasy_listvalidators.NotNull(),
+													listvalidator.ValueStringsAre(validators.IsValidJSON()),
+												},
 											},
 										},
+										Description: `Check if attribute equals to any of the values`,
 									},
-									Description: `Provided additional dependencies, exploded when storing the role`,
-								},
-								"effect": schema.StringAttribute{
-									Computed:    true,
-									Optional:    true,
-									Default:     stringdefault.StaticString("allow"),
-									Description: `Default: "allow"; must be one of ["allow", "deny"]`,
-									Validators: []validator.String{
-										stringvalidator.OneOf(
-											"allow",
-											"deny",
-										),
-									},
-								},
-								"resource": schema.StringAttribute{
-									Computed: true,
-									Optional: true,
 								},
 							},
 						},
-						Description: `Not Null`,
-						Validators: []validator.List{
-							speakeasy_listvalidators.NotNull(),
+						"dependencies": schema.StringAttribute{
+							Computed:    true,
+							Optional:    true,
+							Description: `Provided additional dependencies, exploded when storing the role. Parsed as JSON.`,
+							Validators: []validator.String{
+								validators.IsValidJSON(),
+							},
 						},
-					},
-					"id": schema.StringAttribute{
-						Computed:    true,
-						Optional:    true,
-						Description: `Format: <organization_id>:<slug>. Not Null`,
-						Validators: []validator.String{
-							speakeasy_stringvalidators.NotNull(),
+						"effect": schema.StringAttribute{
+							Computed:    true,
+							Optional:    true,
+							Default:     stringdefault.StaticString("allow"),
+							Description: `Default: "allow"; must be one of ["allow", "deny"]`,
+							Validators: []validator.String{
+								stringvalidator.OneOf(
+									"allow",
+									"deny",
+								),
+							},
 						},
-					},
-					"name": schema.StringAttribute{
-						Computed:    true,
-						Optional:    true,
-						Description: `Human-friendly name for the role. Not Null`,
-						Validators: []validator.String{
-							speakeasy_stringvalidators.NotNull(),
-						},
-					},
-					"organization_id": schema.StringAttribute{
-						Computed:    true,
-						Optional:    true,
-						Description: `Id of an organization. Not Null`,
-						Validators: []validator.String{
-							speakeasy_stringvalidators.NotNull(),
-						},
-					},
-					"partner_org_id": schema.StringAttribute{
-						Computed: true,
-						Optional: true,
-					},
-					"pricing_tier": schema.StringAttribute{
-						Computed:    true,
-						Optional:    true,
-						Description: `The pricing tier of the organization this root role is based on`,
-					},
-					"slug": schema.StringAttribute{
-						Computed:    true,
-						Optional:    true,
-						Description: `URL-friendly name for the role. Not Null`,
-						Validators: []validator.String{
-							speakeasy_stringvalidators.NotNull(),
-						},
-					},
-					"type": schema.StringAttribute{
-						Computed:    true,
-						Optional:    true,
-						Description: `Not Null; must be "user_role"`,
-						Validators: []validator.String{
-							speakeasy_stringvalidators.NotNull(),
-							stringvalidator.OneOf(
-								"user_role",
-							),
+						"resource": schema.StringAttribute{
+							Computed: true,
+							Optional: true,
 						},
 					},
 				},
-				Description: `A standard user role. Must be explicitly assigned to users.`,
+			},
+			"id": schema.StringAttribute{
+				Computed:    true,
+				Optional:    true,
+				Description: `Format: <organization_id>:<slug>`,
+			},
+			"name": schema.StringAttribute{
+				Required:    true,
+				Description: `Human-friendly name for the role`,
+			},
+			"organization_id": schema.StringAttribute{
+				Computed:    true,
+				Optional:    true,
+				Description: `Id of an organization`,
+			},
+			"partner_org_id": schema.StringAttribute{
+				Computed: true,
+				Optional: true,
+			},
+			"pricing_tier": schema.StringAttribute{
+				Computed:    true,
+				Optional:    true,
+				Description: `The pricing tier of the organization this root role is based on`,
 			},
 			"slug": schema.StringAttribute{
-				Computed:    true,
+				Required:    true,
 				Description: `URL-friendly name for the role`,
+			},
+			"type": schema.StringAttribute{
+				Required:    true,
+				Description: `must be one of ["user_role", "org_role", "share_role", "partner_role", "portal_role"]`,
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						"user_role",
+						"org_role",
+						"share_role",
+						"partner_role",
+						"portal_role",
+					),
+				},
 			},
 		},
 	}
@@ -343,15 +234,8 @@ func (r *RoleResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	rolePayload := data.ToSharedRolePayload()
-	var roleID string
-	roleID = data.ID.ValueString()
-
-	request := operations.PutRoleRequest{
-		RolePayload: rolePayload,
-		RoleID:      roleID,
-	}
-	res, err := r.client.Roles.PutRole(ctx, request)
+	request := data.ToSharedCreateRolePayload()
+	res, err := r.client.Roles.CreateRole(ctx, request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res != nil && res.RawResponse != nil {
@@ -373,11 +257,11 @@ func (r *RoleResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 	data.RefreshFromSharedRole(res.Role)
 	refreshPlan(ctx, plan, &data, resp.Diagnostics)
-	var roleId1 string
-	roleId1 = data.ID.ValueString()
+	var roleID string
+	roleID = data.ID.ValueString()
 
 	request1 := operations.GetRoleRequest{
-		RoleID: roleId1,
+		RoleID: roleID,
 	}
 	res1, err := r.client.Roles.GetRole(ctx, request1)
 	if err != nil {

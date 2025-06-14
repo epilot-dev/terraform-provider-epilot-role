@@ -69,6 +69,7 @@ func (c *sdkConfiguration) GetServerDetails() (string, map[string]string) {
 
 // SDK - Permissions API: Flexible Role-based Access Control for epilot
 type SDK struct {
+	Internal *Internal
 	// Assign roles to users
 	Assignments *Assignments
 	// Manage roles and grants
@@ -150,9 +151,9 @@ func New(opts ...SDKOption) *SDK {
 		sdkConfiguration: sdkConfiguration{
 			Language:          "go",
 			OpenAPIDocVersion: "1.0.0",
-			SDKVersion:        "0.17.0",
+			SDKVersion:        "0.20.8",
 			GenVersion:        "2.497.0",
-			UserAgent:         "speakeasy-sdk/terraform 0.17.0 2.497.0 1.0.0 github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk",
+			UserAgent:         "speakeasy-sdk/terraform 0.20.8 2.497.0 1.0.0 github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk",
 			Hooks:             hooks.New(),
 		},
 	}
@@ -171,6 +172,8 @@ func New(opts ...SDKOption) *SDK {
 	if serverURL != currentServerURL {
 		sdk.sdkConfiguration.ServerURL = serverURL
 	}
+
+	sdk.Internal = newInternal(sdk.sdkConfiguration)
 
 	sdk.Assignments = newAssignments(sdk.sdkConfiguration)
 
