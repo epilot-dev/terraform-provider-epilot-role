@@ -2,9 +2,12 @@
 
 package sdk
 
+// Generated from OpenAPI doc version 1.0.0 and generator version 2.640.2
+
 import (
 	"context"
 	"fmt"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/config"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/hooks"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/utils"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/shared"
@@ -18,7 +21,7 @@ var ServerList = []string{
 	"https://permissions.sls.epilot.io",
 }
 
-// HTTPClient provides an interface for suplying the SDK with a custom HTTP client
+// HTTPClient provides an interface for supplying the SDK with a custom HTTP client
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
@@ -44,38 +47,16 @@ func Float64(f float64) *float64 { return &f }
 // Pointer provides a helper function to return a pointer to a type
 func Pointer[T any](v T) *T { return &v }
 
-type sdkConfiguration struct {
-	Client            HTTPClient
-	Security          func(context.Context) (interface{}, error)
-	ServerURL         string
-	ServerIndex       int
-	Language          string
-	OpenAPIDocVersion string
-	SDKVersion        string
-	GenVersion        string
-	UserAgent         string
-	RetryConfig       *retry.Config
-	Hooks             *hooks.Hooks
-	Timeout           *time.Duration
-}
-
-func (c *sdkConfiguration) GetServerDetails() (string, map[string]string) {
-	if c.ServerURL != "" {
-		return c.ServerURL, nil
-	}
-
-	return ServerList[c.ServerIndex], nil
-}
-
 // SDK - Permissions API: Flexible Role-based Access Control for epilot
 type SDK struct {
-	Internal *Internal
+	SDKVersion string
 	// Assign roles to users
 	Assignments *Assignments
 	// Manage roles and grants
 	Roles *Roles
 
-	sdkConfiguration sdkConfiguration
+	sdkConfiguration config.SDKConfiguration
+	hooks            *hooks.Hooks
 }
 
 type SDKOption func(*SDK)
@@ -148,14 +129,12 @@ func WithTimeout(timeout time.Duration) SDKOption {
 // New creates a new instance of the SDK with the provided options
 func New(opts ...SDKOption) *SDK {
 	sdk := &SDK{
-		sdkConfiguration: sdkConfiguration{
-			Language:          "go",
-			OpenAPIDocVersion: "1.0.0",
-			SDKVersion:        "0.20.8",
-			GenVersion:        "2.497.0",
-			UserAgent:         "speakeasy-sdk/terraform 0.20.8 2.497.0 1.0.0 github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk",
-			Hooks:             hooks.New(),
+		SDKVersion: "0.21.0",
+		sdkConfiguration: config.SDKConfiguration{
+			UserAgent:  "speakeasy-sdk/terraform 0.21.0 2.640.2 1.0.0 github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk",
+			ServerList: ServerList,
 		},
+		hooks: hooks.New(),
 	}
 	for _, opt := range opts {
 		opt(sdk)
@@ -168,16 +147,13 @@ func New(opts ...SDKOption) *SDK {
 
 	currentServerURL, _ := sdk.sdkConfiguration.GetServerDetails()
 	serverURL := currentServerURL
-	serverURL, sdk.sdkConfiguration.Client = sdk.sdkConfiguration.Hooks.SDKInit(currentServerURL, sdk.sdkConfiguration.Client)
-	if serverURL != currentServerURL {
+	serverURL, sdk.sdkConfiguration.Client = sdk.hooks.SDKInit(currentServerURL, sdk.sdkConfiguration.Client)
+	if currentServerURL != serverURL {
 		sdk.sdkConfiguration.ServerURL = serverURL
 	}
 
-	sdk.Internal = newInternal(sdk.sdkConfiguration)
-
-	sdk.Assignments = newAssignments(sdk.sdkConfiguration)
-
-	sdk.Roles = newRoles(sdk.sdkConfiguration)
+	sdk.Assignments = newAssignments(sdk, sdk.sdkConfiguration, sdk.hooks)
+	sdk.Roles = newRoles(sdk, sdk.sdkConfiguration, sdk.hooks)
 
 	return sdk
 }
