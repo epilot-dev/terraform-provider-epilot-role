@@ -7,17 +7,18 @@ import (
 	"fmt"
 	tfTypes "github.com/epilot-dev/terraform-provider-epilot-role/internal/provider/types"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk"
-	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/operations"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/validators"
-	speakeasy_listvalidators "github.com/epilot-dev/terraform-provider-epilot-role/internal/validators/listvalidators"
-	speakeasy_objectvalidators "github.com/epilot-dev/terraform-provider-epilot-role/internal/validators/objectvalidators"
-	speakeasy_stringvalidators "github.com/epilot-dev/terraform-provider-epilot-role/internal/validators/stringvalidators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -33,20 +34,22 @@ func NewRoleResource() resource.Resource {
 
 // RoleResource defines the resource implementation.
 type RoleResource struct {
+	// Provider configured SDK client.
 	client *sdk.SDK
 }
 
 // RoleResourceModel describes the resource data model.
 type RoleResourceModel struct {
-	ExpiresAt      types.String    `tfsdk:"expires_at"`
-	Grants         []tfTypes.Grant `tfsdk:"grants"`
-	ID             types.String    `tfsdk:"id"`
-	Name           types.String    `tfsdk:"name"`
-	OrganizationID types.String    `tfsdk:"organization_id"`
-	PartnerOrgID   types.String    `tfsdk:"partner_org_id"`
-	PricingTier    types.String    `tfsdk:"pricing_tier"`
-	Slug           types.String    `tfsdk:"slug"`
-	Type           types.String    `tfsdk:"type"`
+	Five           *tfTypes.Five    `queryParam:"inline" tfsdk:"five" tfPlanOnly:"true"`
+	Four           *tfTypes.Four    `queryParam:"inline" tfsdk:"four" tfPlanOnly:"true"`
+	ID             types.String     `tfsdk:"id"`
+	Name           types.String     `tfsdk:"name"`
+	One            *tfTypes.Five    `queryParam:"inline" tfsdk:"one" tfPlanOnly:"true"`
+	OrganizationID types.String     `tfsdk:"organization_id"`
+	Schemas        *tfTypes.Schemas `queryParam:"inline" tfsdk:"schemas" tfPlanOnly:"true"`
+	Slug           types.String     `tfsdk:"slug"`
+	Three          *tfTypes.Five    `queryParam:"inline" tfsdk:"three" tfPlanOnly:"true"`
+	Two            *tfTypes.Two     `queryParam:"inline" tfsdk:"two" tfPlanOnly:"true"`
 }
 
 func (r *RoleResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -57,139 +60,928 @@ func (r *RoleResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Role Resource",
 		Attributes: map[string]schema.Attribute{
-			"expires_at": schema.StringAttribute{
-				Computed:    true,
-				Optional:    true,
-				Description: `date and time then the role will expire`,
-				Validators: []validator.String{
-					validators.IsRFC3339(),
+			"five": schema.SingleNestedAttribute{
+				Optional: true,
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.RequiresReplaceIfConfigured(),
 				},
-			},
-			"grants": schema.ListNestedAttribute{
-				Required: true,
-				NestedObject: schema.NestedAttributeObject{
-					Validators: []validator.Object{
-						speakeasy_objectvalidators.NotNull(),
-					},
-					Attributes: map[string]schema.Attribute{
-						"action": schema.StringAttribute{
-							Computed:    true,
-							Optional:    true,
-							Description: `Not Null`,
-							Validators: []validator.String{
-								speakeasy_stringvalidators.NotNull(),
-							},
+				Attributes: map[string]schema.Attribute{
+					"expires_at": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
 						},
-						"conditions": schema.ListNestedAttribute{
-							Computed: true,
-							Optional: true,
-							NestedObject: schema.NestedAttributeObject{
-								Validators: []validator.Object{
-									speakeasy_objectvalidators.NotNull(),
+						Description: `date and time then the role will expire. Requires replacement if changed.`,
+						Validators: []validator.String{
+							validators.IsRFC3339(),
+						},
+					},
+					"grants": schema.ListNestedAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.List{
+							listplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						NestedObject: schema.NestedAttributeObject{
+							PlanModifiers: []planmodifier.Object{
+								objectplanmodifier.RequiresReplaceIfConfigured(),
+							},
+							Attributes: map[string]schema.Attribute{
+								"action": schema.StringAttribute{
+									Required: true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Requires replacement if changed.`,
 								},
-								Attributes: map[string]schema.Attribute{
-									"equals_condition": schema.SingleNestedAttribute{
-										Computed: true,
-										Optional: true,
+								"conditions": schema.ListNestedAttribute{
+									Optional: true,
+									PlanModifiers: []planmodifier.List{
+										listplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									NestedObject: schema.NestedAttributeObject{
+										PlanModifiers: []planmodifier.Object{
+											objectplanmodifier.RequiresReplaceIfConfigured(),
+										},
 										Attributes: map[string]schema.Attribute{
-											"attribute": schema.StringAttribute{
-												Computed:    true,
-												Optional:    true,
-												Description: `Not Null`,
-												Validators: []validator.String{
-													speakeasy_stringvalidators.NotNull(),
+											"equals_condition": schema.SingleNestedAttribute{
+												Optional: true,
+												PlanModifiers: []planmodifier.Object{
+													objectplanmodifier.RequiresReplaceIfConfigured(),
 												},
-											},
-											"operation": schema.StringAttribute{
-												Computed:    true,
-												Optional:    true,
-												Description: `Not Null; must be "equals"`,
-												Validators: []validator.String{
-													speakeasy_stringvalidators.NotNull(),
-													stringvalidator.OneOf("equals"),
+												Attributes: map[string]schema.Attribute{
+													"attribute": schema.StringAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														Description: `Requires replacement if changed.`,
+													},
+													"operation": schema.StringAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														Description: `must be "equals"; Requires replacement if changed.`,
+														Validators: []validator.String{
+															stringvalidator.OneOf("equals"),
+														},
+													},
+													"values": schema.ListAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.List{
+															listplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														ElementType: types.StringType,
+														Description: `Requires replacement if changed.`,
+														Validators: []validator.List{
+															listvalidator.ValueStringsAre(validators.IsValidJSON()),
+														},
+													},
 												},
-											},
-											"values": schema.ListAttribute{
-												Computed:    true,
-												Optional:    true,
-												ElementType: types.StringType,
-												Description: `Not Null`,
-												Validators: []validator.List{
-													speakeasy_listvalidators.NotNull(),
-													listvalidator.ValueStringsAre(validators.IsValidJSON()),
-												},
+												Description: `Check if attribute equals to any of the values. Requires replacement if changed.`,
 											},
 										},
-										Description: `Check if attribute equals to any of the values`,
 									},
+									Description: `Requires replacement if changed.`,
+								},
+								"effect": schema.StringAttribute{
+									Computed: true,
+									Optional: true,
+									Default:  stringdefault.StaticString(`allow`),
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Default: "allow"; must be one of ["allow", "deny"]; Requires replacement if changed.`,
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"allow",
+											"deny",
+										),
+									},
+								},
+								"resource": schema.StringAttribute{
+									Optional: true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Requires replacement if changed.`,
 								},
 							},
 						},
-						"dependencies": schema.StringAttribute{
-							Computed:    true,
-							Optional:    true,
-							Description: `Provided additional dependencies, exploded when storing the role. Parsed as JSON.`,
-							Validators: []validator.String{
-								validators.IsValidJSON(),
-							},
+						Description: `List of grants (permissions) applied to the role. Requires replacement if changed.`,
+					},
+					"id": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
 						},
-						"effect": schema.StringAttribute{
-							Computed:    true,
-							Optional:    true,
-							Default:     stringdefault.StaticString("allow"),
-							Description: `Default: "allow"; must be one of ["allow", "deny"]`,
-							Validators: []validator.String{
-								stringvalidator.OneOf(
-									"allow",
-									"deny",
-								),
-							},
+						Description: `Format: <organization_id>:<slug>. Requires replacement if changed.`,
+					},
+					"name": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
 						},
-						"resource": schema.StringAttribute{
-							Computed: true,
-							Optional: true,
+						Description: `Human-friendly name for the role. Requires replacement if changed.`,
+					},
+					"organization_id": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Id of an organization. Requires replacement if changed.`,
+					},
+					"slug": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `URL-friendly name for the role. Requires replacement if changed.`,
+					},
+					"type": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Type of the role. Requires replacement if changed.`,
+					},
+				},
+				Description: `A role that is applied to end customers and installers using the Portals. Requires replacement if changed.`,
+				Validators: []validator.Object{
+					objectvalidator.ConflictsWith(path.Expressions{
+						path.MatchRelative().AtParent().AtName("one"),
+						path.MatchRelative().AtParent().AtName("two"),
+						path.MatchRelative().AtParent().AtName("three"),
+						path.MatchRelative().AtParent().AtName("four"),
+						path.MatchRelative().AtParent().AtName("schemas"),
+					}...),
+				},
+			},
+			"four": schema.SingleNestedAttribute{
+				Optional: true,
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.RequiresReplaceIfConfigured(),
+				},
+				Attributes: map[string]schema.Attribute{
+					"expires_at": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `date and time then the role will expire. Requires replacement if changed.`,
+						Validators: []validator.String{
+							validators.IsRFC3339(),
 						},
 					},
+					"grants": schema.ListNestedAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.List{
+							listplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						NestedObject: schema.NestedAttributeObject{
+							PlanModifiers: []planmodifier.Object{
+								objectplanmodifier.RequiresReplaceIfConfigured(),
+							},
+							Attributes: map[string]schema.Attribute{
+								"action": schema.StringAttribute{
+									Required: true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Requires replacement if changed.`,
+								},
+								"conditions": schema.ListNestedAttribute{
+									Optional: true,
+									PlanModifiers: []planmodifier.List{
+										listplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									NestedObject: schema.NestedAttributeObject{
+										PlanModifiers: []planmodifier.Object{
+											objectplanmodifier.RequiresReplaceIfConfigured(),
+										},
+										Attributes: map[string]schema.Attribute{
+											"equals_condition": schema.SingleNestedAttribute{
+												Optional: true,
+												PlanModifiers: []planmodifier.Object{
+													objectplanmodifier.RequiresReplaceIfConfigured(),
+												},
+												Attributes: map[string]schema.Attribute{
+													"attribute": schema.StringAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														Description: `Requires replacement if changed.`,
+													},
+													"operation": schema.StringAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														Description: `must be "equals"; Requires replacement if changed.`,
+														Validators: []validator.String{
+															stringvalidator.OneOf("equals"),
+														},
+													},
+													"values": schema.ListAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.List{
+															listplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														ElementType: types.StringType,
+														Description: `Requires replacement if changed.`,
+														Validators: []validator.List{
+															listvalidator.ValueStringsAre(validators.IsValidJSON()),
+														},
+													},
+												},
+												Description: `Check if attribute equals to any of the values. Requires replacement if changed.`,
+											},
+										},
+									},
+									Description: `Requires replacement if changed.`,
+								},
+								"effect": schema.StringAttribute{
+									Computed: true,
+									Optional: true,
+									Default:  stringdefault.StaticString(`allow`),
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Default: "allow"; must be one of ["allow", "deny"]; Requires replacement if changed.`,
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"allow",
+											"deny",
+										),
+									},
+								},
+								"resource": schema.StringAttribute{
+									Optional: true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Requires replacement if changed.`,
+								},
+							},
+						},
+						Description: `List of grants (permissions) applied to the role. Requires replacement if changed.`,
+					},
+					"id": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Format: <organization_id>:<slug>. Requires replacement if changed.`,
+					},
+					"name": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Human-friendly name for the role. Requires replacement if changed.`,
+					},
+					"organization_id": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Id of an organization. Requires replacement if changed.`,
+					},
+					"partner_org_id": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Requires replacement if changed.`,
+					},
+					"slug": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `URL-friendly name for the role. Requires replacement if changed.`,
+					},
+					"type": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Type of the role. Requires replacement if changed.`,
+					},
+				},
+				Description: `A role that appears in another organization's role list that can be assigned but not modified by the partner organization. Requires replacement if changed.`,
+				Validators: []validator.Object{
+					objectvalidator.ConflictsWith(path.Expressions{
+						path.MatchRelative().AtParent().AtName("one"),
+						path.MatchRelative().AtParent().AtName("two"),
+						path.MatchRelative().AtParent().AtName("three"),
+						path.MatchRelative().AtParent().AtName("five"),
+						path.MatchRelative().AtParent().AtName("schemas"),
+					}...),
 				},
 			},
 			"id": schema.StringAttribute{
 				Computed:    true,
-				Optional:    true,
 				Description: `Format: <organization_id>:<slug>`,
 			},
 			"name": schema.StringAttribute{
-				Required:    true,
+				Computed:    true,
 				Description: `Human-friendly name for the role`,
+			},
+			"one": schema.SingleNestedAttribute{
+				Optional: true,
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.RequiresReplaceIfConfigured(),
+				},
+				Attributes: map[string]schema.Attribute{
+					"expires_at": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `date and time then the role will expire. Requires replacement if changed.`,
+						Validators: []validator.String{
+							validators.IsRFC3339(),
+						},
+					},
+					"grants": schema.ListNestedAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.List{
+							listplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						NestedObject: schema.NestedAttributeObject{
+							PlanModifiers: []planmodifier.Object{
+								objectplanmodifier.RequiresReplaceIfConfigured(),
+							},
+							Attributes: map[string]schema.Attribute{
+								"action": schema.StringAttribute{
+									Required: true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Requires replacement if changed.`,
+								},
+								"conditions": schema.ListNestedAttribute{
+									Optional: true,
+									PlanModifiers: []planmodifier.List{
+										listplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									NestedObject: schema.NestedAttributeObject{
+										PlanModifiers: []planmodifier.Object{
+											objectplanmodifier.RequiresReplaceIfConfigured(),
+										},
+										Attributes: map[string]schema.Attribute{
+											"equals_condition": schema.SingleNestedAttribute{
+												Optional: true,
+												PlanModifiers: []planmodifier.Object{
+													objectplanmodifier.RequiresReplaceIfConfigured(),
+												},
+												Attributes: map[string]schema.Attribute{
+													"attribute": schema.StringAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														Description: `Requires replacement if changed.`,
+													},
+													"operation": schema.StringAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														Description: `must be "equals"; Requires replacement if changed.`,
+														Validators: []validator.String{
+															stringvalidator.OneOf("equals"),
+														},
+													},
+													"values": schema.ListAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.List{
+															listplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														ElementType: types.StringType,
+														Description: `Requires replacement if changed.`,
+														Validators: []validator.List{
+															listvalidator.ValueStringsAre(validators.IsValidJSON()),
+														},
+													},
+												},
+												Description: `Check if attribute equals to any of the values. Requires replacement if changed.`,
+											},
+										},
+									},
+									Description: `Requires replacement if changed.`,
+								},
+								"effect": schema.StringAttribute{
+									Computed: true,
+									Optional: true,
+									Default:  stringdefault.StaticString(`allow`),
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Default: "allow"; must be one of ["allow", "deny"]; Requires replacement if changed.`,
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"allow",
+											"deny",
+										),
+									},
+								},
+								"resource": schema.StringAttribute{
+									Optional: true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Requires replacement if changed.`,
+								},
+							},
+						},
+						Description: `List of grants (permissions) applied to the role. Requires replacement if changed.`,
+					},
+					"id": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Format: <organization_id>:<slug>. Requires replacement if changed.`,
+					},
+					"name": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Human-friendly name for the role. Requires replacement if changed.`,
+					},
+					"organization_id": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Id of an organization. Requires replacement if changed.`,
+					},
+					"slug": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `URL-friendly name for the role. Requires replacement if changed.`,
+					},
+					"type": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Type of the role. Requires replacement if changed.`,
+					},
+				},
+				Description: `A standard user role. Must be explicitly assigned to users. Requires replacement if changed.`,
+				Validators: []validator.Object{
+					objectvalidator.ConflictsWith(path.Expressions{
+						path.MatchRelative().AtParent().AtName("two"),
+						path.MatchRelative().AtParent().AtName("three"),
+						path.MatchRelative().AtParent().AtName("four"),
+						path.MatchRelative().AtParent().AtName("five"),
+						path.MatchRelative().AtParent().AtName("schemas"),
+					}...),
+				},
 			},
 			"organization_id": schema.StringAttribute{
 				Computed:    true,
-				Optional:    true,
 				Description: `Id of an organization`,
 			},
-			"partner_org_id": schema.StringAttribute{
+			"schemas": schema.SingleNestedAttribute{
 				Computed: true,
-				Optional: true,
-			},
-			"pricing_tier": schema.StringAttribute{
-				Computed:    true,
-				Optional:    true,
-				Description: `The pricing tier of the organization this root role is based on`,
+				Attributes: map[string]schema.Attribute{
+					"expires_at": schema.StringAttribute{
+						Computed:    true,
+						Description: `date and time then the role will expire`,
+						Validators: []validator.String{
+							validators.IsRFC3339(),
+						},
+					},
+					"grants": schema.ListNestedAttribute{
+						Computed: true,
+						NestedObject: schema.NestedAttributeObject{
+							Attributes: map[string]schema.Attribute{
+								"action": schema.StringAttribute{
+									Computed: true,
+								},
+								"conditions": schema.ListNestedAttribute{
+									Computed: true,
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: map[string]schema.Attribute{
+											"equals_condition": schema.SingleNestedAttribute{
+												Computed: true,
+												Attributes: map[string]schema.Attribute{
+													"attribute": schema.StringAttribute{
+														Computed: true,
+													},
+													"operation": schema.StringAttribute{
+														Computed:    true,
+														Description: `must be "equals"`,
+														Validators: []validator.String{
+															stringvalidator.OneOf("equals"),
+														},
+													},
+													"values": schema.ListAttribute{
+														Computed:    true,
+														ElementType: types.StringType,
+														Validators: []validator.List{
+															listvalidator.ValueStringsAre(validators.IsValidJSON()),
+														},
+													},
+												},
+												Description: `Check if attribute equals to any of the values`,
+											},
+										},
+									},
+								},
+								"effect": schema.StringAttribute{
+									Computed:    true,
+									Default:     stringdefault.StaticString(`allow`),
+									Description: `Default: "allow"; must be one of ["allow", "deny"]`,
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"allow",
+											"deny",
+										),
+									},
+								},
+								"resource": schema.StringAttribute{
+									Computed: true,
+								},
+							},
+						},
+						Description: `List of grants (permissions) applied to the role`,
+					},
+					"id": schema.StringAttribute{
+						Computed:    true,
+						Description: `Format: <organization_id>:<slug>`,
+					},
+					"name": schema.StringAttribute{
+						Computed:    true,
+						Description: `Human-friendly name for the role`,
+					},
+					"organization_id": schema.StringAttribute{
+						Computed:    true,
+						Description: `Id of an organization`,
+					},
+					"partner_org_id": schema.StringAttribute{
+						Computed: true,
+					},
+					"pricing_tier": schema.StringAttribute{
+						Computed:    true,
+						Description: `The pricing tier of the organization this root role is based on`,
+					},
+					"slug": schema.StringAttribute{
+						Computed:    true,
+						Description: `URL-friendly name for the role`,
+					},
+					"type": schema.StringAttribute{
+						Computed:    true,
+						Description: `must be "user_role"`,
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"user_role",
+							),
+						},
+					},
+				},
+				Description: `A role that is applied to end customers and installers using the Portals`,
+				Validators: []validator.Object{
+					objectvalidator.ConflictsWith(path.Expressions{
+						path.MatchRelative().AtParent().AtName("one"),
+						path.MatchRelative().AtParent().AtName("two"),
+						path.MatchRelative().AtParent().AtName("three"),
+						path.MatchRelative().AtParent().AtName("four"),
+						path.MatchRelative().AtParent().AtName("five"),
+					}...),
+				},
 			},
 			"slug": schema.StringAttribute{
-				Required:    true,
+				Computed:    true,
 				Description: `URL-friendly name for the role`,
 			},
-			"type": schema.StringAttribute{
-				Required:    true,
-				Description: `must be one of ["user_role", "org_role", "share_role", "partner_role", "portal_role"]`,
-				Validators: []validator.String{
-					stringvalidator.OneOf(
-						"user_role",
-						"org_role",
-						"share_role",
-						"partner_role",
-						"portal_role",
-					),
+			"three": schema.SingleNestedAttribute{
+				Optional: true,
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.RequiresReplaceIfConfigured(),
+				},
+				Attributes: map[string]schema.Attribute{
+					"expires_at": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `date and time then the role will expire. Requires replacement if changed.`,
+						Validators: []validator.String{
+							validators.IsRFC3339(),
+						},
+					},
+					"grants": schema.ListNestedAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.List{
+							listplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						NestedObject: schema.NestedAttributeObject{
+							PlanModifiers: []planmodifier.Object{
+								objectplanmodifier.RequiresReplaceIfConfigured(),
+							},
+							Attributes: map[string]schema.Attribute{
+								"action": schema.StringAttribute{
+									Required: true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Requires replacement if changed.`,
+								},
+								"conditions": schema.ListNestedAttribute{
+									Optional: true,
+									PlanModifiers: []planmodifier.List{
+										listplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									NestedObject: schema.NestedAttributeObject{
+										PlanModifiers: []planmodifier.Object{
+											objectplanmodifier.RequiresReplaceIfConfigured(),
+										},
+										Attributes: map[string]schema.Attribute{
+											"equals_condition": schema.SingleNestedAttribute{
+												Optional: true,
+												PlanModifiers: []planmodifier.Object{
+													objectplanmodifier.RequiresReplaceIfConfigured(),
+												},
+												Attributes: map[string]schema.Attribute{
+													"attribute": schema.StringAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														Description: `Requires replacement if changed.`,
+													},
+													"operation": schema.StringAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														Description: `must be "equals"; Requires replacement if changed.`,
+														Validators: []validator.String{
+															stringvalidator.OneOf("equals"),
+														},
+													},
+													"values": schema.ListAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.List{
+															listplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														ElementType: types.StringType,
+														Description: `Requires replacement if changed.`,
+														Validators: []validator.List{
+															listvalidator.ValueStringsAre(validators.IsValidJSON()),
+														},
+													},
+												},
+												Description: `Check if attribute equals to any of the values. Requires replacement if changed.`,
+											},
+										},
+									},
+									Description: `Requires replacement if changed.`,
+								},
+								"effect": schema.StringAttribute{
+									Computed: true,
+									Optional: true,
+									Default:  stringdefault.StaticString(`allow`),
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Default: "allow"; must be one of ["allow", "deny"]; Requires replacement if changed.`,
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"allow",
+											"deny",
+										),
+									},
+								},
+								"resource": schema.StringAttribute{
+									Optional: true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Requires replacement if changed.`,
+								},
+							},
+						},
+						Description: `List of grants (permissions) applied to the role. Requires replacement if changed.`,
+					},
+					"id": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Format: <organization_id>:<slug>. Requires replacement if changed.`,
+					},
+					"name": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Human-friendly name for the role. Requires replacement if changed.`,
+					},
+					"organization_id": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Id of an organization. Requires replacement if changed.`,
+					},
+					"slug": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `URL-friendly name for the role. Requires replacement if changed.`,
+					},
+					"type": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Type of the role. Requires replacement if changed.`,
+					},
+				},
+				Description: `A role that can be assigned to users in other organizations for sharing purposes. Requires replacement if changed.`,
+				Validators: []validator.Object{
+					objectvalidator.ConflictsWith(path.Expressions{
+						path.MatchRelative().AtParent().AtName("one"),
+						path.MatchRelative().AtParent().AtName("two"),
+						path.MatchRelative().AtParent().AtName("four"),
+						path.MatchRelative().AtParent().AtName("five"),
+						path.MatchRelative().AtParent().AtName("schemas"),
+					}...),
+				},
+			},
+			"two": schema.SingleNestedAttribute{
+				Optional: true,
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.RequiresReplaceIfConfigured(),
+				},
+				Attributes: map[string]schema.Attribute{
+					"expires_at": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `date and time then the role will expire. Requires replacement if changed.`,
+						Validators: []validator.String{
+							validators.IsRFC3339(),
+						},
+					},
+					"grants": schema.ListNestedAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.List{
+							listplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						NestedObject: schema.NestedAttributeObject{
+							PlanModifiers: []planmodifier.Object{
+								objectplanmodifier.RequiresReplaceIfConfigured(),
+							},
+							Attributes: map[string]schema.Attribute{
+								"action": schema.StringAttribute{
+									Required: true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Requires replacement if changed.`,
+								},
+								"conditions": schema.ListNestedAttribute{
+									Optional: true,
+									PlanModifiers: []planmodifier.List{
+										listplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									NestedObject: schema.NestedAttributeObject{
+										PlanModifiers: []planmodifier.Object{
+											objectplanmodifier.RequiresReplaceIfConfigured(),
+										},
+										Attributes: map[string]schema.Attribute{
+											"equals_condition": schema.SingleNestedAttribute{
+												Optional: true,
+												PlanModifiers: []planmodifier.Object{
+													objectplanmodifier.RequiresReplaceIfConfigured(),
+												},
+												Attributes: map[string]schema.Attribute{
+													"attribute": schema.StringAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														Description: `Requires replacement if changed.`,
+													},
+													"operation": schema.StringAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														Description: `must be "equals"; Requires replacement if changed.`,
+														Validators: []validator.String{
+															stringvalidator.OneOf("equals"),
+														},
+													},
+													"values": schema.ListAttribute{
+														Required: true,
+														PlanModifiers: []planmodifier.List{
+															listplanmodifier.RequiresReplaceIfConfigured(),
+														},
+														ElementType: types.StringType,
+														Description: `Requires replacement if changed.`,
+														Validators: []validator.List{
+															listvalidator.ValueStringsAre(validators.IsValidJSON()),
+														},
+													},
+												},
+												Description: `Check if attribute equals to any of the values. Requires replacement if changed.`,
+											},
+										},
+									},
+									Description: `Requires replacement if changed.`,
+								},
+								"effect": schema.StringAttribute{
+									Computed: true,
+									Optional: true,
+									Default:  stringdefault.StaticString(`allow`),
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Default: "allow"; must be one of ["allow", "deny"]; Requires replacement if changed.`,
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"allow",
+											"deny",
+										),
+									},
+								},
+								"resource": schema.StringAttribute{
+									Optional: true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.RequiresReplaceIfConfigured(),
+									},
+									Description: `Requires replacement if changed.`,
+								},
+							},
+						},
+						Description: `List of grants (permissions) applied to the role. Requires replacement if changed.`,
+					},
+					"id": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Format: <organization_id>:<slug>. Requires replacement if changed.`,
+					},
+					"name": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Human-friendly name for the role. Requires replacement if changed.`,
+					},
+					"organization_id": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Id of an organization. Requires replacement if changed.`,
+					},
+					"pricing_tier": schema.StringAttribute{
+						Optional: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `The pricing tier of the organization this root role is based on. Requires replacement if changed.`,
+					},
+					"slug": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `URL-friendly name for the role. Requires replacement if changed.`,
+					},
+					"type": schema.StringAttribute{
+						Required: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+						},
+						Description: `Type of the role. Requires replacement if changed.`,
+					},
+				},
+				Description: `A role automatically applied to all users in an organization. Requires replacement if changed.`,
+				Validators: []validator.Object{
+					objectvalidator.ConflictsWith(path.Expressions{
+						path.MatchRelative().AtParent().AtName("one"),
+						path.MatchRelative().AtParent().AtName("three"),
+						path.MatchRelative().AtParent().AtName("four"),
+						path.MatchRelative().AtParent().AtName("five"),
+						path.MatchRelative().AtParent().AtName("schemas"),
+					}...),
 				},
 			},
 		},
@@ -234,7 +1026,12 @@ func (r *RoleResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	request := data.ToSharedCreateRolePayload()
+	request, requestDiags := data.ToSharedCreateRolePayload(ctx)
+	resp.Diagnostics.Append(requestDiags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	res, err := r.client.Roles.CreateRole(ctx, request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
@@ -255,36 +1052,17 @@ func (r *RoleResource) Create(ctx context.Context, req resource.CreateRequest, r
 		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res.RawResponse))
 		return
 	}
-	data.RefreshFromSharedRole(res.Role)
-	refreshPlan(ctx, plan, &data, resp.Diagnostics)
-	var roleID string
-	roleID = data.ID.ValueString()
+	resp.Diagnostics.Append(data.RefreshFromSharedRole(ctx, res.Role)...)
 
-	request1 := operations.GetRoleRequest{
-		RoleID: roleID,
-	}
-	res1, err := r.client.Roles.GetRole(ctx, request1)
-	if err != nil {
-		resp.Diagnostics.AddError("failure to invoke API", err.Error())
-		if res1 != nil && res1.RawResponse != nil {
-			resp.Diagnostics.AddError("unexpected http request/response", debugResponse(res1.RawResponse))
-		}
+	if resp.Diagnostics.HasError() {
 		return
 	}
-	if res1 == nil {
-		resp.Diagnostics.AddError("unexpected response from API", fmt.Sprintf("%v", res1))
+
+	resp.Diagnostics.Append(refreshPlan(ctx, plan, &data)...)
+
+	if resp.Diagnostics.HasError() {
 		return
 	}
-	if res1.StatusCode != 200 {
-		resp.Diagnostics.AddError(fmt.Sprintf("unexpected response from API. Got an unexpected response code %v", res1.StatusCode), debugResponse(res1.RawResponse))
-		return
-	}
-	if !(res1.Role != nil) {
-		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res1.RawResponse))
-		return
-	}
-	data.RefreshFromSharedRole(res1.Role)
-	refreshPlan(ctx, plan, &data, resp.Diagnostics)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -308,13 +1086,13 @@ func (r *RoleResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	var roleID string
-	roleID = data.ID.ValueString()
+	request, requestDiags := data.ToOperationsGetRoleRequest(ctx)
+	resp.Diagnostics.Append(requestDiags...)
 
-	request := operations.GetRoleRequest{
-		RoleID: roleID,
+	if resp.Diagnostics.HasError() {
+		return
 	}
-	res, err := r.client.Roles.GetRole(ctx, request)
+	res, err := r.client.Roles.GetRole(ctx, *request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res != nil && res.RawResponse != nil {
@@ -338,7 +1116,11 @@ func (r *RoleResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res.RawResponse))
 		return
 	}
-	data.RefreshFromSharedRole(res.Role)
+	resp.Diagnostics.Append(data.RefreshFromSharedRole(ctx, res.Role)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -358,15 +1140,13 @@ func (r *RoleResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	rolePayload := data.ToSharedRolePayload()
-	var roleID string
-	roleID = data.ID.ValueString()
+	request, requestDiags := data.ToOperationsPutRoleRequest(ctx)
+	resp.Diagnostics.Append(requestDiags...)
 
-	request := operations.PutRoleRequest{
-		RolePayload: rolePayload,
-		RoleID:      roleID,
+	if resp.Diagnostics.HasError() {
+		return
 	}
-	res, err := r.client.Roles.PutRole(ctx, request)
+	res, err := r.client.Roles.PutRole(ctx, *request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res != nil && res.RawResponse != nil {
@@ -386,15 +1166,24 @@ func (r *RoleResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res.RawResponse))
 		return
 	}
-	data.RefreshFromSharedRole(res.Role)
-	refreshPlan(ctx, plan, &data, resp.Diagnostics)
-	var roleId1 string
-	roleId1 = data.ID.ValueString()
+	resp.Diagnostics.Append(data.RefreshFromSharedRole(ctx, res.Role)...)
 
-	request1 := operations.GetRoleRequest{
-		RoleID: roleId1,
+	if resp.Diagnostics.HasError() {
+		return
 	}
-	res1, err := r.client.Roles.GetRole(ctx, request1)
+
+	resp.Diagnostics.Append(refreshPlan(ctx, plan, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	request1, request1Diags := data.ToOperationsGetRoleRequest(ctx)
+	resp.Diagnostics.Append(request1Diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	res1, err := r.client.Roles.GetRole(ctx, *request1)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res1 != nil && res1.RawResponse != nil {
@@ -414,8 +1203,17 @@ func (r *RoleResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res1.RawResponse))
 		return
 	}
-	data.RefreshFromSharedRole(res1.Role)
-	refreshPlan(ctx, plan, &data, resp.Diagnostics)
+	resp.Diagnostics.Append(data.RefreshFromSharedRole(ctx, res1.Role)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(refreshPlan(ctx, plan, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -439,13 +1237,13 @@ func (r *RoleResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 		return
 	}
 
-	var roleID string
-	roleID = data.ID.ValueString()
+	request, requestDiags := data.ToOperationsDeleteRoleRequest(ctx)
+	resp.Diagnostics.Append(requestDiags...)
 
-	request := operations.DeleteRoleRequest{
-		RoleID: roleID,
+	if resp.Diagnostics.HasError() {
+		return
 	}
-	res, err := r.client.Roles.DeleteRole(ctx, request)
+	res, err := r.client.Roles.DeleteRole(ctx, *request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res != nil && res.RawResponse != nil {
