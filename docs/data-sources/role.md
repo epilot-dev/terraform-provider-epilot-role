@@ -22,8 +22,19 @@ data "epilot-role_role" "my_role" {
 
 ### Read-Only
 
+- `id` (String) Format: <organization_id>:<slug>
+- `name` (String) Human-friendly name for the role
+- `organization_id` (String) Id of an organization
+- `schemas` (Attributes) A role that is applied to end customers and installers using the Portals (see [below for nested schema](#nestedatt--schemas))
+- `slug` (String) URL-friendly name for the role
+
+<a id="nestedatt--schemas"></a>
+### Nested Schema for `schemas`
+
+Read-Only:
+
 - `expires_at` (String) date and time then the role will expire
-- `grants` (Attributes List) List of grants (permissions) applied to the role (see [below for nested schema](#nestedatt--grants))
+- `grants` (Attributes List) List of grants (permissions) applied to the role (see [below for nested schema](#nestedatt--schemas--grants))
 - `id` (String) Format: <organization_id>:<slug>
 - `name` (String) Human-friendly name for the role
 - `organization_id` (String) Id of an organization
@@ -32,25 +43,25 @@ data "epilot-role_role" "my_role" {
 - `slug` (String) URL-friendly name for the role
 - `type` (String)
 
-<a id="nestedatt--grants"></a>
-### Nested Schema for `grants`
+<a id="nestedatt--schemas--grants"></a>
+### Nested Schema for `schemas.grants`
 
 Read-Only:
 
 - `action` (String)
-- `conditions` (Attributes List) (see [below for nested schema](#nestedatt--grants--conditions))
+- `conditions` (Attributes List) (see [below for nested schema](#nestedatt--schemas--grants--conditions))
 - `effect` (String)
 - `resource` (String)
 
-<a id="nestedatt--grants--conditions"></a>
-### Nested Schema for `grants.conditions`
+<a id="nestedatt--schemas--grants--conditions"></a>
+### Nested Schema for `schemas.grants.conditions`
 
 Read-Only:
 
-- `equals_condition` (Attributes) Check if attribute equals to any of the values (see [below for nested schema](#nestedatt--grants--conditions--equals_condition))
+- `equals_condition` (Attributes) Check if attribute equals to any of the values (see [below for nested schema](#nestedatt--schemas--grants--conditions--equals_condition))
 
-<a id="nestedatt--grants--conditions--equals_condition"></a>
-### Nested Schema for `grants.conditions.equals_condition`
+<a id="nestedatt--schemas--grants--conditions--equals_condition"></a>
+### Nested Schema for `schemas.grants.conditions.equals_condition`
 
 Read-Only:
 

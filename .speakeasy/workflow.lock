@@ -1,0 +1,31 @@
+speakeasyVersion: 1.596.0
+sources:
+    my-source:
+        sourceNamespace: my-source
+        sourceRevisionDigest: sha256:4376da0ec28917a55c0fe4107e6316b67f8aed6b320e9099cf08d10f0c1b1d86
+        sourceBlobDigest: sha256:803926cebad317ddcd4f80589bf78c79b23d36a0375b64111728ec0c7120a5da
+        tags:
+            - latest
+            - speakeasy-sdk-regen-1751330205
+            - 1.0.0
+targets:
+    terraform:
+        source: my-source
+        sourceNamespace: my-source
+        sourceRevisionDigest: sha256:4376da0ec28917a55c0fe4107e6316b67f8aed6b320e9099cf08d10f0c1b1d86
+        sourceBlobDigest: sha256:803926cebad317ddcd4f80589bf78c79b23d36a0375b64111728ec0c7120a5da
+workflow:
+    workflowVersion: 1.0.0
+    speakeasyVersion: latest
+    sources:
+        my-source:
+            inputs:
+                - location: https://docs.api.epilot.io/permissions.yaml
+            overlays:
+                - location: overlay.yaml
+            registry:
+                location: registry.speakeasyapi.dev/epilot/epilot/my-source
+    targets:
+        terraform:
+            target: terraform
+            source: my-source
