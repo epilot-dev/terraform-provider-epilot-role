@@ -3,271 +3,1046 @@
 package provider
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/provider/typeconvert"
 	tfTypes "github.com/epilot-dev/terraform-provider-epilot-role/internal/provider/types"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/operations"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/shared"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"time"
 )
 
-func (r *RoleResourceModel) ToSharedCreateRolePayload() *shared.CreateRolePayload {
-	expiresAt := new(time.Time)
-	if !r.ExpiresAt.IsUnknown() && !r.ExpiresAt.IsNull() {
-		*expiresAt, _ = time.Parse(time.RFC3339Nano, r.ExpiresAt.ValueString())
-	} else {
-		expiresAt = nil
-	}
-	var grants []shared.GrantWithDependencies = []shared.GrantWithDependencies{}
-	for _, grantsItem := range r.Grants {
-		var action string
-		action = grantsItem.Action.ValueString()
+func (r *RoleResourceModel) RefreshFromSharedRole(ctx context.Context, resp *shared.Role) diag.Diagnostics {
+	var diags diag.Diagnostics
 
-		var conditions []shared.GrantCondition = []shared.GrantCondition{}
-		for _, conditionsItem := range grantsItem.Conditions {
-			if conditionsItem.EqualsCondition != nil {
-				var attribute string
-				attribute = conditionsItem.EqualsCondition.Attribute.ValueString()
-
-				operation := shared.Operation(conditionsItem.EqualsCondition.Operation.ValueString())
-				var values []interface{} = []interface{}{}
-				for _, valuesItem := range conditionsItem.EqualsCondition.Values {
-					var valuesTmp interface{}
-					_ = json.Unmarshal([]byte(valuesItem.ValueString()), &valuesTmp)
-					values = append(values, valuesTmp)
-				}
-				equalsCondition := shared.EqualsCondition{
-					Attribute: attribute,
-					Operation: operation,
-					Values:    values,
-				}
-				conditions = append(conditions, shared.GrantCondition{
-					EqualsCondition: &equalsCondition,
-				})
-			}
-		}
-		var dependencies interface{}
-		if !grantsItem.Dependencies.IsUnknown() && !grantsItem.Dependencies.IsNull() {
-			_ = json.Unmarshal([]byte(grantsItem.Dependencies.ValueString()), &dependencies)
-		}
-		effect := new(shared.GrantWithDependenciesEffect)
-		if !grantsItem.Effect.IsUnknown() && !grantsItem.Effect.IsNull() {
-			*effect = shared.GrantWithDependenciesEffect(grantsItem.Effect.ValueString())
-		} else {
-			effect = nil
-		}
-		resource := new(string)
-		if !grantsItem.Resource.IsUnknown() && !grantsItem.Resource.IsNull() {
-			*resource = grantsItem.Resource.ValueString()
-		} else {
-			resource = nil
-		}
-		grants = append(grants, shared.GrantWithDependencies{
-			Action:       action,
-			Conditions:   conditions,
-			Dependencies: dependencies,
-			Effect:       effect,
-			Resource:     resource,
-		})
-	}
-	id := new(string)
-	if !r.ID.IsUnknown() && !r.ID.IsNull() {
-		*id = r.ID.ValueString()
-	} else {
-		id = nil
-	}
-	var name string
-	name = r.Name.ValueString()
-
-	organizationID := new(string)
-	if !r.OrganizationID.IsUnknown() && !r.OrganizationID.IsNull() {
-		*organizationID = r.OrganizationID.ValueString()
-	} else {
-		organizationID = nil
-	}
-	partnerOrgID := new(string)
-	if !r.PartnerOrgID.IsUnknown() && !r.PartnerOrgID.IsNull() {
-		*partnerOrgID = r.PartnerOrgID.ValueString()
-	} else {
-		partnerOrgID = nil
-	}
-	pricingTier := new(string)
-	if !r.PricingTier.IsUnknown() && !r.PricingTier.IsNull() {
-		*pricingTier = r.PricingTier.ValueString()
-	} else {
-		pricingTier = nil
-	}
-	var slug string
-	slug = r.Slug.ValueString()
-
-	typeVar := shared.Type(r.Type.ValueString())
-	out := shared.CreateRolePayload{
-		ExpiresAt:      expiresAt,
-		Grants:         grants,
-		ID:             id,
-		Name:           name,
-		OrganizationID: organizationID,
-		PartnerOrgID:   partnerOrgID,
-		PricingTier:    pricingTier,
-		Slug:           slug,
-		Type:           typeVar,
-	}
-	return &out
-}
-
-func (r *RoleResourceModel) RefreshFromSharedRole(resp *shared.Role) {
 	if resp != nil {
-		if resp.ExpiresAt != nil {
-			r.ExpiresAt = types.StringValue(resp.ExpiresAt.Format(time.RFC3339Nano))
-		} else {
-			r.ExpiresAt = types.StringNull()
-		}
-		r.Grants = []tfTypes.Grant{}
-		if len(r.Grants) > len(resp.Grants) {
-			r.Grants = r.Grants[:len(resp.Grants)]
-		}
-		for grantsCount, grantsItem := range resp.Grants {
-			var grants1 tfTypes.Grant
-			grants1.Action = types.StringValue(grantsItem.Action)
-			grants1.Conditions = []tfTypes.GrantCondition{}
-			for conditionsCount, conditionsItem := range grantsItem.Conditions {
-				var conditions1 tfTypes.GrantCondition
-				if conditionsItem.EqualsCondition != nil {
-					conditions1.EqualsCondition = &tfTypes.EqualsCondition{}
-					conditions1.EqualsCondition.Attribute = types.StringValue(conditionsItem.EqualsCondition.Attribute)
-					conditions1.EqualsCondition.Operation = types.StringValue(string(conditionsItem.EqualsCondition.Operation))
-					conditions1.EqualsCondition.Values = nil
-					for _, valuesItem := range conditionsItem.EqualsCondition.Values {
-						var values1 types.String
-						values1Result, _ := json.Marshal(valuesItem)
-						values1 = types.StringValue(string(values1Result))
-						conditions1.EqualsCondition.Values = append(conditions1.EqualsCondition.Values, values1)
+		if resp.UserRoleSchemas != nil {
+			r.Schemas = &tfTypes.Schemas{}
+			r.Schemas.ExpiresAt = types.StringPointerValue(typeconvert.TimePointerToStringPointer(resp.UserRoleSchemas.ExpiresAt))
+			r.Schemas.Grants = []tfTypes.Grant{}
+
+			for _, grantsItem := range resp.UserRoleSchemas.Grants {
+				var grants tfTypes.Grant
+
+				grants.Action = types.StringValue(grantsItem.Action)
+				grants.Conditions = []tfTypes.GrantCondition{}
+
+				for _, conditionsItem := range grantsItem.Conditions {
+					var conditions tfTypes.GrantCondition
+
+					if conditionsItem.EqualsCondition != nil {
+						conditions.EqualsCondition = &tfTypes.EqualsCondition{}
+						conditions.EqualsCondition.Attribute = types.StringValue(conditionsItem.EqualsCondition.Attribute)
+						conditions.EqualsCondition.Operation = types.StringValue(string(conditionsItem.EqualsCondition.Operation))
+						conditions.EqualsCondition.Values = nil
+						for _, valuesItem := range conditionsItem.EqualsCondition.Values {
+							var values types.String
+							valuesResult, _ := json.Marshal(valuesItem)
+							values = types.StringValue(string(valuesResult))
+							conditions.EqualsCondition.Values = append(conditions.EqualsCondition.Values, values)
+						}
 					}
+
+					grants.Conditions = append(grants.Conditions, conditions)
 				}
-				if conditionsCount+1 > len(grants1.Conditions) {
-					grants1.Conditions = append(grants1.Conditions, conditions1)
+				if grantsItem.Effect != nil {
+					grants.Effect = types.StringValue(string(*grantsItem.Effect))
 				} else {
-					grants1.Conditions[conditionsCount].EqualsCondition = conditions1.EqualsCondition
+					grants.Effect = types.StringNull()
 				}
+				grants.Resource = types.StringPointerValue(grantsItem.Resource)
+
+				r.Schemas.Grants = append(r.Schemas.Grants, grants)
 			}
-			if grantsItem.Effect != nil {
-				grants1.Effect = types.StringValue(string(*grantsItem.Effect))
-			} else {
-				grants1.Effect = types.StringNull()
-			}
-			grants1.Resource = types.StringPointerValue(grantsItem.Resource)
-			if grantsCount+1 > len(r.Grants) {
-				r.Grants = append(r.Grants, grants1)
-			} else {
-				r.Grants[grantsCount].Action = grants1.Action
-				r.Grants[grantsCount].Conditions = grants1.Conditions
-				r.Grants[grantsCount].Effect = grants1.Effect
-				r.Grants[grantsCount].Resource = grants1.Resource
-			}
+			r.Schemas.ID = types.StringValue(resp.UserRoleSchemas.ID)
+			r.ID = r.Schemas.ID
+			r.Schemas.Name = types.StringValue(resp.UserRoleSchemas.Name)
+			r.Name = r.Schemas.Name
+			r.Schemas.OrganizationID = types.StringValue(resp.UserRoleSchemas.OrganizationID)
+			r.OrganizationID = r.Schemas.OrganizationID
+			r.Schemas.Slug = types.StringValue(resp.UserRoleSchemas.Slug)
+			r.Slug = r.Schemas.Slug
+			r.Schemas.Type = types.StringValue(string(resp.UserRoleSchemas.Type))
 		}
-		r.ID = types.StringValue(resp.ID)
-		r.Name = types.StringValue(resp.Name)
-		r.OrganizationID = types.StringValue(resp.OrganizationID)
-		r.PartnerOrgID = types.StringPointerValue(resp.PartnerOrgID)
-		r.PricingTier = types.StringPointerValue(resp.PricingTier)
-		r.Slug = types.StringValue(resp.Slug)
-		r.Type = types.StringValue(string(resp.Type))
 	}
+
+	return diags
 }
 
-func (r *RoleResourceModel) ToSharedRolePayload() *shared.RolePayload {
-	expiresAt := new(time.Time)
-	if !r.ExpiresAt.IsUnknown() && !r.ExpiresAt.IsNull() {
-		*expiresAt, _ = time.Parse(time.RFC3339Nano, r.ExpiresAt.ValueString())
-	} else {
-		expiresAt = nil
+func (r *RoleResourceModel) ToOperationsDeleteRoleRequest(ctx context.Context) (*operations.DeleteRoleRequest, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var roleID string
+	roleID = r.ID.ValueString()
+
+	out := operations.DeleteRoleRequest{
+		RoleID: roleID,
 	}
-	var grants []shared.GrantWithDependencies = []shared.GrantWithDependencies{}
-	for _, grantsItem := range r.Grants {
-		var action string
-		action = grantsItem.Action.ValueString()
 
-		var conditions []shared.GrantCondition = []shared.GrantCondition{}
-		for _, conditionsItem := range grantsItem.Conditions {
-			if conditionsItem.EqualsCondition != nil {
-				var attribute string
-				attribute = conditionsItem.EqualsCondition.Attribute.ValueString()
+	return &out, diags
+}
 
-				operation := shared.Operation(conditionsItem.EqualsCondition.Operation.ValueString())
-				var values []interface{} = []interface{}{}
-				for _, valuesItem := range conditionsItem.EqualsCondition.Values {
-					var valuesTmp interface{}
-					_ = json.Unmarshal([]byte(valuesItem.ValueString()), &valuesTmp)
-					values = append(values, valuesTmp)
+func (r *RoleResourceModel) ToOperationsGetRoleRequest(ctx context.Context) (*operations.GetRoleRequest, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var roleID string
+	roleID = r.ID.ValueString()
+
+	out := operations.GetRoleRequest{
+		RoleID: roleID,
+	}
+
+	return &out, diags
+}
+
+func (r *RoleResourceModel) ToOperationsPutRoleRequest(ctx context.Context) (*operations.PutRoleRequest, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	rolePayload, rolePayloadDiags := r.ToSharedRolePayload(ctx)
+	diags.Append(rolePayloadDiags...)
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	var roleID string
+	roleID = r.ID.ValueString()
+
+	out := operations.PutRoleRequest{
+		RolePayload: rolePayload,
+		RoleID:      roleID,
+	}
+
+	return &out, diags
+}
+
+func (r *RoleResourceModel) ToSharedCreateRolePayload(ctx context.Context) (*shared.CreateRolePayload, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var out shared.CreateRolePayload
+	var one *shared.One
+	if r.One != nil {
+		expiresAt := new(time.Time)
+		if !r.One.ExpiresAt.IsUnknown() && !r.One.ExpiresAt.IsNull() {
+			*expiresAt, _ = time.Parse(time.RFC3339Nano, r.One.ExpiresAt.ValueString())
+		} else {
+			expiresAt = nil
+		}
+		grants := make([]shared.Grant, 0, len(r.One.Grants))
+		for _, grantsItem := range r.One.Grants {
+			var action string
+			action = grantsItem.Action.ValueString()
+
+			conditions := make([]shared.GrantCondition, 0, len(grantsItem.Conditions))
+			for _, conditionsItem := range grantsItem.Conditions {
+				if conditionsItem.EqualsCondition != nil {
+					var attribute string
+					attribute = conditionsItem.EqualsCondition.Attribute.ValueString()
+
+					operation := shared.Operation(conditionsItem.EqualsCondition.Operation.ValueString())
+					values := make([]interface{}, 0, len(conditionsItem.EqualsCondition.Values))
+					for _, valuesItem := range conditionsItem.EqualsCondition.Values {
+						var valuesTmp interface{}
+						_ = json.Unmarshal([]byte(valuesItem.ValueString()), &valuesTmp)
+						values = append(values, valuesTmp)
+					}
+					equalsCondition := shared.EqualsCondition{
+						Attribute: attribute,
+						Operation: operation,
+						Values:    values,
+					}
+					conditions = append(conditions, shared.GrantCondition{
+						EqualsCondition: &equalsCondition,
+					})
 				}
-				equalsCondition := shared.EqualsCondition{
-					Attribute: attribute,
-					Operation: operation,
-					Values:    values,
-				}
-				conditions = append(conditions, shared.GrantCondition{
-					EqualsCondition: &equalsCondition,
-				})
 			}
+			effect := new(shared.Effect)
+			if !grantsItem.Effect.IsUnknown() && !grantsItem.Effect.IsNull() {
+				*effect = shared.Effect(grantsItem.Effect.ValueString())
+			} else {
+				effect = nil
+			}
+			resource := new(string)
+			if !grantsItem.Resource.IsUnknown() && !grantsItem.Resource.IsNull() {
+				*resource = grantsItem.Resource.ValueString()
+			} else {
+				resource = nil
+			}
+			grants = append(grants, shared.Grant{
+				Action:     action,
+				Conditions: conditions,
+				Effect:     effect,
+				Resource:   resource,
+			})
 		}
-		var dependencies interface{}
-		if !grantsItem.Dependencies.IsUnknown() && !grantsItem.Dependencies.IsNull() {
-			_ = json.Unmarshal([]byte(grantsItem.Dependencies.ValueString()), &dependencies)
-		}
-		effect := new(shared.GrantWithDependenciesEffect)
-		if !grantsItem.Effect.IsUnknown() && !grantsItem.Effect.IsNull() {
-			*effect = shared.GrantWithDependenciesEffect(grantsItem.Effect.ValueString())
+		id := new(string)
+		if !r.One.ID.IsUnknown() && !r.One.ID.IsNull() {
+			*id = r.One.ID.ValueString()
 		} else {
-			effect = nil
+			id = nil
 		}
-		resource := new(string)
-		if !grantsItem.Resource.IsUnknown() && !grantsItem.Resource.IsNull() {
-			*resource = grantsItem.Resource.ValueString()
+		var name string
+		name = r.One.Name.ValueString()
+
+		organizationID := new(string)
+		if !r.One.OrganizationID.IsUnknown() && !r.One.OrganizationID.IsNull() {
+			*organizationID = r.One.OrganizationID.ValueString()
 		} else {
-			resource = nil
+			organizationID = nil
 		}
-		grants = append(grants, shared.GrantWithDependencies{
-			Action:       action,
-			Conditions:   conditions,
-			Dependencies: dependencies,
-			Effect:       effect,
-			Resource:     resource,
-		})
-	}
-	var id string
-	id = r.ID.ValueString()
+		var slug string
+		slug = r.One.Slug.ValueString()
 
-	var name string
-	name = r.Name.ValueString()
+		var typeVar string
+		typeVar = r.One.Type.ValueString()
 
-	var organizationID string
-	organizationID = r.OrganizationID.ValueString()
+		one = &shared.One{
+			ExpiresAt:      expiresAt,
+			Grants:         grants,
+			ID:             id,
+			Name:           name,
+			OrganizationID: organizationID,
+			Slug:           slug,
+			Type:           typeVar,
+		}
+	}
+	if one != nil {
+		out = shared.CreateRolePayload{
+			One: one,
+		}
+	}
+	var two *shared.Two
+	if r.Two != nil {
+		expiresAt1 := new(time.Time)
+		if !r.Two.ExpiresAt.IsUnknown() && !r.Two.ExpiresAt.IsNull() {
+			*expiresAt1, _ = time.Parse(time.RFC3339Nano, r.Two.ExpiresAt.ValueString())
+		} else {
+			expiresAt1 = nil
+		}
+		grants1 := make([]shared.Grant, 0, len(r.Two.Grants))
+		for _, grantsItem1 := range r.Two.Grants {
+			var action1 string
+			action1 = grantsItem1.Action.ValueString()
 
-	partnerOrgID := new(string)
-	if !r.PartnerOrgID.IsUnknown() && !r.PartnerOrgID.IsNull() {
-		*partnerOrgID = r.PartnerOrgID.ValueString()
-	} else {
-		partnerOrgID = nil
-	}
-	pricingTier := new(string)
-	if !r.PricingTier.IsUnknown() && !r.PricingTier.IsNull() {
-		*pricingTier = r.PricingTier.ValueString()
-	} else {
-		pricingTier = nil
-	}
-	var slug string
-	slug = r.Slug.ValueString()
+			conditions1 := make([]shared.GrantCondition, 0, len(grantsItem1.Conditions))
+			for _, conditionsItem1 := range grantsItem1.Conditions {
+				if conditionsItem1.EqualsCondition != nil {
+					var attribute1 string
+					attribute1 = conditionsItem1.EqualsCondition.Attribute.ValueString()
 
-	typeVar := shared.RolePayloadType(r.Type.ValueString())
-	out := shared.RolePayload{
-		ExpiresAt:      expiresAt,
-		Grants:         grants,
-		ID:             id,
-		Name:           name,
-		OrganizationID: organizationID,
-		PartnerOrgID:   partnerOrgID,
-		PricingTier:    pricingTier,
-		Slug:           slug,
-		Type:           typeVar,
+					operation1 := shared.Operation(conditionsItem1.EqualsCondition.Operation.ValueString())
+					values1 := make([]interface{}, 0, len(conditionsItem1.EqualsCondition.Values))
+					for _, valuesItem1 := range conditionsItem1.EqualsCondition.Values {
+						var valuesTmp1 interface{}
+						_ = json.Unmarshal([]byte(valuesItem1.ValueString()), &valuesTmp1)
+						values1 = append(values1, valuesTmp1)
+					}
+					equalsCondition1 := shared.EqualsCondition{
+						Attribute: attribute1,
+						Operation: operation1,
+						Values:    values1,
+					}
+					conditions1 = append(conditions1, shared.GrantCondition{
+						EqualsCondition: &equalsCondition1,
+					})
+				}
+			}
+			effect1 := new(shared.Effect)
+			if !grantsItem1.Effect.IsUnknown() && !grantsItem1.Effect.IsNull() {
+				*effect1 = shared.Effect(grantsItem1.Effect.ValueString())
+			} else {
+				effect1 = nil
+			}
+			resource1 := new(string)
+			if !grantsItem1.Resource.IsUnknown() && !grantsItem1.Resource.IsNull() {
+				*resource1 = grantsItem1.Resource.ValueString()
+			} else {
+				resource1 = nil
+			}
+			grants1 = append(grants1, shared.Grant{
+				Action:     action1,
+				Conditions: conditions1,
+				Effect:     effect1,
+				Resource:   resource1,
+			})
+		}
+		id1 := new(string)
+		if !r.Two.ID.IsUnknown() && !r.Two.ID.IsNull() {
+			*id1 = r.Two.ID.ValueString()
+		} else {
+			id1 = nil
+		}
+		var name1 string
+		name1 = r.Two.Name.ValueString()
+
+		organizationId1 := new(string)
+		if !r.Two.OrganizationID.IsUnknown() && !r.Two.OrganizationID.IsNull() {
+			*organizationId1 = r.Two.OrganizationID.ValueString()
+		} else {
+			organizationId1 = nil
+		}
+		pricingTier := new(string)
+		if !r.Two.PricingTier.IsUnknown() && !r.Two.PricingTier.IsNull() {
+			*pricingTier = r.Two.PricingTier.ValueString()
+		} else {
+			pricingTier = nil
+		}
+		var slug1 string
+		slug1 = r.Two.Slug.ValueString()
+
+		var typeVar1 string
+		typeVar1 = r.Two.Type.ValueString()
+
+		two = &shared.Two{
+			ExpiresAt:      expiresAt1,
+			Grants:         grants1,
+			ID:             id1,
+			Name:           name1,
+			OrganizationID: organizationId1,
+			PricingTier:    pricingTier,
+			Slug:           slug1,
+			Type:           typeVar1,
+		}
 	}
-	return &out
+	if two != nil {
+		out = shared.CreateRolePayload{
+			Two: two,
+		}
+	}
+	var three *shared.Three
+	if r.Three != nil {
+		expiresAt2 := new(time.Time)
+		if !r.Three.ExpiresAt.IsUnknown() && !r.Three.ExpiresAt.IsNull() {
+			*expiresAt2, _ = time.Parse(time.RFC3339Nano, r.Three.ExpiresAt.ValueString())
+		} else {
+			expiresAt2 = nil
+		}
+		grants2 := make([]shared.Grant, 0, len(r.Three.Grants))
+		for _, grantsItem2 := range r.Three.Grants {
+			var action2 string
+			action2 = grantsItem2.Action.ValueString()
+
+			conditions2 := make([]shared.GrantCondition, 0, len(grantsItem2.Conditions))
+			for _, conditionsItem2 := range grantsItem2.Conditions {
+				if conditionsItem2.EqualsCondition != nil {
+					var attribute2 string
+					attribute2 = conditionsItem2.EqualsCondition.Attribute.ValueString()
+
+					operation2 := shared.Operation(conditionsItem2.EqualsCondition.Operation.ValueString())
+					values2 := make([]interface{}, 0, len(conditionsItem2.EqualsCondition.Values))
+					for _, valuesItem2 := range conditionsItem2.EqualsCondition.Values {
+						var valuesTmp2 interface{}
+						_ = json.Unmarshal([]byte(valuesItem2.ValueString()), &valuesTmp2)
+						values2 = append(values2, valuesTmp2)
+					}
+					equalsCondition2 := shared.EqualsCondition{
+						Attribute: attribute2,
+						Operation: operation2,
+						Values:    values2,
+					}
+					conditions2 = append(conditions2, shared.GrantCondition{
+						EqualsCondition: &equalsCondition2,
+					})
+				}
+			}
+			effect2 := new(shared.Effect)
+			if !grantsItem2.Effect.IsUnknown() && !grantsItem2.Effect.IsNull() {
+				*effect2 = shared.Effect(grantsItem2.Effect.ValueString())
+			} else {
+				effect2 = nil
+			}
+			resource2 := new(string)
+			if !grantsItem2.Resource.IsUnknown() && !grantsItem2.Resource.IsNull() {
+				*resource2 = grantsItem2.Resource.ValueString()
+			} else {
+				resource2 = nil
+			}
+			grants2 = append(grants2, shared.Grant{
+				Action:     action2,
+				Conditions: conditions2,
+				Effect:     effect2,
+				Resource:   resource2,
+			})
+		}
+		id2 := new(string)
+		if !r.Three.ID.IsUnknown() && !r.Three.ID.IsNull() {
+			*id2 = r.Three.ID.ValueString()
+		} else {
+			id2 = nil
+		}
+		var name2 string
+		name2 = r.Three.Name.ValueString()
+
+		organizationId2 := new(string)
+		if !r.Three.OrganizationID.IsUnknown() && !r.Three.OrganizationID.IsNull() {
+			*organizationId2 = r.Three.OrganizationID.ValueString()
+		} else {
+			organizationId2 = nil
+		}
+		var slug2 string
+		slug2 = r.Three.Slug.ValueString()
+
+		var typeVar2 string
+		typeVar2 = r.Three.Type.ValueString()
+
+		three = &shared.Three{
+			ExpiresAt:      expiresAt2,
+			Grants:         grants2,
+			ID:             id2,
+			Name:           name2,
+			OrganizationID: organizationId2,
+			Slug:           slug2,
+			Type:           typeVar2,
+		}
+	}
+	if three != nil {
+		out = shared.CreateRolePayload{
+			Three: three,
+		}
+	}
+	var four *shared.Four
+	if r.Four != nil {
+		expiresAt3 := new(time.Time)
+		if !r.Four.ExpiresAt.IsUnknown() && !r.Four.ExpiresAt.IsNull() {
+			*expiresAt3, _ = time.Parse(time.RFC3339Nano, r.Four.ExpiresAt.ValueString())
+		} else {
+			expiresAt3 = nil
+		}
+		grants3 := make([]shared.Grant, 0, len(r.Four.Grants))
+		for _, grantsItem3 := range r.Four.Grants {
+			var action3 string
+			action3 = grantsItem3.Action.ValueString()
+
+			conditions3 := make([]shared.GrantCondition, 0, len(grantsItem3.Conditions))
+			for _, conditionsItem3 := range grantsItem3.Conditions {
+				if conditionsItem3.EqualsCondition != nil {
+					var attribute3 string
+					attribute3 = conditionsItem3.EqualsCondition.Attribute.ValueString()
+
+					operation3 := shared.Operation(conditionsItem3.EqualsCondition.Operation.ValueString())
+					values3 := make([]interface{}, 0, len(conditionsItem3.EqualsCondition.Values))
+					for _, valuesItem3 := range conditionsItem3.EqualsCondition.Values {
+						var valuesTmp3 interface{}
+						_ = json.Unmarshal([]byte(valuesItem3.ValueString()), &valuesTmp3)
+						values3 = append(values3, valuesTmp3)
+					}
+					equalsCondition3 := shared.EqualsCondition{
+						Attribute: attribute3,
+						Operation: operation3,
+						Values:    values3,
+					}
+					conditions3 = append(conditions3, shared.GrantCondition{
+						EqualsCondition: &equalsCondition3,
+					})
+				}
+			}
+			effect3 := new(shared.Effect)
+			if !grantsItem3.Effect.IsUnknown() && !grantsItem3.Effect.IsNull() {
+				*effect3 = shared.Effect(grantsItem3.Effect.ValueString())
+			} else {
+				effect3 = nil
+			}
+			resource3 := new(string)
+			if !grantsItem3.Resource.IsUnknown() && !grantsItem3.Resource.IsNull() {
+				*resource3 = grantsItem3.Resource.ValueString()
+			} else {
+				resource3 = nil
+			}
+			grants3 = append(grants3, shared.Grant{
+				Action:     action3,
+				Conditions: conditions3,
+				Effect:     effect3,
+				Resource:   resource3,
+			})
+		}
+		id3 := new(string)
+		if !r.Four.ID.IsUnknown() && !r.Four.ID.IsNull() {
+			*id3 = r.Four.ID.ValueString()
+		} else {
+			id3 = nil
+		}
+		var name3 string
+		name3 = r.Four.Name.ValueString()
+
+		organizationId3 := new(string)
+		if !r.Four.OrganizationID.IsUnknown() && !r.Four.OrganizationID.IsNull() {
+			*organizationId3 = r.Four.OrganizationID.ValueString()
+		} else {
+			organizationId3 = nil
+		}
+		partnerOrgID := new(string)
+		if !r.Four.PartnerOrgID.IsUnknown() && !r.Four.PartnerOrgID.IsNull() {
+			*partnerOrgID = r.Four.PartnerOrgID.ValueString()
+		} else {
+			partnerOrgID = nil
+		}
+		var slug3 string
+		slug3 = r.Four.Slug.ValueString()
+
+		var typeVar3 string
+		typeVar3 = r.Four.Type.ValueString()
+
+		four = &shared.Four{
+			ExpiresAt:      expiresAt3,
+			Grants:         grants3,
+			ID:             id3,
+			Name:           name3,
+			OrganizationID: organizationId3,
+			PartnerOrgID:   partnerOrgID,
+			Slug:           slug3,
+			Type:           typeVar3,
+		}
+	}
+	if four != nil {
+		out = shared.CreateRolePayload{
+			Four: four,
+		}
+	}
+	var five *shared.Five
+	if r.Five != nil {
+		expiresAt4 := new(time.Time)
+		if !r.Five.ExpiresAt.IsUnknown() && !r.Five.ExpiresAt.IsNull() {
+			*expiresAt4, _ = time.Parse(time.RFC3339Nano, r.Five.ExpiresAt.ValueString())
+		} else {
+			expiresAt4 = nil
+		}
+		grants4 := make([]shared.Grant, 0, len(r.Five.Grants))
+		for _, grantsItem4 := range r.Five.Grants {
+			var action4 string
+			action4 = grantsItem4.Action.ValueString()
+
+			conditions4 := make([]shared.GrantCondition, 0, len(grantsItem4.Conditions))
+			for _, conditionsItem4 := range grantsItem4.Conditions {
+				if conditionsItem4.EqualsCondition != nil {
+					var attribute4 string
+					attribute4 = conditionsItem4.EqualsCondition.Attribute.ValueString()
+
+					operation4 := shared.Operation(conditionsItem4.EqualsCondition.Operation.ValueString())
+					values4 := make([]interface{}, 0, len(conditionsItem4.EqualsCondition.Values))
+					for _, valuesItem4 := range conditionsItem4.EqualsCondition.Values {
+						var valuesTmp4 interface{}
+						_ = json.Unmarshal([]byte(valuesItem4.ValueString()), &valuesTmp4)
+						values4 = append(values4, valuesTmp4)
+					}
+					equalsCondition4 := shared.EqualsCondition{
+						Attribute: attribute4,
+						Operation: operation4,
+						Values:    values4,
+					}
+					conditions4 = append(conditions4, shared.GrantCondition{
+						EqualsCondition: &equalsCondition4,
+					})
+				}
+			}
+			effect4 := new(shared.Effect)
+			if !grantsItem4.Effect.IsUnknown() && !grantsItem4.Effect.IsNull() {
+				*effect4 = shared.Effect(grantsItem4.Effect.ValueString())
+			} else {
+				effect4 = nil
+			}
+			resource4 := new(string)
+			if !grantsItem4.Resource.IsUnknown() && !grantsItem4.Resource.IsNull() {
+				*resource4 = grantsItem4.Resource.ValueString()
+			} else {
+				resource4 = nil
+			}
+			grants4 = append(grants4, shared.Grant{
+				Action:     action4,
+				Conditions: conditions4,
+				Effect:     effect4,
+				Resource:   resource4,
+			})
+		}
+		id4 := new(string)
+		if !r.Five.ID.IsUnknown() && !r.Five.ID.IsNull() {
+			*id4 = r.Five.ID.ValueString()
+		} else {
+			id4 = nil
+		}
+		var name4 string
+		name4 = r.Five.Name.ValueString()
+
+		organizationId4 := new(string)
+		if !r.Five.OrganizationID.IsUnknown() && !r.Five.OrganizationID.IsNull() {
+			*organizationId4 = r.Five.OrganizationID.ValueString()
+		} else {
+			organizationId4 = nil
+		}
+		var slug4 string
+		slug4 = r.Five.Slug.ValueString()
+
+		var typeVar4 string
+		typeVar4 = r.Five.Type.ValueString()
+
+		five = &shared.Five{
+			ExpiresAt:      expiresAt4,
+			Grants:         grants4,
+			ID:             id4,
+			Name:           name4,
+			OrganizationID: organizationId4,
+			Slug:           slug4,
+			Type:           typeVar4,
+		}
+	}
+	if five != nil {
+		out = shared.CreateRolePayload{
+			Five: five,
+		}
+	}
+
+	return &out, diags
+}
+
+func (r *RoleResourceModel) ToSharedRolePayload(ctx context.Context) (*shared.RolePayload, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var out shared.RolePayload
+	var userRoleSchemas1 *shared.UserRoleSchemas1
+	if r.Schemas != nil {
+		expiresAt := new(time.Time)
+		if !r.Schemas.ExpiresAt.IsUnknown() && !r.Schemas.ExpiresAt.IsNull() {
+			*expiresAt, _ = time.Parse(time.RFC3339Nano, r.Schemas.ExpiresAt.ValueString())
+		} else {
+			expiresAt = nil
+		}
+		grants := make([]shared.GrantWithDependencies, 0, len(r.Schemas.Grants))
+		for _, grantsItem := range r.Schemas.Grants {
+			var action string
+			action = grantsItem.Action.ValueString()
+
+			conditions := make([]shared.GrantCondition, 0, len(grantsItem.Conditions))
+			for _, conditionsItem := range grantsItem.Conditions {
+				if conditionsItem.EqualsCondition != nil {
+					var attribute string
+					attribute = conditionsItem.EqualsCondition.Attribute.ValueString()
+
+					operation := shared.Operation(conditionsItem.EqualsCondition.Operation.ValueString())
+					values := make([]interface{}, 0, len(conditionsItem.EqualsCondition.Values))
+					for _, valuesItem := range conditionsItem.EqualsCondition.Values {
+						var valuesTmp interface{}
+						_ = json.Unmarshal([]byte(valuesItem.ValueString()), &valuesTmp)
+						values = append(values, valuesTmp)
+					}
+					equalsCondition := shared.EqualsCondition{
+						Attribute: attribute,
+						Operation: operation,
+						Values:    values,
+					}
+					conditions = append(conditions, shared.GrantCondition{
+						EqualsCondition: &equalsCondition,
+					})
+				}
+			}
+			// Role#update.user_role_schemas1.grants.dependenciesRole#update.user_role_schemas1.grants.dependencies.enum impedance mismatch: any != string
+			var dependencies *interface{}
+			effect := new(shared.GrantWithDependenciesEffect)
+			if !grantsItem.Effect.IsUnknown() && !grantsItem.Effect.IsNull() {
+				*effect = shared.GrantWithDependenciesEffect(grantsItem.Effect.ValueString())
+			} else {
+				effect = nil
+			}
+			resource := new(string)
+			if !grantsItem.Resource.IsUnknown() && !grantsItem.Resource.IsNull() {
+				*resource = grantsItem.Resource.ValueString()
+			} else {
+				resource = nil
+			}
+			grants = append(grants, shared.GrantWithDependencies{
+				Action:       action,
+				Conditions:   conditions,
+				Dependencies: dependencies,
+				Effect:       effect,
+				Resource:     resource,
+			})
+		}
+		var id string
+		id = r.Schemas.ID.ValueString()
+
+		var name string
+		name = r.Schemas.Name.ValueString()
+
+		var organizationID string
+		organizationID = r.Schemas.OrganizationID.ValueString()
+
+		var slug string
+		slug = r.Schemas.Slug.ValueString()
+
+		typeVar := shared.SchemasUserRoleType(r.Schemas.Type.ValueString())
+		userRoleSchemas1 = &shared.UserRoleSchemas1{
+			ExpiresAt:      expiresAt,
+			Grants:         grants,
+			ID:             id,
+			Name:           name,
+			OrganizationID: organizationID,
+			Slug:           slug,
+			Type:           typeVar,
+		}
+	}
+	if userRoleSchemas1 != nil {
+		out = shared.RolePayload{
+			UserRoleSchemas1: userRoleSchemas1,
+		}
+	}
+	var orgRoleSchemas *shared.OrgRoleSchemas
+	if r.Schemas != nil {
+		expiresAt1 := new(time.Time)
+		if !r.Schemas.ExpiresAt.IsUnknown() && !r.Schemas.ExpiresAt.IsNull() {
+			*expiresAt1, _ = time.Parse(time.RFC3339Nano, r.Schemas.ExpiresAt.ValueString())
+		} else {
+			expiresAt1 = nil
+		}
+		grants1 := make([]shared.GrantWithDependencies, 0, len(r.Schemas.Grants))
+		for _, grantsItem1 := range r.Schemas.Grants {
+			var action1 string
+			action1 = grantsItem1.Action.ValueString()
+
+			conditions1 := make([]shared.GrantCondition, 0, len(grantsItem1.Conditions))
+			for _, conditionsItem1 := range grantsItem1.Conditions {
+				if conditionsItem1.EqualsCondition != nil {
+					var attribute1 string
+					attribute1 = conditionsItem1.EqualsCondition.Attribute.ValueString()
+
+					operation1 := shared.Operation(conditionsItem1.EqualsCondition.Operation.ValueString())
+					values1 := make([]interface{}, 0, len(conditionsItem1.EqualsCondition.Values))
+					for _, valuesItem1 := range conditionsItem1.EqualsCondition.Values {
+						var valuesTmp1 interface{}
+						_ = json.Unmarshal([]byte(valuesItem1.ValueString()), &valuesTmp1)
+						values1 = append(values1, valuesTmp1)
+					}
+					equalsCondition1 := shared.EqualsCondition{
+						Attribute: attribute1,
+						Operation: operation1,
+						Values:    values1,
+					}
+					conditions1 = append(conditions1, shared.GrantCondition{
+						EqualsCondition: &equalsCondition1,
+					})
+				}
+			}
+			// Role#update.org_role_schemas.grants.dependenciesRole#update.org_role_schemas.grants.dependencies.enum impedance mismatch: any != string
+			var dependencies1 *interface{}
+			effect1 := new(shared.GrantWithDependenciesEffect)
+			if !grantsItem1.Effect.IsUnknown() && !grantsItem1.Effect.IsNull() {
+				*effect1 = shared.GrantWithDependenciesEffect(grantsItem1.Effect.ValueString())
+			} else {
+				effect1 = nil
+			}
+			resource1 := new(string)
+			if !grantsItem1.Resource.IsUnknown() && !grantsItem1.Resource.IsNull() {
+				*resource1 = grantsItem1.Resource.ValueString()
+			} else {
+				resource1 = nil
+			}
+			grants1 = append(grants1, shared.GrantWithDependencies{
+				Action:       action1,
+				Conditions:   conditions1,
+				Dependencies: dependencies1,
+				Effect:       effect1,
+				Resource:     resource1,
+			})
+		}
+		var id1 string
+		id1 = r.Schemas.ID.ValueString()
+
+		var name1 string
+		name1 = r.Schemas.Name.ValueString()
+
+		var organizationId1 string
+		organizationId1 = r.Schemas.OrganizationID.ValueString()
+
+		pricingTier := new(string)
+		if !r.Schemas.PricingTier.IsUnknown() && !r.Schemas.PricingTier.IsNull() {
+			*pricingTier = r.Schemas.PricingTier.ValueString()
+		} else {
+			pricingTier = nil
+		}
+		var slug1 string
+		slug1 = r.Schemas.Slug.ValueString()
+
+		typeVar1 := shared.Type(r.Schemas.Type.ValueString())
+		orgRoleSchemas = &shared.OrgRoleSchemas{
+			ExpiresAt:      expiresAt1,
+			Grants:         grants1,
+			ID:             id1,
+			Name:           name1,
+			OrganizationID: organizationId1,
+			PricingTier:    pricingTier,
+			Slug:           slug1,
+			Type:           typeVar1,
+		}
+	}
+	if orgRoleSchemas != nil {
+		out = shared.RolePayload{
+			OrgRoleSchemas: orgRoleSchemas,
+		}
+	}
+	var shareRoleSchemas1 *shared.ShareRoleSchemas1
+	if r.Schemas != nil {
+		expiresAt2 := new(time.Time)
+		if !r.Schemas.ExpiresAt.IsUnknown() && !r.Schemas.ExpiresAt.IsNull() {
+			*expiresAt2, _ = time.Parse(time.RFC3339Nano, r.Schemas.ExpiresAt.ValueString())
+		} else {
+			expiresAt2 = nil
+		}
+		grants2 := make([]shared.GrantWithDependencies, 0, len(r.Schemas.Grants))
+		for _, grantsItem2 := range r.Schemas.Grants {
+			var action2 string
+			action2 = grantsItem2.Action.ValueString()
+
+			conditions2 := make([]shared.GrantCondition, 0, len(grantsItem2.Conditions))
+			for _, conditionsItem2 := range grantsItem2.Conditions {
+				if conditionsItem2.EqualsCondition != nil {
+					var attribute2 string
+					attribute2 = conditionsItem2.EqualsCondition.Attribute.ValueString()
+
+					operation2 := shared.Operation(conditionsItem2.EqualsCondition.Operation.ValueString())
+					values2 := make([]interface{}, 0, len(conditionsItem2.EqualsCondition.Values))
+					for _, valuesItem2 := range conditionsItem2.EqualsCondition.Values {
+						var valuesTmp2 interface{}
+						_ = json.Unmarshal([]byte(valuesItem2.ValueString()), &valuesTmp2)
+						values2 = append(values2, valuesTmp2)
+					}
+					equalsCondition2 := shared.EqualsCondition{
+						Attribute: attribute2,
+						Operation: operation2,
+						Values:    values2,
+					}
+					conditions2 = append(conditions2, shared.GrantCondition{
+						EqualsCondition: &equalsCondition2,
+					})
+				}
+			}
+			// Role#update.share_role_schemas1.grants.dependenciesRole#update.share_role_schemas1.grants.dependencies.enum impedance mismatch: any != string
+			var dependencies2 *interface{}
+			effect2 := new(shared.GrantWithDependenciesEffect)
+			if !grantsItem2.Effect.IsUnknown() && !grantsItem2.Effect.IsNull() {
+				*effect2 = shared.GrantWithDependenciesEffect(grantsItem2.Effect.ValueString())
+			} else {
+				effect2 = nil
+			}
+			resource2 := new(string)
+			if !grantsItem2.Resource.IsUnknown() && !grantsItem2.Resource.IsNull() {
+				*resource2 = grantsItem2.Resource.ValueString()
+			} else {
+				resource2 = nil
+			}
+			grants2 = append(grants2, shared.GrantWithDependencies{
+				Action:       action2,
+				Conditions:   conditions2,
+				Dependencies: dependencies2,
+				Effect:       effect2,
+				Resource:     resource2,
+			})
+		}
+		var id2 string
+		id2 = r.Schemas.ID.ValueString()
+
+		var name2 string
+		name2 = r.Schemas.Name.ValueString()
+
+		var organizationId2 string
+		organizationId2 = r.Schemas.OrganizationID.ValueString()
+
+		var slug2 string
+		slug2 = r.Schemas.Slug.ValueString()
+
+		typeVar2 := shared.SchemasShareRoleType(r.Schemas.Type.ValueString())
+		shareRoleSchemas1 = &shared.ShareRoleSchemas1{
+			ExpiresAt:      expiresAt2,
+			Grants:         grants2,
+			ID:             id2,
+			Name:           name2,
+			OrganizationID: organizationId2,
+			Slug:           slug2,
+			Type:           typeVar2,
+		}
+	}
+	if shareRoleSchemas1 != nil {
+		out = shared.RolePayload{
+			ShareRoleSchemas1: shareRoleSchemas1,
+		}
+	}
+	var partnerRoleSchemas1 *shared.PartnerRoleSchemas1
+	if r.Schemas != nil {
+		expiresAt3 := new(time.Time)
+		if !r.Schemas.ExpiresAt.IsUnknown() && !r.Schemas.ExpiresAt.IsNull() {
+			*expiresAt3, _ = time.Parse(time.RFC3339Nano, r.Schemas.ExpiresAt.ValueString())
+		} else {
+			expiresAt3 = nil
+		}
+		grants3 := make([]shared.GrantWithDependencies, 0, len(r.Schemas.Grants))
+		for _, grantsItem3 := range r.Schemas.Grants {
+			var action3 string
+			action3 = grantsItem3.Action.ValueString()
+
+			conditions3 := make([]shared.GrantCondition, 0, len(grantsItem3.Conditions))
+			for _, conditionsItem3 := range grantsItem3.Conditions {
+				if conditionsItem3.EqualsCondition != nil {
+					var attribute3 string
+					attribute3 = conditionsItem3.EqualsCondition.Attribute.ValueString()
+
+					operation3 := shared.Operation(conditionsItem3.EqualsCondition.Operation.ValueString())
+					values3 := make([]interface{}, 0, len(conditionsItem3.EqualsCondition.Values))
+					for _, valuesItem3 := range conditionsItem3.EqualsCondition.Values {
+						var valuesTmp3 interface{}
+						_ = json.Unmarshal([]byte(valuesItem3.ValueString()), &valuesTmp3)
+						values3 = append(values3, valuesTmp3)
+					}
+					equalsCondition3 := shared.EqualsCondition{
+						Attribute: attribute3,
+						Operation: operation3,
+						Values:    values3,
+					}
+					conditions3 = append(conditions3, shared.GrantCondition{
+						EqualsCondition: &equalsCondition3,
+					})
+				}
+			}
+			// Role#update.partner_role_schemas1.grants.dependenciesRole#update.partner_role_schemas1.grants.dependencies.enum impedance mismatch: any != string
+			var dependencies3 *interface{}
+			effect3 := new(shared.GrantWithDependenciesEffect)
+			if !grantsItem3.Effect.IsUnknown() && !grantsItem3.Effect.IsNull() {
+				*effect3 = shared.GrantWithDependenciesEffect(grantsItem3.Effect.ValueString())
+			} else {
+				effect3 = nil
+			}
+			resource3 := new(string)
+			if !grantsItem3.Resource.IsUnknown() && !grantsItem3.Resource.IsNull() {
+				*resource3 = grantsItem3.Resource.ValueString()
+			} else {
+				resource3 = nil
+			}
+			grants3 = append(grants3, shared.GrantWithDependencies{
+				Action:       action3,
+				Conditions:   conditions3,
+				Dependencies: dependencies3,
+				Effect:       effect3,
+				Resource:     resource3,
+			})
+		}
+		var id3 string
+		id3 = r.Schemas.ID.ValueString()
+
+		var name3 string
+		name3 = r.Schemas.Name.ValueString()
+
+		var organizationId3 string
+		organizationId3 = r.Schemas.OrganizationID.ValueString()
+
+		partnerOrgID := new(string)
+		if !r.Schemas.PartnerOrgID.IsUnknown() && !r.Schemas.PartnerOrgID.IsNull() {
+			*partnerOrgID = r.Schemas.PartnerOrgID.ValueString()
+		} else {
+			partnerOrgID = nil
+		}
+		var slug3 string
+		slug3 = r.Schemas.Slug.ValueString()
+
+		typeVar3 := shared.SchemasType(r.Schemas.Type.ValueString())
+		partnerRoleSchemas1 = &shared.PartnerRoleSchemas1{
+			ExpiresAt:      expiresAt3,
+			Grants:         grants3,
+			ID:             id3,
+			Name:           name3,
+			OrganizationID: organizationId3,
+			PartnerOrgID:   partnerOrgID,
+			Slug:           slug3,
+			Type:           typeVar3,
+		}
+	}
+	if partnerRoleSchemas1 != nil {
+		out = shared.RolePayload{
+			PartnerRoleSchemas1: partnerRoleSchemas1,
+		}
+	}
+	var portalRoleSchemas1 *shared.PortalRoleSchemas1
+	if r.Schemas != nil {
+		expiresAt4 := new(time.Time)
+		if !r.Schemas.ExpiresAt.IsUnknown() && !r.Schemas.ExpiresAt.IsNull() {
+			*expiresAt4, _ = time.Parse(time.RFC3339Nano, r.Schemas.ExpiresAt.ValueString())
+		} else {
+			expiresAt4 = nil
+		}
+		grants4 := make([]shared.GrantWithDependencies, 0, len(r.Schemas.Grants))
+		for _, grantsItem4 := range r.Schemas.Grants {
+			var action4 string
+			action4 = grantsItem4.Action.ValueString()
+
+			conditions4 := make([]shared.GrantCondition, 0, len(grantsItem4.Conditions))
+			for _, conditionsItem4 := range grantsItem4.Conditions {
+				if conditionsItem4.EqualsCondition != nil {
+					var attribute4 string
+					attribute4 = conditionsItem4.EqualsCondition.Attribute.ValueString()
+
+					operation4 := shared.Operation(conditionsItem4.EqualsCondition.Operation.ValueString())
+					values4 := make([]interface{}, 0, len(conditionsItem4.EqualsCondition.Values))
+					for _, valuesItem4 := range conditionsItem4.EqualsCondition.Values {
+						var valuesTmp4 interface{}
+						_ = json.Unmarshal([]byte(valuesItem4.ValueString()), &valuesTmp4)
+						values4 = append(values4, valuesTmp4)
+					}
+					equalsCondition4 := shared.EqualsCondition{
+						Attribute: attribute4,
+						Operation: operation4,
+						Values:    values4,
+					}
+					conditions4 = append(conditions4, shared.GrantCondition{
+						EqualsCondition: &equalsCondition4,
+					})
+				}
+			}
+			// Role#update.portal_role_schemas1.grants.dependenciesRole#update.portal_role_schemas1.grants.dependencies.enum impedance mismatch: any != string
+			var dependencies4 *interface{}
+			effect4 := new(shared.GrantWithDependenciesEffect)
+			if !grantsItem4.Effect.IsUnknown() && !grantsItem4.Effect.IsNull() {
+				*effect4 = shared.GrantWithDependenciesEffect(grantsItem4.Effect.ValueString())
+			} else {
+				effect4 = nil
+			}
+			resource4 := new(string)
+			if !grantsItem4.Resource.IsUnknown() && !grantsItem4.Resource.IsNull() {
+				*resource4 = grantsItem4.Resource.ValueString()
+			} else {
+				resource4 = nil
+			}
+			grants4 = append(grants4, shared.GrantWithDependencies{
+				Action:       action4,
+				Conditions:   conditions4,
+				Dependencies: dependencies4,
+				Effect:       effect4,
+				Resource:     resource4,
+			})
+		}
+		var id4 string
+		id4 = r.Schemas.ID.ValueString()
+
+		var name4 string
+		name4 = r.Schemas.Name.ValueString()
+
+		var organizationId4 string
+		organizationId4 = r.Schemas.OrganizationID.ValueString()
+
+		var slug4 string
+		slug4 = r.Schemas.Slug.ValueString()
+
+		typeVar4 := shared.SchemasPortalRoleType(r.Schemas.Type.ValueString())
+		portalRoleSchemas1 = &shared.PortalRoleSchemas1{
+			ExpiresAt:      expiresAt4,
+			Grants:         grants4,
+			ID:             id4,
+			Name:           name4,
+			OrganizationID: organizationId4,
+			Slug:           slug4,
+			Type:           typeVar4,
+		}
+	}
+	if portalRoleSchemas1 != nil {
+		out = shared.RolePayload{
+			PortalRoleSchemas1: portalRoleSchemas1,
+		}
+	}
+
+	return &out, diags
 }

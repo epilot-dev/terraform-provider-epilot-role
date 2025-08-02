@@ -3,69 +3,82 @@
 package provider
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/provider/typeconvert"
 	tfTypes "github.com/epilot-dev/terraform-provider-epilot-role/internal/provider/types"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/operations"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/shared"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"time"
 )
 
-func (r *RoleDataSourceModel) RefreshFromSharedRole(resp *shared.Role) {
+func (r *RoleDataSourceModel) RefreshFromSharedRole(ctx context.Context, resp *shared.Role) diag.Diagnostics {
+	var diags diag.Diagnostics
+
 	if resp != nil {
-		if resp.ExpiresAt != nil {
-			r.ExpiresAt = types.StringValue(resp.ExpiresAt.Format(time.RFC3339Nano))
-		} else {
-			r.ExpiresAt = types.StringNull()
-		}
-		r.Grants = []tfTypes.Grant1{}
-		if len(r.Grants) > len(resp.Grants) {
-			r.Grants = r.Grants[:len(resp.Grants)]
-		}
-		for grantsCount, grantsItem := range resp.Grants {
-			var grants1 tfTypes.Grant1
-			grants1.Action = types.StringValue(grantsItem.Action)
-			grants1.Conditions = []tfTypes.GrantCondition{}
-			for conditionsCount, conditionsItem := range grantsItem.Conditions {
-				var conditions1 tfTypes.GrantCondition
-				if conditionsItem.EqualsCondition != nil {
-					conditions1.EqualsCondition = &tfTypes.EqualsCondition{}
-					conditions1.EqualsCondition.Attribute = types.StringValue(conditionsItem.EqualsCondition.Attribute)
-					conditions1.EqualsCondition.Operation = types.StringValue(string(conditionsItem.EqualsCondition.Operation))
-					conditions1.EqualsCondition.Values = nil
-					for _, valuesItem := range conditionsItem.EqualsCondition.Values {
-						var values1 types.String
-						values1Result, _ := json.Marshal(valuesItem)
-						values1 = types.StringValue(string(values1Result))
-						conditions1.EqualsCondition.Values = append(conditions1.EqualsCondition.Values, values1)
+		if resp.UserRoleSchemas != nil {
+			r.Schemas = &tfTypes.Schemas{}
+			r.Schemas.ExpiresAt = types.StringPointerValue(typeconvert.TimePointerToStringPointer(resp.UserRoleSchemas.ExpiresAt))
+			r.Schemas.Grants = []tfTypes.Grant{}
+
+			for _, grantsItem := range resp.UserRoleSchemas.Grants {
+				var grants tfTypes.Grant
+
+				grants.Action = types.StringValue(grantsItem.Action)
+				grants.Conditions = []tfTypes.GrantCondition{}
+
+				for _, conditionsItem := range grantsItem.Conditions {
+					var conditions tfTypes.GrantCondition
+
+					if conditionsItem.EqualsCondition != nil {
+						conditions.EqualsCondition = &tfTypes.EqualsCondition{}
+						conditions.EqualsCondition.Attribute = types.StringValue(conditionsItem.EqualsCondition.Attribute)
+						conditions.EqualsCondition.Operation = types.StringValue(string(conditionsItem.EqualsCondition.Operation))
+						conditions.EqualsCondition.Values = nil
+						for _, valuesItem := range conditionsItem.EqualsCondition.Values {
+							var values types.String
+							valuesResult, _ := json.Marshal(valuesItem)
+							values = types.StringValue(string(valuesResult))
+							conditions.EqualsCondition.Values = append(conditions.EqualsCondition.Values, values)
+						}
 					}
+
+					grants.Conditions = append(grants.Conditions, conditions)
 				}
-				if conditionsCount+1 > len(grants1.Conditions) {
-					grants1.Conditions = append(grants1.Conditions, conditions1)
+				if grantsItem.Effect != nil {
+					grants.Effect = types.StringValue(string(*grantsItem.Effect))
 				} else {
-					grants1.Conditions[conditionsCount].EqualsCondition = conditions1.EqualsCondition
+					grants.Effect = types.StringNull()
 				}
+				grants.Resource = types.StringPointerValue(grantsItem.Resource)
+
+				r.Schemas.Grants = append(r.Schemas.Grants, grants)
 			}
-			if grantsItem.Effect != nil {
-				grants1.Effect = types.StringValue(string(*grantsItem.Effect))
-			} else {
-				grants1.Effect = types.StringNull()
-			}
-			grants1.Resource = types.StringPointerValue(grantsItem.Resource)
-			if grantsCount+1 > len(r.Grants) {
-				r.Grants = append(r.Grants, grants1)
-			} else {
-				r.Grants[grantsCount].Action = grants1.Action
-				r.Grants[grantsCount].Conditions = grants1.Conditions
-				r.Grants[grantsCount].Effect = grants1.Effect
-				r.Grants[grantsCount].Resource = grants1.Resource
-			}
+			r.Schemas.ID = types.StringValue(resp.UserRoleSchemas.ID)
+			r.ID = r.Schemas.ID
+			r.Schemas.Name = types.StringValue(resp.UserRoleSchemas.Name)
+			r.Name = r.Schemas.Name
+			r.Schemas.OrganizationID = types.StringValue(resp.UserRoleSchemas.OrganizationID)
+			r.OrganizationID = r.Schemas.OrganizationID
+			r.Schemas.Slug = types.StringValue(resp.UserRoleSchemas.Slug)
+			r.Slug = r.Schemas.Slug
+			r.Schemas.Type = types.StringValue(string(resp.UserRoleSchemas.Type))
 		}
-		r.ID = types.StringValue(resp.ID)
-		r.Name = types.StringValue(resp.Name)
-		r.OrganizationID = types.StringValue(resp.OrganizationID)
-		r.PartnerOrgID = types.StringPointerValue(resp.PartnerOrgID)
-		r.PricingTier = types.StringPointerValue(resp.PricingTier)
-		r.Slug = types.StringValue(resp.Slug)
-		r.Type = types.StringValue(string(resp.Type))
 	}
+
+	return diags
+}
+
+func (r *RoleDataSourceModel) ToOperationsGetRoleRequest(ctx context.Context) (*operations.GetRoleRequest, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var roleID string
+	roleID = r.ID.ValueString()
+
+	out := operations.GetRoleRequest{
+		RoleID: roleID,
+	}
+
+	return &out, diags
 }
