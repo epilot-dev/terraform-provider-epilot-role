@@ -9,16 +9,16 @@ type Assignment struct {
 	UserID *string `json:"user_id,omitempty"`
 }
 
-func (o *Assignment) GetRoles() []string {
-	if o == nil {
+func (a *Assignment) GetRoles() []string {
+	if a == nil {
 		return nil
 	}
-	return o.Roles
+	return a.Roles
 }
 
-func (o *Assignment) GetUserID() *string {
-	if o == nil {
+func (a *Assignment) GetUserID() *string {
+	if a == nil {
 		return nil
 	}
-	return o.UserID
+	return a.UserID
 }

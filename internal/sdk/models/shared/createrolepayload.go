@@ -3,52 +3,96 @@
 package shared
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/utils"
 	"time"
 )
 
-type Type string
-
-const (
-	TypeUserRole    Type = "user_role"
-	TypeOrgRole     Type = "org_role"
-	TypeShareRole   Type = "share_role"
-	TypePartnerRole Type = "partner_role"
-	TypePortalRole  Type = "portal_role"
-)
-
-func (e Type) ToPointer() *Type {
-	return &e
+// Five - A role that is applied to end customers and installers using the Portals
+type Five struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	// List of grants (permissions) applied to the role
+	Grants []Grant `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID *string `json:"id,omitempty"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// URL-friendly name for the role
+	Slug string `json:"slug"`
+	// Type of the role
+	Type string `json:"type"`
 }
-func (e *Type) UnmarshalJSON(data []byte) error {
-	var v string
-	if err := json.Unmarshal(data, &v); err != nil {
+
+func (f Five) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(f, "", false)
+}
+
+func (f *Five) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &f, "", false, []string{"grants", "name", "slug", "type"}); err != nil {
 		return err
 	}
-	switch v {
-	case "user_role":
-		fallthrough
-	case "org_role":
-		fallthrough
-	case "share_role":
-		fallthrough
-	case "partner_role":
-		fallthrough
-	case "portal_role":
-		*e = Type(v)
-		return nil
-	default:
-		return fmt.Errorf("invalid value for Type: %v", v)
-	}
+	return nil
 }
 
-// CreateRolePayload - A payload to create or update a role with attached grants.
-type CreateRolePayload struct {
+func (f *Five) GetExpiresAt() *time.Time {
+	if f == nil {
+		return nil
+	}
+	return f.ExpiresAt
+}
+
+func (f *Five) GetGrants() []Grant {
+	if f == nil {
+		return []Grant{}
+	}
+	return f.Grants
+}
+
+func (f *Five) GetID() *string {
+	if f == nil {
+		return nil
+	}
+	return f.ID
+}
+
+func (f *Five) GetName() string {
+	if f == nil {
+		return ""
+	}
+	return f.Name
+}
+
+func (f *Five) GetOrganizationID() *string {
+	if f == nil {
+		return nil
+	}
+	return f.OrganizationID
+}
+
+func (f *Five) GetSlug() string {
+	if f == nil {
+		return ""
+	}
+	return f.Slug
+}
+
+func (f *Five) GetType() string {
+	if f == nil {
+		return ""
+	}
+	return f.Type
+}
+
+// Four - A role that appears in another organization's role list that can be assigned but not modified by the partner organization.
+type Four struct {
 	// date and time then the role will expire
-	ExpiresAt *time.Time              `json:"expires_at,omitempty"`
-	Grants    []GrantWithDependencies `json:"grants"`
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	// List of grants (permissions) applied to the role
+	Grants []Grant `json:"grants"`
 	// Format: <organization_id>:<slug>
 	ID *string `json:"id,omitempty"`
 	// Human-friendly name for the role
@@ -56,83 +100,447 @@ type CreateRolePayload struct {
 	// Id of an organization
 	OrganizationID *string `json:"organization_id,omitempty"`
 	PartnerOrgID   *string `json:"partner_org_id,omitempty"`
-	// The pricing tier of the organization this root role is based on
-	PricingTier *string `json:"pricing_tier,omitempty"`
 	// URL-friendly name for the role
 	Slug string `json:"slug"`
-	Type Type   `json:"type"`
+	// Type of the role
+	Type string `json:"type"`
 }
 
-func (c CreateRolePayload) MarshalJSON() ([]byte, error) {
-	return utils.MarshalJSON(c, "", false)
+func (f Four) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(f, "", false)
 }
 
-func (c *CreateRolePayload) UnmarshalJSON(data []byte) error {
-	if err := utils.UnmarshalJSON(data, &c, "", false, false); err != nil {
+func (f *Four) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &f, "", false, []string{"grants", "name", "slug", "type"}); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *CreateRolePayload) GetExpiresAt() *time.Time {
+func (f *Four) GetExpiresAt() *time.Time {
+	if f == nil {
+		return nil
+	}
+	return f.ExpiresAt
+}
+
+func (f *Four) GetGrants() []Grant {
+	if f == nil {
+		return []Grant{}
+	}
+	return f.Grants
+}
+
+func (f *Four) GetID() *string {
+	if f == nil {
+		return nil
+	}
+	return f.ID
+}
+
+func (f *Four) GetName() string {
+	if f == nil {
+		return ""
+	}
+	return f.Name
+}
+
+func (f *Four) GetOrganizationID() *string {
+	if f == nil {
+		return nil
+	}
+	return f.OrganizationID
+}
+
+func (f *Four) GetPartnerOrgID() *string {
+	if f == nil {
+		return nil
+	}
+	return f.PartnerOrgID
+}
+
+func (f *Four) GetSlug() string {
+	if f == nil {
+		return ""
+	}
+	return f.Slug
+}
+
+func (f *Four) GetType() string {
+	if f == nil {
+		return ""
+	}
+	return f.Type
+}
+
+// Three - A role that can be assigned to users in other organizations for sharing purposes.
+type Three struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	// List of grants (permissions) applied to the role
+	Grants []Grant `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID *string `json:"id,omitempty"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// URL-friendly name for the role
+	Slug string `json:"slug"`
+	// Type of the role
+	Type string `json:"type"`
+}
+
+func (t Three) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(t, "", false)
+}
+
+func (t *Three) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &t, "", false, []string{"grants", "name", "slug", "type"}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (t *Three) GetExpiresAt() *time.Time {
+	if t == nil {
+		return nil
+	}
+	return t.ExpiresAt
+}
+
+func (t *Three) GetGrants() []Grant {
+	if t == nil {
+		return []Grant{}
+	}
+	return t.Grants
+}
+
+func (t *Three) GetID() *string {
+	if t == nil {
+		return nil
+	}
+	return t.ID
+}
+
+func (t *Three) GetName() string {
+	if t == nil {
+		return ""
+	}
+	return t.Name
+}
+
+func (t *Three) GetOrganizationID() *string {
+	if t == nil {
+		return nil
+	}
+	return t.OrganizationID
+}
+
+func (t *Three) GetSlug() string {
+	if t == nil {
+		return ""
+	}
+	return t.Slug
+}
+
+func (t *Three) GetType() string {
+	if t == nil {
+		return ""
+	}
+	return t.Type
+}
+
+// Two - A role automatically applied to all users in an organization.
+type Two struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	// List of grants (permissions) applied to the role
+	Grants []Grant `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID *string `json:"id,omitempty"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// The pricing tier of the organization this root role is based on
+	PricingTier *string `json:"pricing_tier,omitempty"`
+	// URL-friendly name for the role
+	Slug string `json:"slug"`
+	// Type of the role
+	Type string `json:"type"`
+}
+
+func (t Two) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(t, "", false)
+}
+
+func (t *Two) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &t, "", false, []string{"grants", "name", "slug", "type"}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (t *Two) GetExpiresAt() *time.Time {
+	if t == nil {
+		return nil
+	}
+	return t.ExpiresAt
+}
+
+func (t *Two) GetGrants() []Grant {
+	if t == nil {
+		return []Grant{}
+	}
+	return t.Grants
+}
+
+func (t *Two) GetID() *string {
+	if t == nil {
+		return nil
+	}
+	return t.ID
+}
+
+func (t *Two) GetName() string {
+	if t == nil {
+		return ""
+	}
+	return t.Name
+}
+
+func (t *Two) GetOrganizationID() *string {
+	if t == nil {
+		return nil
+	}
+	return t.OrganizationID
+}
+
+func (t *Two) GetPricingTier() *string {
+	if t == nil {
+		return nil
+	}
+	return t.PricingTier
+}
+
+func (t *Two) GetSlug() string {
+	if t == nil {
+		return ""
+	}
+	return t.Slug
+}
+
+func (t *Two) GetType() string {
+	if t == nil {
+		return ""
+	}
+	return t.Type
+}
+
+// One - A standard user role. Must be explicitly assigned to users.
+type One struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	// List of grants (permissions) applied to the role
+	Grants []Grant `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID *string `json:"id,omitempty"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID *string `json:"organization_id,omitempty"`
+	// URL-friendly name for the role
+	Slug string `json:"slug"`
+	// Type of the role
+	Type string `json:"type"`
+}
+
+func (o One) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(o, "", false)
+}
+
+func (o *One) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &o, "", false, []string{"grants", "name", "slug", "type"}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *One) GetExpiresAt() *time.Time {
 	if o == nil {
 		return nil
 	}
 	return o.ExpiresAt
 }
 
-func (o *CreateRolePayload) GetGrants() []GrantWithDependencies {
+func (o *One) GetGrants() []Grant {
 	if o == nil {
-		return []GrantWithDependencies{}
+		return []Grant{}
 	}
 	return o.Grants
 }
 
-func (o *CreateRolePayload) GetID() *string {
+func (o *One) GetID() *string {
 	if o == nil {
 		return nil
 	}
 	return o.ID
 }
 
-func (o *CreateRolePayload) GetName() string {
+func (o *One) GetName() string {
 	if o == nil {
 		return ""
 	}
 	return o.Name
 }
 
-func (o *CreateRolePayload) GetOrganizationID() *string {
+func (o *One) GetOrganizationID() *string {
 	if o == nil {
 		return nil
 	}
 	return o.OrganizationID
 }
 
-func (o *CreateRolePayload) GetPartnerOrgID() *string {
-	if o == nil {
-		return nil
-	}
-	return o.PartnerOrgID
-}
-
-func (o *CreateRolePayload) GetPricingTier() *string {
-	if o == nil {
-		return nil
-	}
-	return o.PricingTier
-}
-
-func (o *CreateRolePayload) GetSlug() string {
+func (o *One) GetSlug() string {
 	if o == nil {
 		return ""
 	}
 	return o.Slug
 }
 
-func (o *CreateRolePayload) GetType() Type {
+func (o *One) GetType() string {
 	if o == nil {
-		return Type("")
+		return ""
 	}
 	return o.Type
+}
+
+type CreateRolePayloadType string
+
+const (
+	CreateRolePayloadTypeOne   CreateRolePayloadType = "1"
+	CreateRolePayloadTypeTwo   CreateRolePayloadType = "2"
+	CreateRolePayloadTypeThree CreateRolePayloadType = "3"
+	CreateRolePayloadTypeFour  CreateRolePayloadType = "4"
+	CreateRolePayloadTypeFive  CreateRolePayloadType = "5"
+)
+
+type CreateRolePayload struct {
+	One   *One   `queryParam:"inline" name:"CreateRolePayload"`
+	Two   *Two   `queryParam:"inline" name:"CreateRolePayload"`
+	Three *Three `queryParam:"inline" name:"CreateRolePayload"`
+	Four  *Four  `queryParam:"inline" name:"CreateRolePayload"`
+	Five  *Five  `queryParam:"inline" name:"CreateRolePayload"`
+
+	Type CreateRolePayloadType
+}
+
+func CreateCreateRolePayloadOne(one One) CreateRolePayload {
+	typ := CreateRolePayloadTypeOne
+
+	return CreateRolePayload{
+		One:  &one,
+		Type: typ,
+	}
+}
+
+func CreateCreateRolePayloadTwo(two Two) CreateRolePayload {
+	typ := CreateRolePayloadTypeTwo
+
+	return CreateRolePayload{
+		Two:  &two,
+		Type: typ,
+	}
+}
+
+func CreateCreateRolePayloadThree(three Three) CreateRolePayload {
+	typ := CreateRolePayloadTypeThree
+
+	return CreateRolePayload{
+		Three: &three,
+		Type:  typ,
+	}
+}
+
+func CreateCreateRolePayloadFour(four Four) CreateRolePayload {
+	typ := CreateRolePayloadTypeFour
+
+	return CreateRolePayload{
+		Four: &four,
+		Type: typ,
+	}
+}
+
+func CreateCreateRolePayloadFive(five Five) CreateRolePayload {
+	typ := CreateRolePayloadTypeFive
+
+	return CreateRolePayload{
+		Five: &five,
+		Type: typ,
+	}
+}
+
+func (u *CreateRolePayload) UnmarshalJSON(data []byte) error {
+
+	var one One = One{}
+	if err := utils.UnmarshalJSON(data, &one, "", true, nil); err == nil {
+		u.One = &one
+		u.Type = CreateRolePayloadTypeOne
+		return nil
+	}
+
+	var two Two = Two{}
+	if err := utils.UnmarshalJSON(data, &two, "", true, nil); err == nil {
+		u.Two = &two
+		u.Type = CreateRolePayloadTypeTwo
+		return nil
+	}
+
+	var three Three = Three{}
+	if err := utils.UnmarshalJSON(data, &three, "", true, nil); err == nil {
+		u.Three = &three
+		u.Type = CreateRolePayloadTypeThree
+		return nil
+	}
+
+	var four Four = Four{}
+	if err := utils.UnmarshalJSON(data, &four, "", true, nil); err == nil {
+		u.Four = &four
+		u.Type = CreateRolePayloadTypeFour
+		return nil
+	}
+
+	var five Five = Five{}
+	if err := utils.UnmarshalJSON(data, &five, "", true, nil); err == nil {
+		u.Five = &five
+		u.Type = CreateRolePayloadTypeFive
+		return nil
+	}
+
+	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreateRolePayload", string(data))
+}
+
+func (u CreateRolePayload) MarshalJSON() ([]byte, error) {
+	if u.One != nil {
+		return utils.MarshalJSON(u.One, "", true)
+	}
+
+	if u.Two != nil {
+		return utils.MarshalJSON(u.Two, "", true)
+	}
+
+	if u.Three != nil {
+		return utils.MarshalJSON(u.Three, "", true)
+	}
+
+	if u.Four != nil {
+		return utils.MarshalJSON(u.Four, "", true)
+	}
+
+	if u.Five != nil {
+		return utils.MarshalJSON(u.Five, "", true)
+	}
+
+	return nil, errors.New("could not marshal union type CreateRolePayload: all fields are null")
 }

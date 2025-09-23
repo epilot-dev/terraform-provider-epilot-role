@@ -48,43 +48,43 @@ func (g GrantWithDependencies) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GrantWithDependencies) UnmarshalJSON(data []byte) error {
-	if err := utils.UnmarshalJSON(data, &g, "", false, false); err != nil {
+	if err := utils.UnmarshalJSON(data, &g, "", false, []string{"action"}); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *GrantWithDependencies) GetAction() string {
-	if o == nil {
+func (g *GrantWithDependencies) GetAction() string {
+	if g == nil {
 		return ""
 	}
-	return o.Action
+	return g.Action
 }
 
-func (o *GrantWithDependencies) GetConditions() []GrantCondition {
-	if o == nil {
+func (g *GrantWithDependencies) GetConditions() []GrantCondition {
+	if g == nil {
 		return nil
 	}
-	return o.Conditions
+	return g.Conditions
 }
 
-func (o *GrantWithDependencies) GetDependencies() any {
-	if o == nil {
+func (g *GrantWithDependencies) GetDependencies() any {
+	if g == nil {
 		return nil
 	}
-	return o.Dependencies
+	return g.Dependencies
 }
 
-func (o *GrantWithDependencies) GetEffect() *GrantWithDependenciesEffect {
-	if o == nil {
+func (g *GrantWithDependencies) GetEffect() *GrantWithDependenciesEffect {
+	if g == nil {
 		return nil
 	}
-	return o.Effect
+	return g.Effect
 }
 
-func (o *GrantWithDependencies) GetResource() *string {
-	if o == nil {
+func (g *GrantWithDependencies) GetResource() *string {
+	if g == nil {
 		return nil
 	}
-	return o.Resource
+	return g.Resource
 }

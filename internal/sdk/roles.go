@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/config"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/hooks"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/utils"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/errors"
@@ -18,25 +19,22 @@ import (
 
 // Roles - Manage roles and grants
 type Roles struct {
-	sdkConfiguration sdkConfiguration
+	rootSDK          *SDK
+	sdkConfiguration config.SDKConfiguration
+	hooks            *hooks.Hooks
 }
 
-func newRoles(sdkConfig sdkConfiguration) *Roles {
+func newRoles(rootSDK *SDK, sdkConfig config.SDKConfiguration, hooks *hooks.Hooks) *Roles {
 	return &Roles{
+		rootSDK:          rootSDK,
 		sdkConfiguration: sdkConfig,
+		hooks:            hooks,
 	}
 }
 
 // CreateRole - createRole
 // Create role
 func (s *Roles) CreateRole(ctx context.Context, request *shared.CreateRolePayload, opts ...operations.Option) (*operations.CreateRoleResponse, error) {
-	hookCtx := hooks.HookContext{
-		Context:        ctx,
-		OperationID:    "createRole",
-		OAuth2Scopes:   []string{},
-		SecuritySource: s.sdkConfiguration.Security,
-	}
-
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionRetries,
@@ -60,6 +58,15 @@ func (s *Roles) CreateRole(ctx context.Context, request *shared.CreateRolePayloa
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
 
+	hookCtx := hooks.HookContext{
+		SDK:              s.rootSDK,
+		SDKConfiguration: s.sdkConfiguration,
+		BaseURL:          baseURL,
+		Context:          ctx,
+		OperationID:      "createRole",
+		OAuth2Scopes:     []string{},
+		SecuritySource:   s.sdkConfiguration.Security,
+	}
 	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, false, true, "Request", "json", `request:"mediaType=application/json"`)
 	if err != nil {
 		return nil, err
@@ -120,15 +127,17 @@ func (s *Roles) CreateRole(ctx context.Context, request *shared.CreateRolePayloa
 				"5XX",
 			},
 		}, func() (*http.Response, error) {
-			if req.Body != nil {
+			if req.Body != nil && req.Body != http.NoBody && req.GetBody != nil {
 				copyBody, err := req.GetBody()
+
 				if err != nil {
 					return nil, err
 				}
+
 				req.Body = copyBody
 			}
 
-			req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+			req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 			if err != nil {
 				if retry.IsPermanentError(err) || retry.IsTemporaryError(err) {
 					return nil, err
@@ -145,7 +154,7 @@ func (s *Roles) CreateRole(ctx context.Context, request *shared.CreateRolePayloa
 					err = fmt.Errorf("error sending request: no response")
 				}
 
-				_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+				_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			}
 			return httpRes, err
 		})
@@ -153,13 +162,13 @@ func (s *Roles) CreateRole(ctx context.Context, request *shared.CreateRolePayloa
 		if err != nil {
 			return nil, err
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
 		}
 	} else {
-		req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+		req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 		if err != nil {
 			return nil, err
 		}
@@ -172,17 +181,17 @@ func (s *Roles) CreateRole(ctx context.Context, request *shared.CreateRolePayloa
 				err = fmt.Errorf("error sending request: no response")
 			}
 
-			_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+			_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			return nil, err
 		} else if utils.MatchStatusCodes([]string{}, httpRes.StatusCode) {
-			_httpRes, err := s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
+			_httpRes, err := s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
 			if err != nil {
 				return nil, err
 			} else if _httpRes != nil {
 				httpRes = _httpRes
 			}
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
@@ -232,13 +241,6 @@ func (s *Roles) CreateRole(ctx context.Context, request *shared.CreateRolePayloa
 // DeleteRole - deleteRole
 // Delete role by id
 func (s *Roles) DeleteRole(ctx context.Context, request operations.DeleteRoleRequest, opts ...operations.Option) (*operations.DeleteRoleResponse, error) {
-	hookCtx := hooks.HookContext{
-		Context:        ctx,
-		OperationID:    "deleteRole",
-		OAuth2Scopes:   []string{},
-		SecuritySource: s.sdkConfiguration.Security,
-	}
-
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionRetries,
@@ -260,6 +262,16 @@ func (s *Roles) DeleteRole(ctx context.Context, request operations.DeleteRoleReq
 	opURL, err := utils.GenerateURL(ctx, baseURL, "/v1/permissions/roles/{roleId}", request, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
+	}
+
+	hookCtx := hooks.HookContext{
+		SDK:              s.rootSDK,
+		SDKConfiguration: s.sdkConfiguration,
+		BaseURL:          baseURL,
+		Context:          ctx,
+		OperationID:      "deleteRole",
+		OAuth2Scopes:     []string{},
+		SecuritySource:   s.sdkConfiguration.Security,
 	}
 
 	timeout := o.Timeout
@@ -314,15 +326,17 @@ func (s *Roles) DeleteRole(ctx context.Context, request operations.DeleteRoleReq
 				"5XX",
 			},
 		}, func() (*http.Response, error) {
-			if req.Body != nil {
+			if req.Body != nil && req.Body != http.NoBody && req.GetBody != nil {
 				copyBody, err := req.GetBody()
+
 				if err != nil {
 					return nil, err
 				}
+
 				req.Body = copyBody
 			}
 
-			req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+			req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 			if err != nil {
 				if retry.IsPermanentError(err) || retry.IsTemporaryError(err) {
 					return nil, err
@@ -339,7 +353,7 @@ func (s *Roles) DeleteRole(ctx context.Context, request operations.DeleteRoleReq
 					err = fmt.Errorf("error sending request: no response")
 				}
 
-				_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+				_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			}
 			return httpRes, err
 		})
@@ -347,13 +361,13 @@ func (s *Roles) DeleteRole(ctx context.Context, request operations.DeleteRoleReq
 		if err != nil {
 			return nil, err
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
 		}
 	} else {
-		req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+		req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 		if err != nil {
 			return nil, err
 		}
@@ -366,17 +380,17 @@ func (s *Roles) DeleteRole(ctx context.Context, request operations.DeleteRoleReq
 				err = fmt.Errorf("error sending request: no response")
 			}
 
-			_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+			_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			return nil, err
 		} else if utils.MatchStatusCodes([]string{}, httpRes.StatusCode) {
-			_httpRes, err := s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
+			_httpRes, err := s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
 			if err != nil {
 				return nil, err
 			} else if _httpRes != nil {
 				httpRes = _httpRes
 			}
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
@@ -423,214 +437,9 @@ func (s *Roles) DeleteRole(ctx context.Context, request operations.DeleteRoleReq
 
 }
 
-// GetAllRoles - getAllRoles
-// Returns list of all roles in all organizations
-func (s *Roles) GetAllRoles(ctx context.Context, request operations.GetAllRolesRequest, opts ...operations.Option) (*operations.GetAllRolesResponse, error) {
-	hookCtx := hooks.HookContext{
-		Context:        ctx,
-		OperationID:    "getAllRoles",
-		OAuth2Scopes:   []string{},
-		SecuritySource: s.sdkConfiguration.Security,
-	}
-
-	o := operations.Options{}
-	supportedOptions := []string{
-		operations.SupportedOptionRetries,
-		operations.SupportedOptionTimeout,
-	}
-
-	for _, opt := range opts {
-		if err := opt(&o, supportedOptions...); err != nil {
-			return nil, fmt.Errorf("error applying option: %w", err)
-		}
-	}
-
-	var baseURL string
-	if o.ServerURL == nil {
-		baseURL = utils.ReplaceParameters(s.sdkConfiguration.GetServerDetails())
-	} else {
-		baseURL = *o.ServerURL
-	}
-	opURL, err := url.JoinPath(baseURL, "/v1/internal/permissions/roles")
-	if err != nil {
-		return nil, fmt.Errorf("error generating URL: %w", err)
-	}
-
-	timeout := o.Timeout
-	if timeout == nil {
-		timeout = s.sdkConfiguration.Timeout
-	}
-
-	if timeout != nil {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, *timeout)
-		defer cancel()
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "GET", opURL, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", s.sdkConfiguration.UserAgent)
-
-	if err := utils.PopulateQueryParams(ctx, req, request, nil); err != nil {
-		return nil, fmt.Errorf("error populating query params: %w", err)
-	}
-
-	if err := utils.PopulateSecurity(ctx, req, s.sdkConfiguration.Security); err != nil {
-		return nil, err
-	}
-
-	for k, v := range o.SetHeaders {
-		req.Header.Set(k, v)
-	}
-
-	globalRetryConfig := s.sdkConfiguration.RetryConfig
-	retryConfig := o.Retries
-	if retryConfig == nil {
-		if globalRetryConfig != nil {
-			retryConfig = globalRetryConfig
-		} else {
-			retryConfig = &retry.Config{
-				Strategy: "backoff", Backoff: &retry.BackoffStrategy{
-					InitialInterval: 5000,
-					MaxInterval:     60000,
-					Exponent:        1.5,
-					MaxElapsedTime:  3600000,
-				},
-				RetryConnectionErrors: true,
-			}
-		}
-	}
-
-	var httpRes *http.Response
-	if retryConfig != nil {
-		httpRes, err = utils.Retry(ctx, utils.Retries{
-			Config: retryConfig,
-			StatusCodes: []string{
-				"5XX",
-			},
-		}, func() (*http.Response, error) {
-			if req.Body != nil {
-				copyBody, err := req.GetBody()
-				if err != nil {
-					return nil, err
-				}
-				req.Body = copyBody
-			}
-
-			req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
-			if err != nil {
-				if retry.IsPermanentError(err) || retry.IsTemporaryError(err) {
-					return nil, err
-				}
-
-				return nil, retry.Permanent(err)
-			}
-
-			httpRes, err := s.sdkConfiguration.Client.Do(req)
-			if err != nil || httpRes == nil {
-				if err != nil {
-					err = fmt.Errorf("error sending request: %w", err)
-				} else {
-					err = fmt.Errorf("error sending request: no response")
-				}
-
-				_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
-			}
-			return httpRes, err
-		})
-
-		if err != nil {
-			return nil, err
-		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
-			if err != nil {
-				return nil, err
-			}
-		}
-	} else {
-		req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
-		if err != nil {
-			return nil, err
-		}
-
-		httpRes, err = s.sdkConfiguration.Client.Do(req)
-		if err != nil || httpRes == nil {
-			if err != nil {
-				err = fmt.Errorf("error sending request: %w", err)
-			} else {
-				err = fmt.Errorf("error sending request: no response")
-			}
-
-			_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
-			return nil, err
-		} else if utils.MatchStatusCodes([]string{}, httpRes.StatusCode) {
-			_httpRes, err := s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
-			if err != nil {
-				return nil, err
-			} else if _httpRes != nil {
-				httpRes = _httpRes
-			}
-		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	res := &operations.GetAllRolesResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: httpRes.Header.Get("Content-Type"),
-		RawResponse: httpRes,
-	}
-
-	switch {
-	case httpRes.StatusCode == 200:
-		switch {
-		case utils.MatchContentType(httpRes.Header.Get("Content-Type"), `application/json`):
-			rawBody, err := utils.ConsumeRawBody(httpRes)
-			if err != nil {
-				return nil, err
-			}
-
-			var out operations.GetAllRolesResponseBody
-			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
-				return nil, err
-			}
-
-			res.Object = &out
-		default:
-			rawBody, err := utils.ConsumeRawBody(httpRes)
-			if err != nil {
-				return nil, err
-			}
-			return nil, errors.NewSDKError(fmt.Sprintf("unknown content-type received: %s", httpRes.Header.Get("Content-Type")), httpRes.StatusCode, string(rawBody), httpRes)
-		}
-	default:
-		rawBody, err := utils.ConsumeRawBody(httpRes)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.NewSDKError("unknown status code returned", httpRes.StatusCode, string(rawBody), httpRes)
-	}
-
-	return res, nil
-
-}
-
 // GetRole - getRole
 // Get role by id
 func (s *Roles) GetRole(ctx context.Context, request operations.GetRoleRequest, opts ...operations.Option) (*operations.GetRoleResponse, error) {
-	hookCtx := hooks.HookContext{
-		Context:        ctx,
-		OperationID:    "getRole",
-		OAuth2Scopes:   []string{},
-		SecuritySource: s.sdkConfiguration.Security,
-	}
-
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionRetries,
@@ -654,6 +463,16 @@ func (s *Roles) GetRole(ctx context.Context, request operations.GetRoleRequest, 
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
 
+	hookCtx := hooks.HookContext{
+		SDK:              s.rootSDK,
+		SDKConfiguration: s.sdkConfiguration,
+		BaseURL:          baseURL,
+		Context:          ctx,
+		OperationID:      "getRole",
+		OAuth2Scopes:     []string{},
+		SecuritySource:   s.sdkConfiguration.Security,
+	}
+
 	timeout := o.Timeout
 	if timeout == nil {
 		timeout = s.sdkConfiguration.Timeout
@@ -706,15 +525,17 @@ func (s *Roles) GetRole(ctx context.Context, request operations.GetRoleRequest, 
 				"5XX",
 			},
 		}, func() (*http.Response, error) {
-			if req.Body != nil {
+			if req.Body != nil && req.Body != http.NoBody && req.GetBody != nil {
 				copyBody, err := req.GetBody()
+
 				if err != nil {
 					return nil, err
 				}
+
 				req.Body = copyBody
 			}
 
-			req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+			req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 			if err != nil {
 				if retry.IsPermanentError(err) || retry.IsTemporaryError(err) {
 					return nil, err
@@ -731,7 +552,7 @@ func (s *Roles) GetRole(ctx context.Context, request operations.GetRoleRequest, 
 					err = fmt.Errorf("error sending request: no response")
 				}
 
-				_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+				_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			}
 			return httpRes, err
 		})
@@ -739,13 +560,13 @@ func (s *Roles) GetRole(ctx context.Context, request operations.GetRoleRequest, 
 		if err != nil {
 			return nil, err
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
 		}
 	} else {
-		req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+		req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 		if err != nil {
 			return nil, err
 		}
@@ -758,17 +579,17 @@ func (s *Roles) GetRole(ctx context.Context, request operations.GetRoleRequest, 
 				err = fmt.Errorf("error sending request: no response")
 			}
 
-			_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+			_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			return nil, err
 		} else if utils.MatchStatusCodes([]string{}, httpRes.StatusCode) {
-			_httpRes, err := s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
+			_httpRes, err := s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
 			if err != nil {
 				return nil, err
 			} else if _httpRes != nil {
 				httpRes = _httpRes
 			}
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
@@ -818,13 +639,6 @@ func (s *Roles) GetRole(ctx context.Context, request operations.GetRoleRequest, 
 // ListAllRoles - listAllRoles
 // Returns list of all roles in organization
 func (s *Roles) ListAllRoles(ctx context.Context, opts ...operations.Option) (*operations.ListAllRolesResponse, error) {
-	hookCtx := hooks.HookContext{
-		Context:        ctx,
-		OperationID:    "listAllRoles",
-		OAuth2Scopes:   []string{},
-		SecuritySource: s.sdkConfiguration.Security,
-	}
-
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionRetries,
@@ -846,6 +660,16 @@ func (s *Roles) ListAllRoles(ctx context.Context, opts ...operations.Option) (*o
 	opURL, err := url.JoinPath(baseURL, "/v1/permissions/roles")
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
+	}
+
+	hookCtx := hooks.HookContext{
+		SDK:              s.rootSDK,
+		SDKConfiguration: s.sdkConfiguration,
+		BaseURL:          baseURL,
+		Context:          ctx,
+		OperationID:      "listAllRoles",
+		OAuth2Scopes:     []string{},
+		SecuritySource:   s.sdkConfiguration.Security,
 	}
 
 	timeout := o.Timeout
@@ -900,15 +724,17 @@ func (s *Roles) ListAllRoles(ctx context.Context, opts ...operations.Option) (*o
 				"5XX",
 			},
 		}, func() (*http.Response, error) {
-			if req.Body != nil {
+			if req.Body != nil && req.Body != http.NoBody && req.GetBody != nil {
 				copyBody, err := req.GetBody()
+
 				if err != nil {
 					return nil, err
 				}
+
 				req.Body = copyBody
 			}
 
-			req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+			req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 			if err != nil {
 				if retry.IsPermanentError(err) || retry.IsTemporaryError(err) {
 					return nil, err
@@ -925,7 +751,7 @@ func (s *Roles) ListAllRoles(ctx context.Context, opts ...operations.Option) (*o
 					err = fmt.Errorf("error sending request: no response")
 				}
 
-				_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+				_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			}
 			return httpRes, err
 		})
@@ -933,13 +759,13 @@ func (s *Roles) ListAllRoles(ctx context.Context, opts ...operations.Option) (*o
 		if err != nil {
 			return nil, err
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
 		}
 	} else {
-		req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+		req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 		if err != nil {
 			return nil, err
 		}
@@ -952,17 +778,17 @@ func (s *Roles) ListAllRoles(ctx context.Context, opts ...operations.Option) (*o
 				err = fmt.Errorf("error sending request: no response")
 			}
 
-			_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+			_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			return nil, err
 		} else if utils.MatchStatusCodes([]string{}, httpRes.StatusCode) {
-			_httpRes, err := s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
+			_httpRes, err := s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
 			if err != nil {
 				return nil, err
 			} else if _httpRes != nil {
 				httpRes = _httpRes
 			}
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
@@ -1012,13 +838,6 @@ func (s *Roles) ListAllRoles(ctx context.Context, opts ...operations.Option) (*o
 // ListCurrentRoles - listCurrentRoles
 // Returns roles and grants assigned to current user
 func (s *Roles) ListCurrentRoles(ctx context.Context, opts ...operations.Option) (*operations.ListCurrentRolesResponse, error) {
-	hookCtx := hooks.HookContext{
-		Context:        ctx,
-		OperationID:    "listCurrentRoles",
-		OAuth2Scopes:   []string{},
-		SecuritySource: s.sdkConfiguration.Security,
-	}
-
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionRetries,
@@ -1040,6 +859,16 @@ func (s *Roles) ListCurrentRoles(ctx context.Context, opts ...operations.Option)
 	opURL, err := url.JoinPath(baseURL, "/v1/permissions/me")
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
+	}
+
+	hookCtx := hooks.HookContext{
+		SDK:              s.rootSDK,
+		SDKConfiguration: s.sdkConfiguration,
+		BaseURL:          baseURL,
+		Context:          ctx,
+		OperationID:      "listCurrentRoles",
+		OAuth2Scopes:     []string{},
+		SecuritySource:   s.sdkConfiguration.Security,
 	}
 
 	timeout := o.Timeout
@@ -1094,15 +923,17 @@ func (s *Roles) ListCurrentRoles(ctx context.Context, opts ...operations.Option)
 				"5XX",
 			},
 		}, func() (*http.Response, error) {
-			if req.Body != nil {
+			if req.Body != nil && req.Body != http.NoBody && req.GetBody != nil {
 				copyBody, err := req.GetBody()
+
 				if err != nil {
 					return nil, err
 				}
+
 				req.Body = copyBody
 			}
 
-			req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+			req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 			if err != nil {
 				if retry.IsPermanentError(err) || retry.IsTemporaryError(err) {
 					return nil, err
@@ -1119,7 +950,7 @@ func (s *Roles) ListCurrentRoles(ctx context.Context, opts ...operations.Option)
 					err = fmt.Errorf("error sending request: no response")
 				}
 
-				_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+				_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			}
 			return httpRes, err
 		})
@@ -1127,13 +958,13 @@ func (s *Roles) ListCurrentRoles(ctx context.Context, opts ...operations.Option)
 		if err != nil {
 			return nil, err
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
 		}
 	} else {
-		req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+		req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 		if err != nil {
 			return nil, err
 		}
@@ -1146,17 +977,17 @@ func (s *Roles) ListCurrentRoles(ctx context.Context, opts ...operations.Option)
 				err = fmt.Errorf("error sending request: no response")
 			}
 
-			_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+			_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			return nil, err
 		} else if utils.MatchStatusCodes([]string{}, httpRes.StatusCode) {
-			_httpRes, err := s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
+			_httpRes, err := s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
 			if err != nil {
 				return nil, err
 			} else if _httpRes != nil {
 				httpRes = _httpRes
 			}
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
@@ -1206,13 +1037,6 @@ func (s *Roles) ListCurrentRoles(ctx context.Context, opts ...operations.Option)
 // PutRole - putRole
 // Create or update role
 func (s *Roles) PutRole(ctx context.Context, request operations.PutRoleRequest, opts ...operations.Option) (*operations.PutRoleResponse, error) {
-	hookCtx := hooks.HookContext{
-		Context:        ctx,
-		OperationID:    "putRole",
-		OAuth2Scopes:   []string{},
-		SecuritySource: s.sdkConfiguration.Security,
-	}
-
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionRetries,
@@ -1236,6 +1060,15 @@ func (s *Roles) PutRole(ctx context.Context, request operations.PutRoleRequest, 
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
 
+	hookCtx := hooks.HookContext{
+		SDK:              s.rootSDK,
+		SDKConfiguration: s.sdkConfiguration,
+		BaseURL:          baseURL,
+		Context:          ctx,
+		OperationID:      "putRole",
+		OAuth2Scopes:     []string{},
+		SecuritySource:   s.sdkConfiguration.Security,
+	}
 	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, false, true, "RolePayload", "json", `request:"mediaType=application/json"`)
 	if err != nil {
 		return nil, err
@@ -1296,15 +1129,17 @@ func (s *Roles) PutRole(ctx context.Context, request operations.PutRoleRequest, 
 				"5XX",
 			},
 		}, func() (*http.Response, error) {
-			if req.Body != nil {
+			if req.Body != nil && req.Body != http.NoBody && req.GetBody != nil {
 				copyBody, err := req.GetBody()
+
 				if err != nil {
 					return nil, err
 				}
+
 				req.Body = copyBody
 			}
 
-			req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+			req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 			if err != nil {
 				if retry.IsPermanentError(err) || retry.IsTemporaryError(err) {
 					return nil, err
@@ -1321,7 +1156,7 @@ func (s *Roles) PutRole(ctx context.Context, request operations.PutRoleRequest, 
 					err = fmt.Errorf("error sending request: no response")
 				}
 
-				_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+				_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			}
 			return httpRes, err
 		})
@@ -1329,13 +1164,13 @@ func (s *Roles) PutRole(ctx context.Context, request operations.PutRoleRequest, 
 		if err != nil {
 			return nil, err
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
 		}
 	} else {
-		req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+		req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 		if err != nil {
 			return nil, err
 		}
@@ -1348,17 +1183,17 @@ func (s *Roles) PutRole(ctx context.Context, request operations.PutRoleRequest, 
 				err = fmt.Errorf("error sending request: no response")
 			}
 
-			_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+			_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			return nil, err
 		} else if utils.MatchStatusCodes([]string{}, httpRes.StatusCode) {
-			_httpRes, err := s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
+			_httpRes, err := s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
 			if err != nil {
 				return nil, err
 			} else if _httpRes != nil {
 				httpRes = _httpRes
 			}
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
@@ -1408,13 +1243,6 @@ func (s *Roles) PutRole(ctx context.Context, request operations.PutRoleRequest, 
 // RefreshPermissions - refreshPermissions
 // Makes sure the user has a role in the organization
 func (s *Roles) RefreshPermissions(ctx context.Context, opts ...operations.Option) (*operations.RefreshPermissionsResponse, error) {
-	hookCtx := hooks.HookContext{
-		Context:        ctx,
-		OperationID:    "refreshPermissions",
-		OAuth2Scopes:   []string{},
-		SecuritySource: s.sdkConfiguration.Security,
-	}
-
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionRetries,
@@ -1436,6 +1264,16 @@ func (s *Roles) RefreshPermissions(ctx context.Context, opts ...operations.Optio
 	opURL, err := url.JoinPath(baseURL, "/v1/permissions/refresh")
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
+	}
+
+	hookCtx := hooks.HookContext{
+		SDK:              s.rootSDK,
+		SDKConfiguration: s.sdkConfiguration,
+		BaseURL:          baseURL,
+		Context:          ctx,
+		OperationID:      "refreshPermissions",
+		OAuth2Scopes:     []string{},
+		SecuritySource:   s.sdkConfiguration.Security,
 	}
 
 	timeout := o.Timeout
@@ -1490,15 +1328,17 @@ func (s *Roles) RefreshPermissions(ctx context.Context, opts ...operations.Optio
 				"5XX",
 			},
 		}, func() (*http.Response, error) {
-			if req.Body != nil {
+			if req.Body != nil && req.Body != http.NoBody && req.GetBody != nil {
 				copyBody, err := req.GetBody()
+
 				if err != nil {
 					return nil, err
 				}
+
 				req.Body = copyBody
 			}
 
-			req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+			req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 			if err != nil {
 				if retry.IsPermanentError(err) || retry.IsTemporaryError(err) {
 					return nil, err
@@ -1515,7 +1355,7 @@ func (s *Roles) RefreshPermissions(ctx context.Context, opts ...operations.Optio
 					err = fmt.Errorf("error sending request: no response")
 				}
 
-				_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+				_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			}
 			return httpRes, err
 		})
@@ -1523,13 +1363,13 @@ func (s *Roles) RefreshPermissions(ctx context.Context, opts ...operations.Optio
 		if err != nil {
 			return nil, err
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
 		}
 	} else {
-		req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+		req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 		if err != nil {
 			return nil, err
 		}
@@ -1542,17 +1382,17 @@ func (s *Roles) RefreshPermissions(ctx context.Context, opts ...operations.Optio
 				err = fmt.Errorf("error sending request: no response")
 			}
 
-			_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+			_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			return nil, err
 		} else if utils.MatchStatusCodes([]string{}, httpRes.StatusCode) {
-			_httpRes, err := s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
+			_httpRes, err := s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
 			if err != nil {
 				return nil, err
 			} else if _httpRes != nil {
 				httpRes = _httpRes
 			}
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
@@ -1582,13 +1422,6 @@ func (s *Roles) RefreshPermissions(ctx context.Context, opts ...operations.Optio
 // SearchRoles - searchRoles
 // Search Roles
 func (s *Roles) SearchRoles(ctx context.Context, request *shared.RoleSearchInput, opts ...operations.Option) (*operations.SearchRolesResponse, error) {
-	hookCtx := hooks.HookContext{
-		Context:        ctx,
-		OperationID:    "searchRoles",
-		OAuth2Scopes:   []string{},
-		SecuritySource: s.sdkConfiguration.Security,
-	}
-
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionRetries,
@@ -1612,6 +1445,15 @@ func (s *Roles) SearchRoles(ctx context.Context, request *shared.RoleSearchInput
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
 
+	hookCtx := hooks.HookContext{
+		SDK:              s.rootSDK,
+		SDKConfiguration: s.sdkConfiguration,
+		BaseURL:          baseURL,
+		Context:          ctx,
+		OperationID:      "searchRoles",
+		OAuth2Scopes:     []string{},
+		SecuritySource:   s.sdkConfiguration.Security,
+	}
 	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, false, true, "Request", "json", `request:"mediaType=application/json"`)
 	if err != nil {
 		return nil, err
@@ -1672,15 +1514,17 @@ func (s *Roles) SearchRoles(ctx context.Context, request *shared.RoleSearchInput
 				"5XX",
 			},
 		}, func() (*http.Response, error) {
-			if req.Body != nil {
+			if req.Body != nil && req.Body != http.NoBody && req.GetBody != nil {
 				copyBody, err := req.GetBody()
+
 				if err != nil {
 					return nil, err
 				}
+
 				req.Body = copyBody
 			}
 
-			req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+			req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 			if err != nil {
 				if retry.IsPermanentError(err) || retry.IsTemporaryError(err) {
 					return nil, err
@@ -1697,7 +1541,7 @@ func (s *Roles) SearchRoles(ctx context.Context, request *shared.RoleSearchInput
 					err = fmt.Errorf("error sending request: no response")
 				}
 
-				_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+				_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			}
 			return httpRes, err
 		})
@@ -1705,13 +1549,13 @@ func (s *Roles) SearchRoles(ctx context.Context, request *shared.RoleSearchInput
 		if err != nil {
 			return nil, err
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}
 		}
 	} else {
-		req, err = s.sdkConfiguration.Hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+		req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
 		if err != nil {
 			return nil, err
 		}
@@ -1724,17 +1568,17 @@ func (s *Roles) SearchRoles(ctx context.Context, request *shared.RoleSearchInput
 				err = fmt.Errorf("error sending request: no response")
 			}
 
-			_, err = s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+			_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
 			return nil, err
 		} else if utils.MatchStatusCodes([]string{}, httpRes.StatusCode) {
-			_httpRes, err := s.sdkConfiguration.Hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
+			_httpRes, err := s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
 			if err != nil {
 				return nil, err
 			} else if _httpRes != nil {
 				httpRes = _httpRes
 			}
 		} else {
-			httpRes, err = s.sdkConfiguration.Hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+			httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
 			if err != nil {
 				return nil, err
 			}

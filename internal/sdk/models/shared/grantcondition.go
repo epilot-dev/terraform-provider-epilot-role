@@ -16,7 +16,7 @@ const (
 
 // GrantCondition - An additional condition that must be met for the grant
 type GrantCondition struct {
-	EqualsCondition *EqualsCondition `queryParam:"inline"`
+	EqualsCondition *EqualsCondition `queryParam:"inline" name:"GrantCondition"`
 
 	Type GrantConditionType
 }
@@ -33,7 +33,7 @@ func CreateGrantConditionEqualsCondition(equalsCondition EqualsCondition) GrantC
 func (u *GrantCondition) UnmarshalJSON(data []byte) error {
 
 	var equalsCondition EqualsCondition = EqualsCondition{}
-	if err := utils.UnmarshalJSON(data, &equalsCondition, "", true, true); err == nil {
+	if err := utils.UnmarshalJSON(data, &equalsCondition, "", true, nil); err == nil {
 		u.EqualsCondition = &equalsCondition
 		u.Type = GrantConditionTypeEqualsCondition
 		return nil
