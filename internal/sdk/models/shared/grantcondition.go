@@ -16,7 +16,7 @@ const (
 
 // GrantCondition - An additional condition that must be met for the grant
 type GrantCondition struct {
-	EqualsCondition *EqualsCondition `queryParam:"inline"`
+	EqualsCondition *EqualsCondition `queryParam:"inline,name=GrantCondition"`
 
 	Type GrantConditionType
 }
@@ -32,10 +32,32 @@ func CreateGrantConditionEqualsCondition(equalsCondition EqualsCondition) GrantC
 
 func (u *GrantCondition) UnmarshalJSON(data []byte) error {
 
+	var candidates []utils.UnionCandidate
+
+	// Collect all valid candidates
 	var equalsCondition EqualsCondition = EqualsCondition{}
-	if err := utils.UnmarshalJSON(data, &equalsCondition, "", true, true); err == nil {
-		u.EqualsCondition = &equalsCondition
-		u.Type = GrantConditionTypeEqualsCondition
+	if err := utils.UnmarshalJSON(data, &equalsCondition, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  GrantConditionTypeEqualsCondition,
+			Value: &equalsCondition,
+		})
+	}
+
+	if len(candidates) == 0 {
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for GrantCondition", string(data))
+	}
+
+	// Pick the best candidate using multi-stage filtering
+	best := utils.PickBestCandidate(candidates)
+	if best == nil {
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for GrantCondition", string(data))
+	}
+
+	// Set the union type and value based on the best candidate
+	u.Type = best.Type.(GrantConditionType)
+	switch best.Type {
+	case GrantConditionTypeEqualsCondition:
+		u.EqualsCondition = best.Value.(*EqualsCondition)
 		return nil
 	}
 

@@ -12,11 +12,11 @@ type ListCurrentRolesResponseBody struct {
 	Roles []shared.Role `json:"roles,omitempty"`
 }
 
-func (o *ListCurrentRolesResponseBody) GetRoles() []shared.Role {
-	if o == nil {
+func (l *ListCurrentRolesResponseBody) GetRoles() []shared.Role {
+	if l == nil {
 		return nil
 	}
-	return o.Roles
+	return l.Roles
 }
 
 type ListCurrentRolesResponse struct {
@@ -30,30 +30,30 @@ type ListCurrentRolesResponse struct {
 	Object *ListCurrentRolesResponseBody
 }
 
-func (o *ListCurrentRolesResponse) GetContentType() string {
-	if o == nil {
+func (l *ListCurrentRolesResponse) GetContentType() string {
+	if l == nil {
 		return ""
 	}
-	return o.ContentType
+	return l.ContentType
 }
 
-func (o *ListCurrentRolesResponse) GetStatusCode() int {
-	if o == nil {
+func (l *ListCurrentRolesResponse) GetStatusCode() int {
+	if l == nil {
 		return 0
 	}
-	return o.StatusCode
+	return l.StatusCode
 }
 
-func (o *ListCurrentRolesResponse) GetRawResponse() *http.Response {
-	if o == nil {
+func (l *ListCurrentRolesResponse) GetRawResponse() *http.Response {
+	if l == nil {
 		return nil
 	}
-	return o.RawResponse
+	return l.RawResponse
 }
 
-func (o *ListCurrentRolesResponse) GetObject() *ListCurrentRolesResponseBody {
-	if o == nil {
+func (l *ListCurrentRolesResponse) GetObject() *ListCurrentRolesResponseBody {
+	if l == nil {
 		return nil
 	}
-	return o.Object
+	return l.Object
 }
