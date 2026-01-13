@@ -12,18 +12,18 @@ type PutRoleRequest struct {
 	RoleID      string              `pathParam:"style=simple,explode=false,name=roleId"`
 }
 
-func (o *PutRoleRequest) GetRolePayload() *shared.RolePayload {
-	if o == nil {
+func (p *PutRoleRequest) GetRolePayload() *shared.RolePayload {
+	if p == nil {
 		return nil
 	}
-	return o.RolePayload
+	return p.RolePayload
 }
 
-func (o *PutRoleRequest) GetRoleID() string {
-	if o == nil {
+func (p *PutRoleRequest) GetRoleID() string {
+	if p == nil {
 		return ""
 	}
-	return o.RoleID
+	return p.RoleID
 }
 
 type PutRoleResponse struct {
@@ -37,30 +37,30 @@ type PutRoleResponse struct {
 	RawResponse *http.Response
 }
 
-func (o *PutRoleResponse) GetContentType() string {
-	if o == nil {
+func (p *PutRoleResponse) GetContentType() string {
+	if p == nil {
 		return ""
 	}
-	return o.ContentType
+	return p.ContentType
 }
 
-func (o *PutRoleResponse) GetRole() *shared.Role {
-	if o == nil {
+func (p *PutRoleResponse) GetRole() *shared.Role {
+	if p == nil {
 		return nil
 	}
-	return o.Role
+	return p.Role
 }
 
-func (o *PutRoleResponse) GetStatusCode() int {
-	if o == nil {
+func (p *PutRoleResponse) GetStatusCode() int {
+	if p == nil {
 		return 0
 	}
-	return o.StatusCode
+	return p.StatusCode
 }
 
-func (o *PutRoleResponse) GetRawResponse() *http.Response {
-	if o == nil {
+func (p *PutRoleResponse) GetRawResponse() *http.Response {
+	if p == nil {
 		return nil
 	}
-	return o.RawResponse
+	return p.RawResponse
 }
