@@ -12,11 +12,11 @@ type ListAllAssignmentsResponseBody struct {
 	Assignments []shared.Assignment `json:"assignments,omitempty"`
 }
 
-func (o *ListAllAssignmentsResponseBody) GetAssignments() []shared.Assignment {
-	if o == nil {
+func (l *ListAllAssignmentsResponseBody) GetAssignments() []shared.Assignment {
+	if l == nil {
 		return nil
 	}
-	return o.Assignments
+	return l.Assignments
 }
 
 type ListAllAssignmentsResponse struct {
@@ -30,30 +30,30 @@ type ListAllAssignmentsResponse struct {
 	Object *ListAllAssignmentsResponseBody
 }
 
-func (o *ListAllAssignmentsResponse) GetContentType() string {
-	if o == nil {
+func (l *ListAllAssignmentsResponse) GetContentType() string {
+	if l == nil {
 		return ""
 	}
-	return o.ContentType
+	return l.ContentType
 }
 
-func (o *ListAllAssignmentsResponse) GetStatusCode() int {
-	if o == nil {
+func (l *ListAllAssignmentsResponse) GetStatusCode() int {
+	if l == nil {
 		return 0
 	}
-	return o.StatusCode
+	return l.StatusCode
 }
 
-func (o *ListAllAssignmentsResponse) GetRawResponse() *http.Response {
-	if o == nil {
+func (l *ListAllAssignmentsResponse) GetRawResponse() *http.Response {
+	if l == nil {
 		return nil
 	}
-	return o.RawResponse
+	return l.RawResponse
 }
 
-func (o *ListAllAssignmentsResponse) GetObject() *ListAllAssignmentsResponseBody {
-	if o == nil {
+func (l *ListAllAssignmentsResponse) GetObject() *ListAllAssignmentsResponseBody {
+	if l == nil {
 		return nil
 	}
-	return o.Object
+	return l.Object
 }

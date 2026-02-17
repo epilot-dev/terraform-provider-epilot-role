@@ -11,11 +11,11 @@ type GetRoleRequest struct {
 	RoleID string `pathParam:"style=simple,explode=false,name=roleId"`
 }
 
-func (o *GetRoleRequest) GetRoleID() string {
-	if o == nil {
+func (g *GetRoleRequest) GetRoleID() string {
+	if g == nil {
 		return ""
 	}
-	return o.RoleID
+	return g.RoleID
 }
 
 type GetRoleResponse struct {
@@ -29,30 +29,30 @@ type GetRoleResponse struct {
 	RawResponse *http.Response
 }
 
-func (o *GetRoleResponse) GetContentType() string {
-	if o == nil {
+func (g *GetRoleResponse) GetContentType() string {
+	if g == nil {
 		return ""
 	}
-	return o.ContentType
+	return g.ContentType
 }
 
-func (o *GetRoleResponse) GetRole() *shared.Role {
-	if o == nil {
+func (g *GetRoleResponse) GetRole() *shared.Role {
+	if g == nil {
 		return nil
 	}
-	return o.Role
+	return g.Role
 }
 
-func (o *GetRoleResponse) GetStatusCode() int {
-	if o == nil {
+func (g *GetRoleResponse) GetStatusCode() int {
+	if g == nil {
 		return 0
 	}
-	return o.StatusCode
+	return g.StatusCode
 }
 
-func (o *GetRoleResponse) GetRawResponse() *http.Response {
-	if o == nil {
+func (g *GetRoleResponse) GetRawResponse() *http.Response {
+	if g == nil {
 		return nil
 	}
-	return o.RawResponse
+	return g.RawResponse
 }
