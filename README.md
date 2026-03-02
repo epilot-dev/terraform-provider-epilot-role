@@ -20,6 +20,7 @@ Permissions API: Flexible Role-based Access Control for epilot
 <!-- $toc-max-depth=2 -->
 * [epilot-dashboard](#epilot-dashboard)
   * [Installation](#installation)
+  * [Authentication](#authentication)
   * [Available Resources and Data Sources](#available-resources-and-data-sources)
   * [Testing the provider locally](#testing-the-provider-locally)
 * [Development](#development)
@@ -37,23 +38,37 @@ terraform {
   required_providers {
     epilot-role = {
       source  = "epilot-dev/epilot-role"
-      version = "0.20.8"
+      version = "0.21.0"
     }
   }
 }
 
 provider "epilot-role" {
-  # Configuration options
+  server_url = "..." # Optional
 }
 ```
 <!-- End Installation [installation] -->
 
+<!-- Start Authentication [security] -->
+## Authentication
+
+This provider supports authentication configuration via provider configuration.
+
+Available configuration:
+
+| Provider Attribute | Description |
+|---|---|
+| `epilot_auth` | Authorization header with epilot OAuth2 bearer token. |
+| `epilot_org` | Overrides the target organization to allow shared tenantaccess. |
+<!-- End Authentication [security] -->
+
 <!-- Start Available Resources and Data Sources [operations] -->
 ## Available Resources and Data Sources
 
-### Resources
+### Managed Resources
 
 * [epilot-role_role](docs/resources/role.md)
+
 ### Data Sources
 
 * [epilot-role_role](docs/data-sources/role.md)

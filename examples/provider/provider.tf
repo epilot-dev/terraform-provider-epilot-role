@@ -2,11 +2,11 @@ terraform {
   required_providers {
     epilot-role = {
       source  = "epilot-dev/epilot-role"
-      version = "0.20.8"
+      version = "0.21.0"
     }
   }
 }
 
 provider "epilot-role" {
-  # Configuration options
+  server_url = "..." # Optional
 }

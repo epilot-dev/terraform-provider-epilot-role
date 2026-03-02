@@ -1,15 +1,20 @@
 lockVersion: 2.0.0
 id: 5a857039-7f4b-42d5-86fd-449767242ed2
 management:
-  docChecksum: feaea9b040a840d8f352baed7bf11092
-  docVersion: 1.0.0
-  speakeasyVersion: 1.477.0
-  generationVersion: 2.497.0
-  releaseVersion: 0.20.8
-  configChecksum: 10d5659fe74f1d9c784f74abc7b934ff
-  repoURL: https://github.com/epilot-dev/terraform-provider-epilot-product.git
+  docChecksum: 08d8195069ec4edea1aee3c0e9e3f7e8
+  docVersion: 1.2.0
+  speakeasyVersion: 1.736.3
+  generationVersion: 2.845.15
+  releaseVersion: 0.21.0
+  configChecksum: 534e10ecd7f031ec83462c85dc444e37
+  repoURL: https://github.com/epilot-dev/terraform-provider-epilot-role.git
   repoSubDirectory: .
+  installationURL: https://github.com/epilot-dev/terraform-provider-epilot-role
   published: true
+persistentEdits:
+  generation_id: 8c29cc74-3615-4cf7-b4c7-38cdff1f6c21
+  pristine_commit_hash: 78878e6ca8a7530ffa76459e5cd42f31b021db3a
+  pristine_tree_hash: a095f2d43aac9dfbbd3cbee9034ea8284c52e8e8
 features:
   go:
     additionalProperties: 0.1.1
@@ -21,14 +26,769 @@ features:
     unions: 2.85.0
   terraform:
     additionalDependencies: 0.1.0
-    constsAndDefaults: 0.2.0
-    core: 3.29.0
-    envVarSecurityUsage: 0.1.0
-    globalSecurity: 2.81.9
-    globalServerURLs: 2.82.1
-    retries: 2.81.2
+    constsAndDefaults: 0.3.2
+    core: 3.46.48
+    globalSecurity: 2.82.2
+    globalServerURLs: 2.83.2
+    inputOutputModels: 2.83.0
+    retries: 2.81.4
     typeOverrides: 2.81.1
-    unions: 2.81.17
+    unions: 2.82.12
+trackedFiles:
+  .gitattributes:
+    id: 24139dae6567
+    last_write_checksum: sha1:84b0115789fc3ea52e31df701d8a27f76077e29f
+    pristine_git_object: e6a994416d0f527912d2d272e2583458f4fc9bcb
+  USAGE.md:
+    id: 3aed33ce6e6f
+    last_write_checksum: sha1:02c32c9430f37507b3eacd41cdc36f080809e92d
+    pristine_git_object: 8e707bb129af1da185ba30b4c289b0160819c437
+  examples/data-sources/epilot-role_role/data-source.tf:
+    id: bf5c2d6a7b5f
+    last_write_checksum: sha1:bccc79585681dac9390de71a56d6648ae1bbb80c
+    pristine_git_object: c24319375ff9a7872b41f8a953961efe9a8e69b1
+  examples/provider/provider.tf:
+    id: 954e955c0240
+    last_write_checksum: sha1:a3df9acac37c6e68b6a1f18c11126e69b29ffd86
+    pristine_git_object: 40f20087ddc7a689458b4b6e4fb48132c1e28e46
+  examples/resources/epilot-role_role/import-by-string-id.tf:
+    id: 8a7b17aac7be
+    last_write_checksum: sha1:166754fd6547066654fbb1e3628a6c001ddd96c1
+    pristine_git_object: 67c476bbcb554cc2f2e3a9b38cc0ba63b3262ac8
+  examples/resources/epilot-role_role/import.sh:
+    id: b25abea14ec2
+    last_write_checksum: sha1:1e3f8d9fce3551586f807b51c5ec38ab00aad21f
+    pristine_git_object: 3a0732769024b19802d1e090cba450297d1d6d3e
+  examples/resources/epilot-role_role/resource.tf:
+    id: 4ee96a4298a7
+    last_write_checksum: sha1:cb9044550979da4a31464715387900f452157a6f
+    pristine_git_object: 7166f3d44f1f373fc827a8823c886461d0deadf4
+  go.mod:
+    id: c47645c391ad
+    last_write_checksum: sha1:35ab8de832ee8bf40a5b50ec30935c53473d119f
+    pristine_git_object: 0feb71240317ab1d1e481d48a0e1a235d7329566
+  internal/planmodifiers/boolplanmodifier/suppress_diff.go:
+    id: 3cf85b98963e
+    last_write_checksum: sha1:1bbefb4ee37788430a36317b4150f5dd04250f92
+    pristine_git_object: ab73027c714c3289a27b7ebba52225e2b05bd595
+  internal/planmodifiers/boolplanmodifier/use_config_value.go:
+    id: c0a10558e419
+    last_write_checksum: sha1:506e2cac3ec4075a8837403860ef0b07e19bc337
+    pristine_git_object: 210846ca24831a6bda811d3e8a42326716d7bf97
+  internal/planmodifiers/boolplanmodifier/use_hoisted_value.go:
+    id: e44067341c99
+    last_write_checksum: sha1:567ddfdec73a076b15908fbe043a3e6b22a77077
+    pristine_git_object: b433f3af94cafc6b4cd31cb21e86ea967d4b812f
+  internal/planmodifiers/float32planmodifier/suppress_diff.go:
+    id: b7f3f671e479
+    last_write_checksum: sha1:a2b61923cd9540df248f6370c41f3652fadc47f2
+    pristine_git_object: ad2fc28bab1ba95d05819ac7001b4f9e7714d1e1
+  internal/planmodifiers/float32planmodifier/use_config_value.go:
+    id: e75edfe23c08
+    last_write_checksum: sha1:2683d9de3605886cb01438a9015c8e8b02b4e069
+    pristine_git_object: 0aafffa779b10b01d1e9c831c3a4bda3e6d97789
+  internal/planmodifiers/float32planmodifier/use_hoisted_value.go:
+    id: 4a18d1d4a105
+    last_write_checksum: sha1:a54ac7edb2992f29049bd4aa3447585af6e7a634
+    pristine_git_object: 35802af98f2b9e1bd48840a76b7dfdca36194eb3
+  internal/planmodifiers/float64planmodifier/suppress_diff.go:
+    id: 7ae872c2243d
+    last_write_checksum: sha1:e21cd00b48c2b09d80b9447f6355954f6fa6ae9c
+    pristine_git_object: c7d8f9edcdb4226af0b83964bb6521f3a5ed02c5
+  internal/planmodifiers/float64planmodifier/use_config_value.go:
+    id: 8fd8670f7434
+    last_write_checksum: sha1:cc1f1cadfd17a0b9b1e729029dccc03f17d734a5
+    pristine_git_object: ecd655b8d658d84aa5cbcc3e1808b69674071325
+  internal/planmodifiers/float64planmodifier/use_hoisted_value.go:
+    id: 5762e9e310fc
+    last_write_checksum: sha1:8f95260b690046b2be048f438a98c9f4fa55146f
+    pristine_git_object: 1a67cf5d0101d6f8b81df89c08301b05a2f17c19
+  internal/planmodifiers/int32planmodifier/suppress_diff.go:
+    id: 3ee3ede7dc9d
+    last_write_checksum: sha1:d7d0be63be9ad3eb7aa16ce1d3d96ff4d9cd77f1
+    pristine_git_object: 0c534950534a112d2d823f19bc762010126baeda
+  internal/planmodifiers/int32planmodifier/use_config_value.go:
+    id: 40be4e07e289
+    last_write_checksum: sha1:019ba1949b00493bf1a866821f9331d50c8a1f09
+    pristine_git_object: ebc98aae308008b2cda39d5f4cfa781982afa44f
+  internal/planmodifiers/int32planmodifier/use_hoisted_value.go:
+    id: 887f32d55316
+    last_write_checksum: sha1:8d5063f3b988830e00a578eeabae07df626a9e59
+    pristine_git_object: 515b51b28852c7893742829e05dda23030ec4613
+  internal/planmodifiers/int64planmodifier/suppress_diff.go:
+    id: fade0cc85582
+    last_write_checksum: sha1:35b5ecdd3bca92218d7c940010fbd857350726dd
+    pristine_git_object: 78603a92c7e604bc030a3456ce026e6b8de2467b
+  internal/planmodifiers/int64planmodifier/use_config_value.go:
+    id: e38d6f43d093
+    last_write_checksum: sha1:b5a63f0c356cd72698e25e1b4f4fc3e29b35d482
+    pristine_git_object: 2ec2d53d3ac13f58f64feb32b7fb07ca37b8fe99
+  internal/planmodifiers/int64planmodifier/use_hoisted_value.go:
+    id: ae01f54b02fa
+    last_write_checksum: sha1:3c1336835a0c8853c601f731e38675c602674a27
+    pristine_git_object: 41c23870d9a280de9269735305e062773841ec48
+  internal/planmodifiers/listplanmodifier/suppress_diff.go:
+    id: 7b93ed9460b9
+    last_write_checksum: sha1:18efb4b4cc99609d8a0f0bf6b3a89ab6dec94559
+    pristine_git_object: 9ecd384bfc991dc89aaef4676e81cc30b5a82e37
+  internal/planmodifiers/listplanmodifier/use_config_value.go:
+    id: c9b31b246860
+    last_write_checksum: sha1:c56e2d23520ac7023f800328bb7599e7eba2f202
+    pristine_git_object: 7e851c7613c71921fd4ccf7ca1f95b8b22ce9745
+  internal/planmodifiers/listplanmodifier/use_hoisted_value.go:
+    id: 6232d2937a04
+    last_write_checksum: sha1:544b486f4c9046ce60c4cd1de38bd2ddfce1c245
+    pristine_git_object: 9678032d788bacc1418a73f1cd62b0f7359536d2
+  internal/planmodifiers/mapplanmodifier/suppress_diff.go:
+    id: 37bee37da583
+    last_write_checksum: sha1:d64c4ceb973ddea62b1c7b9ca4871ecfdb54e96f
+    pristine_git_object: c628e8318a4a3b8e2829e7e1ef70fdcf3ff015f2
+  internal/planmodifiers/mapplanmodifier/use_config_value.go:
+    id: 8fef370eccaa
+    last_write_checksum: sha1:7c2163c8fa4be8e8f7e7499cdb08cc5ed1924b39
+    pristine_git_object: 0f2a717f45ca60218f4b8d9e81a6a5cd01494905
+  internal/planmodifiers/mapplanmodifier/use_hoisted_value.go:
+    id: b22b13c6b864
+    last_write_checksum: sha1:b758a19db181fd12adddc7105f59007db243aa82
+    pristine_git_object: f07f1ed7b8bdec901768e826661e685186c151bf
+  internal/planmodifiers/numberplanmodifier/suppress_diff.go:
+    id: 0debe6a63221
+    last_write_checksum: sha1:80419e1adaf1bdfbd1251a8feffec20f5e686dd4
+    pristine_git_object: b5bdda38868c266e26430297704f721a57fd1576
+  internal/planmodifiers/numberplanmodifier/use_config_value.go:
+    id: e6b779d30d26
+    last_write_checksum: sha1:9b92d53a4a5f57e211e6f41ebb6c36cb12357ae6
+    pristine_git_object: e93c117a0665121b4c43c4a0fd5faec999ad016e
+  internal/planmodifiers/numberplanmodifier/use_hoisted_value.go:
+    id: b52fbd8c6aed
+    last_write_checksum: sha1:77deeb007f974507355064ac05ea826717485a4a
+    pristine_git_object: 3d8e0db2d3c6f07b129d29cc95905ca380b1d969
+  internal/planmodifiers/objectplanmodifier/suppress_diff.go:
+    id: c5bc1c3980dd
+    last_write_checksum: sha1:223a217c87052404dfa1cbe2ace102fad756fc2f
+    pristine_git_object: 69d051095074485ba67d620a92ef47750e0b48b0
+  internal/planmodifiers/objectplanmodifier/use_config_value.go:
+    id: 7f103d324869
+    last_write_checksum: sha1:1f2b6727605c0b56ff2212ab2e2528046f05b157
+    pristine_git_object: eaf24076aeaf233c342886079be38561b94d3856
+  internal/planmodifiers/objectplanmodifier/use_hoisted_value.go:
+    id: 9d64f475cc1d
+    last_write_checksum: sha1:4421345dfd9af9bcaf9b9ead76a277407756cf07
+    pristine_git_object: 41913b1cdb0438b538d2c19d3cc5f67dccd9aca7
+  internal/planmodifiers/setplanmodifier/suppress_diff.go:
+    id: 2db9381ea39f
+    last_write_checksum: sha1:881d835a6dc0e272ee4ca4685b9efcaf90e3d1d1
+    pristine_git_object: 493909c04b1ff8fb5a9298eaa1320c7463863e7c
+  internal/planmodifiers/setplanmodifier/use_config_value.go:
+    id: 62a591230001
+    last_write_checksum: sha1:fe02165f8fd260bbce09f34adfa378376363422f
+    pristine_git_object: a95de11e54a028586b41352c084de59fdc7af66c
+  internal/planmodifiers/setplanmodifier/use_hoisted_value.go:
+    id: f0486343f81b
+    last_write_checksum: sha1:0a8771a1fc6aac8e6937707ba05613e94cc4b2d7
+    pristine_git_object: 4210908d96595209260dec00eefa6e601d5bc517
+  internal/planmodifiers/stringplanmodifier/suppress_diff.go:
+    id: 05379039a176
+    last_write_checksum: sha1:d500e79a4bf56fab36f89ad336d650ffa60b2a05
+    pristine_git_object: 279418e58fb6108910ea696858538049c711b11d
+  internal/planmodifiers/stringplanmodifier/use_config_value.go:
+    id: a783ed056524
+    last_write_checksum: sha1:250673402508661f9d12cfa026dc029d5e7855d9
+    pristine_git_object: 8b4457aeb6b22b7f2b581434762e71f3f782897b
+  internal/planmodifiers/stringplanmodifier/use_hoisted_value.go:
+    id: f9220e0f9187
+    last_write_checksum: sha1:760f850b1016f79af704e681fd18f263758c0d26
+    pristine_git_object: 70ec33762ac12dc63efaad876f7505bb8054ab52
+  internal/planmodifiers/utils/hoisted_value.go:
+    id: 7c3741509670
+    last_write_checksum: sha1:04ccb3d58a019eb0e94efe207280974e85e5fccc
+    pristine_git_object: 628b67bbdb34036dc48d3791628383e6f26dd891
+  internal/planmodifiers/utils/state_check.go:
+    id: ead742412d0f
+    last_write_checksum: sha1:acc38ad698bf4fa8c51aa662076cf57b79024bd5
+    pristine_git_object: 0ea64fbeb1fd7709d7241a8e06d34bfe9d0323d3
+  internal/provider/provider.go:
+    id: 1e7e86841cf3
+    last_write_checksum: sha1:e2fab730f04c442ba1d1bbdbd54b48eb5eb8b8b7
+    pristine_git_object: 1ce09cb1883a0b58c3e649260cb06b253c85a8a7
+  internal/provider/reflect/diags.go:
+    id: 35b6b44972e2
+    last_write_checksum: sha1:ace8bc53054bb1d8ee8689acf3e4323de75a6297
+    pristine_git_object: 50c50c8c2ee48a2e0bd9f7e01e9de02489c887d8
+  internal/provider/reflect/doc.go:
+    id: cbfb54ee320b
+    last_write_checksum: sha1:67814656717ff0d0ff38fd9db09872e28666642b
+    pristine_git_object: e384126d4201af70574ce3a9fb8102edaa3b932e
+  internal/provider/reflect/generic_attr_value.go:
+    id: e422f9e35e9e
+    last_write_checksum: sha1:33300f91738c9b79e41ea4d8f3581d6800ac06ef
+    pristine_git_object: 48824d543386df6c125ed86da32d85d24659454c
+  internal/provider/reflect/helpers.go:
+    id: 3c19b91a8408
+    last_write_checksum: sha1:3a2083aa9f84f5a54638803f2225daf86408d360
+    pristine_git_object: 8085789a770637a76b1728b0f89b30c564696ca6
+  internal/provider/reflect/interfaces.go:
+    id: d1096171c6f2
+    last_write_checksum: sha1:e03017ee98ee8d1bd64fde7a025975638bcfaed7
+    pristine_git_object: ff4416e40b7dd139a553979327b0dac70aff37c5
+  internal/provider/reflect/into.go:
+    id: 50e3644442fc
+    last_write_checksum: sha1:7a29c6e2fd31069faddc441132ff04a92a6198be
+    pristine_git_object: 29a437fe2bdb30a956b8c7668d11032962962472
+  internal/provider/reflect/map.go:
+    id: 0d8232fb373f
+    last_write_checksum: sha1:803a218b09d4d9de46d27a5c0227ed3fc6617f62
+    pristine_git_object: 91e27a6c1d51441d6091752a0e199c300c1f09dc
+  internal/provider/reflect/number.go:
+    id: f7e5eb196c35
+    last_write_checksum: sha1:ff756986a30b648c423b9af8996584ffc5983514
+    pristine_git_object: 53673b8476a3115f39f7ed03921221243bbe29a3
+  internal/provider/reflect/options.go:
+    id: ae46de5fdb32
+    last_write_checksum: sha1:735603671bc13388dca9edeb7fefc0b229196793
+    pristine_git_object: 002addd9ab508962b4dc80b0b1f788c738cb8382
+  internal/provider/reflect/outof.go:
+    id: 2b83f83dde82
+    last_write_checksum: sha1:46f09acf317888545161fc1cd288113bd3836ead
+    pristine_git_object: 215406a5867a4b5b6e0978a1664492049cc3738a
+  internal/provider/reflect/pointer.go:
+    id: b758e7c3bf1c
+    last_write_checksum: sha1:92cc23f30396e1a9204f70ac68ebfe7d58cbb967
+    pristine_git_object: 215653e7c5d5ba9863ef5053d9084c9d69eba5ca
+  internal/provider/reflect/primitive.go:
+    id: c302568a3411
+    last_write_checksum: sha1:8b7708414f8be915065952b31986869feaa2fae6
+    pristine_git_object: adf648e88b61a8234951db180e4c25bbb7c1b353
+  internal/provider/reflect/slice.go:
+    id: cd2dec5ab676
+    last_write_checksum: sha1:70ce36709e204b74e3ded36c4683df7e48df294f
+    pristine_git_object: 79ad6b80c2a9492522820c3060a89f2de1131e92
+  internal/provider/reflect/struct.go:
+    id: 973d7dbf96c1
+    last_write_checksum: sha1:504fa0ca7711df0887f8c265c7acb3774e89afe7
+    pristine_git_object: c588f768bd7b39be33962188f97d81e1c4c25f4b
+  internal/provider/role_data_source.go:
+    id: f4d6a7b193e9
+    last_write_checksum: sha1:852c0592ac51c507548c4d1f1ac5dae67d33ebf6
+    pristine_git_object: ea4e32d2e484af9992725d22bf78bc26f74b9a62
+  internal/provider/role_data_source_sdk.go:
+    id: 85d625eb7aaf
+    last_write_checksum: sha1:1e8da478e314d23aeb86a0417a5ed9104aeef2f0
+    pristine_git_object: 062e9a0b9ee0cddbb9a41bd6ab5fc73f4fdfd39a
+  internal/provider/role_resource.go:
+    id: 07d1e279f814
+    last_write_checksum: sha1:c878f949391e0cea84ef858de73d641c6847119b
+    pristine_git_object: f06dfb52c322daab8c0325f7cc22a1918fd0681a
+  internal/provider/role_resource_sdk.go:
+    id: 3d1620fd13fa
+    last_write_checksum: sha1:dd7e41b5c8b269ee1d1ecf0725de5a13f1e313e0
+    pristine_git_object: 5d6c9454efead7e7ab69f21eeae12272802ab80f
+  internal/provider/typeconvert/date.go:
+    id: dfe2bc95ad1b
+    last_write_checksum: sha1:422c8e8996689bfed1f23fc198daaa7ec92de4d1
+    pristine_git_object: 8888a736c653301bbf73c8a7f07c8bde4a31d3dd
+  internal/provider/typeconvert/datetime.go:
+    id: d2fb73d4f01c
+    last_write_checksum: sha1:a2a20e6785f1e12c3f94c016cbc106e54942e981
+    pristine_git_object: 7bfdc553a393a1db69a25574998eb6cc5df79566
+  internal/provider/typeconvert/int.go:
+    id: c44fcd78fccc
+    last_write_checksum: sha1:c28123f17006dc96a233f916a17c38408e37b71f
+    pristine_git_object: 54763e7a7555fae6d8bf51c4590220ff610202aa
+  internal/provider/types/equals_condition.go:
+    id: 1a1e53d7ea58
+    last_write_checksum: sha1:a448f7553b4b3ff666edc664957731901a5d0eb9
+    pristine_git_object: c8c79365b27848e0c662ffd9a2c4e93409a9c266
+  internal/provider/types/four.go:
+    id: 5909ce5cf6a1
+    last_write_checksum: sha1:2979079c4914da7f8ae784b926905cbbc6c515b8
+    pristine_git_object: 61c80f961a3190cbc07fedef2c7799dbeaa6bc24
+  internal/provider/types/grant.go:
+    id: 957f78ef9d17
+    last_write_checksum: sha1:f32e633ddc970fdad213c54c81f35c1df883a58f
+    pristine_git_object: be233e6592c6bbb0f4f1c2201915a2d92cbd8f43
+  internal/provider/types/grant_condition.go:
+    id: 938ccf7f7bd1
+    last_write_checksum: sha1:bf6ec3ca22eb2eb6e645e347381ccdd93da78451
+    pristine_git_object: 0fa78314488553f78068bc25c5c8a125f7a6c322
+  internal/provider/types/one.go:
+    id: c06b12d32cce
+    last_write_checksum: sha1:ca5f8105e5fc35c728537b7371398b3c3dc71e67
+    pristine_git_object: d1e2ca3ec7bd383b8da55e7eada7aab397a2bb36
+  internal/provider/types/schemas.go:
+    id: d4c868a83ca5
+    last_write_checksum: sha1:92232546dc81ea94bf7fcb46e2906ec0b642f981
+    pristine_git_object: 476cd84692f1ba625280b0f59c9543e073279351
+  internal/provider/types/schemas1.go:
+    id: 6583fd32e4f8
+    last_write_checksum: sha1:6aebd026f2a6f4a70d88c09d1cfaa80de83dc5f8
+    pristine_git_object: 0d913532c0b571bdbe10291bd0286dc5662e0d9f
+  internal/provider/types/three.go:
+    id: 8efd1e03419d
+    last_write_checksum: sha1:cfe73e29c2ce6bddcd87935bc63f20ac64f93407
+    pristine_git_object: 81cd9e028fb75f881f66407460b9f5132e781eef
+  internal/provider/types/two.go:
+    id: 2bb75d850add
+    last_write_checksum: sha1:63e04b93162b4b9f72d89e69e0ef4d708cab5573
+    pristine_git_object: b52a911279ef525107d543c6309bc6f05f0270db
+  internal/provider/utils.go:
+    id: 312d50f148af
+    last_write_checksum: sha1:dff8fc13b504f7084d8fdd3db2eed1c9f6db6687
+    pristine_git_object: bf8e019833c7ef5d4766582f3a99dfed39e10ce8
+  internal/sdk/.gitattributes:
+    id: 1ea4c4e0a39d
+    last_write_checksum: sha1:84b0115789fc3ea52e31df701d8a27f76077e29f
+    pristine_git_object: e6a994416d0f527912d2d272e2583458f4fc9bcb
+  internal/sdk/assignments.go:
+    id: 5671e7a781f1
+    last_write_checksum: sha1:f5e9903983d47f3f18eb2f36091e17faa013d66d
+    pristine_git_object: 866c2436da0e84be801d9265e1b259c38e1f289f
+  internal/sdk/docs/models/operations/option.md:
+    id: a35737eb2e35
+    last_write_checksum: sha1:08cfee5d266c9d82987e448f6c98a143aa42c5f8
+    pristine_git_object: 35d8a1e2ad48a64702c6a654ac8880dabec053b0
+  internal/sdk/internal/config/sdkconfiguration.go:
+    id: 6af0bc8635d9
+    last_write_checksum: sha1:9b05a456f4c0a94001ff6f22267e6899d7038ac9
+    pristine_git_object: 3e2b48652528cbe2bc6fb7fe0e802c9d361e5d45
+  internal/sdk/internal/hooks/hooks.go:
+    id: 4e88208e997f
+    last_write_checksum: sha1:8df27be4c08edea473db864974242bf03cf17ac5
+    pristine_git_object: 575beb691d79d9a76de355287b25e2dea57338f4
+  internal/sdk/internal/utils/contenttype.go:
+    id: b767d5c02609
+    last_write_checksum: sha1:ab5cfd860d02c6e6a37f89e2b5649a9859947fb1
+    pristine_git_object: f6487e01eb987c0aa49e7aa50b5ff24830314c63
+  internal/sdk/internal/utils/env.go:
+    id: 4b4be1422b75
+    last_write_checksum: sha1:1e0bcb2d2caed9f3657f1dbc99b55811bed0298c
+    pristine_git_object: 110d464eacf2387b347bad1cb903666354a339e9
+  internal/sdk/internal/utils/form.go:
+    id: a29055426367
+    last_write_checksum: sha1:05cc5b7d081312c6c40fb55ad6a7c689e0fe3106
+    pristine_git_object: c409460795794978373b32b20c579bd81a409e9f
+  internal/sdk/internal/utils/headers.go:
+    id: f035883ac0ff
+    last_write_checksum: sha1:20fe54a44bc1357ef4f3554779bf52dacdfbaa25
+    pristine_git_object: 3ed858cf6cb457ee494656eb977ba1647d585e56
+  internal/sdk/internal/utils/json.go:
+    id: 2231afac3add
+    last_write_checksum: sha1:662c9112f6e1b77b3c1097027200aaaf2d413348
+    pristine_git_object: a8bc053c957e77d3a96f0cc35c1e16b8be0e1b0f
+  internal/sdk/internal/utils/pathparams.go:
+    id: e7fec2afe4a6
+    last_write_checksum: sha1:29fa38fcc717d62235614a16116c6dae2aac17d5
+    pristine_git_object: ccc81fff4ef62bb5ec5d2cfad7d067623cc168ff
+  internal/sdk/internal/utils/queryparams.go:
+    id: fb88ad971185
+    last_write_checksum: sha1:ed5ae961b73d556e57bcefacd68b4b6de479ac96
+    pristine_git_object: 289552c99e60ae1c5eb8311a244e60fca4171d59
+  internal/sdk/internal/utils/requestbody.go:
+    id: c971a8b3bbf5
+    last_write_checksum: sha1:9b86ad005460f35e68f0b3092bec5350f7400546
+    pristine_git_object: 80ed25c12df525196f7437253c0362b8bbefe7d0
+  internal/sdk/internal/utils/retries.go:
+    id: 6832c2142453
+    last_write_checksum: sha1:d610850416600aa967b6a406f63e74c536cbc411
+    pristine_git_object: 235164a10743034d0d1953155d66b77a6b029b79
+  internal/sdk/internal/utils/security.go:
+    id: 6ebe9eaeb99b
+    last_write_checksum: sha1:573140faaff017cb3bd31e579c6b3949f3d8365b
+    pristine_git_object: 77566aa2c1127569d9de4a1782b58f852d926d0a
+  internal/sdk/internal/utils/union.go:
+    id: 183142835cfe
+    last_write_checksum: sha1:2084c44d84e7db82c393ead572ea5f7673ad2323
+    pristine_git_object: 402578d8fac538e034fe3b1d6bc1c0b201eb8e5d
+  internal/sdk/internal/utils/union_test.go:
+    id: 4c885192f6f0
+    last_write_checksum: sha1:83ac73c1901de4c6db90f65cf5879163f3d47a00
+    pristine_git_object: f66814c73ace94d8e71d785fd6161fb405745754
+  internal/sdk/internal/utils/utils.go:
+    id: feefcdf75dbd
+    last_write_checksum: sha1:22e28614144c04201e6cf662643d96a0416f7d8c
+    pristine_git_object: 4f35c6b5ed8d47d0ac4a904f540a24b524cf2312
+  internal/sdk/models/errors/sdkerror.go:
+    id: 19b5a8d3586b
+    last_write_checksum: sha1:5d65fce5049df7c5113e11c9ccb1e4c46b91901c
+    pristine_git_object: c633d568d96b5297c7d2edfc9d22fc717428edf1
+  internal/sdk/models/operations/addassignment.go:
+    id: 3eb6d8ea0879
+    last_write_checksum: sha1:24353ff8eaf85fdcbee440dfa5759f5ded6ca23c
+    pristine_git_object: cc7dde77c07223ef0b1f56b20a7f7df48c596ea5
+  internal/sdk/models/operations/assignroles.go:
+    id: 0e9160d224ea
+    last_write_checksum: sha1:899d8c45a647433dbfb0154c490f68439ead9097
+    pristine_git_object: 0d200ab89eb8b35e5f583f025f2afb2c087f5de0
+  internal/sdk/models/operations/createrole.go:
+    id: c1b593dedb4d
+    last_write_checksum: sha1:4dd73fc5458fbbf53233c418d34e880c2d086b26
+    pristine_git_object: 69bf22a6a859580b56591b61ad93746b0a337946
+  internal/sdk/models/operations/deleterole.go:
+    id: 63abc80d4993
+    last_write_checksum: sha1:ed8e7e235ddfa8692b746bb05fda3a3b9646465a
+    pristine_git_object: 3b0bbeedcadc3626ea5d5e8d3c3c0d5edc56406b
+  internal/sdk/models/operations/getassignedrolesforuser.go:
+    id: 6535f7a7daa4
+    last_write_checksum: sha1:23d9e4af95a7a28b75ece152b1621894cb1ad408
+    pristine_git_object: a78227fc885c6d0ca223087d1a14183b36446300
+  internal/sdk/models/operations/getrole.go:
+    id: a854350465dd
+    last_write_checksum: sha1:a81f3e1a47c61c0aea5aea434c42cabb970cd134
+    pristine_git_object: cc116fcfcf4ed1e2bddd44102bbdd9fafb9e19d3
+  internal/sdk/models/operations/listallassignments.go:
+    id: d44e4b506474
+    last_write_checksum: sha1:9eb0e8142916f46fde970ce4e1a488576dd0c45b
+    pristine_git_object: 50be2f84eb9067c0c413b78db61e03e63f417035
+  internal/sdk/models/operations/listallroles.go:
+    id: 9ef66b8f4216
+    last_write_checksum: sha1:ac98d3e172146095c79ff4b0021b8942b847719c
+    pristine_git_object: 2ec9207b0df1b068ae7d03b83672f75bc6863234
+  internal/sdk/models/operations/listcurrentroles.go:
+    id: 6c5fb155b712
+    last_write_checksum: sha1:b0c9c0c5aefc5f80fee6629261580660d0a846e1
+    pristine_git_object: 827235c54fb639e2020807fcc3b0f0aac8c1ca9b
+  internal/sdk/models/operations/options.go:
+    id: 6d0d29414e00
+    last_write_checksum: sha1:12b4bad47d02a1dc7b3b99f786b6cf5ce8bdf292
+    pristine_git_object: 1a0dabe4af3fff1907366bf05e382b1ceac22eb0
+  internal/sdk/models/operations/putrole.go:
+    id: a5846f4a7409
+    last_write_checksum: sha1:a2d50525037b19a2a8c3a7a5a3b30ca5c1e0ebe0
+    pristine_git_object: 1387f32e2eed90a778e35c5e0223e5b9eaae215c
+  internal/sdk/models/operations/refreshpermissions.go:
+    id: b7c8d2cf8dfe
+    last_write_checksum: sha1:a857a6a71f36fc44eeb1ad0911b762379bcdf260
+    pristine_git_object: b4f21419dc6487ad93f46952b3bc20bfd20e2361
+  internal/sdk/models/operations/removeassignment.go:
+    id: cd930c2e9326
+    last_write_checksum: sha1:eadbdb8b257638497a781584e6442e9996fe61eb
+    pristine_git_object: 88f0b42ea2a741fbdadad0d7cbb03068a331a9b1
+  internal/sdk/models/operations/searchroles.go:
+    id: 38bd439835ab
+    last_write_checksum: sha1:af503b329d484245145f3af01d0182ba5e511ebe
+    pristine_git_object: 8674bc07495fd51e3dd23ef7a694958db7cef0d5
+  internal/sdk/models/shared/assignment.go:
+    id: a43db0dd7191
+    last_write_checksum: sha1:dc4fcb22f004d3b835244bdd3841b8b9b9886504
+    pristine_git_object: d80095030cba4b33983b307011633e28d8181673
+  internal/sdk/models/shared/createrolepayload.go:
+    id: 32cc17fd2320
+    last_write_checksum: sha1:4d002f650047240e0936d9e2c6139bf0c0e4129f
+    pristine_git_object: 000e52c318b28263d67db1379c452678bdb0b340
+  internal/sdk/models/shared/equalscondition.go:
+    id: 4b4a2d3abd15
+    last_write_checksum: sha1:39f385e7d5a64e03fd2ddc477c69297fce07de9c
+    pristine_git_object: 3ee1413437a039af416e54bc41a057494a2452e2
+  internal/sdk/models/shared/error.go:
+    id: a388f67481aa
+    last_write_checksum: sha1:80bc8b8885eaaf22c7e44e97552898da3505077a
+    pristine_git_object: 25160467dc315ac1a2e6d7278544adc504b6a8e7
+  internal/sdk/models/shared/grant.go:
+    id: dc59d40196b3
+    last_write_checksum: sha1:59df1f6eb1638046c266930b5b29e1777f105572
+    pristine_git_object: 6e4b8a4134c02c26cdacaa630971c342bd12595b
+  internal/sdk/models/shared/grantcondition.go:
+    id: 9183ad295ce1
+    last_write_checksum: sha1:77d27e6d3b03475c85f90d333bbf8d55345c507e
+    pristine_git_object: 1f412497947077bdcc84f862561ce728c5fed6ad
+  internal/sdk/models/shared/grantwithdependencies.go:
+    id: 2a52f348de24
+    last_write_checksum: sha1:4f771eb4a8f4862e656d525a1479d85a4becc272
+    pristine_git_object: bbe541d8fcb05f131c71ba1f367601ac2ff03db9
+  internal/sdk/models/shared/role.go:
+    id: 7cb1f258dcfd
+    last_write_checksum: sha1:d6c64351a69fc5010e07e79425c807445caec33b
+    pristine_git_object: e1668f59cf22ce3678334ddaa0ad03524f789c14
+  internal/sdk/models/shared/rolesearchinput.go:
+    id: 82539c42f721
+    last_write_checksum: sha1:9294cfe4a74132877e083eab8fcb25c80e2ed113
+    pristine_git_object: 7601fab1441148dcc672781d4d81117f16d0eba2
+  internal/sdk/models/shared/security.go:
+    id: 9098af98367e
+    last_write_checksum: sha1:e8e31b606a77714313987210c34abcc8924489c8
+    pristine_git_object: d393ff12dbea8bb4babdc7dcb591ab9f4ec30bb0
+  internal/sdk/optionalnullable/optionalnullable.go:
+    id: 4b83aa3f3df3
+    last_write_checksum: sha1:d6aff1a420c31e025ea21d46cf056e305ae76fe8
+    pristine_git_object: c6739be0619b6726565e0f11855ffe44b0e5607e
+  internal/sdk/optionalnullable/optionalnullable_test.go:
+    id: 3920a41dfc4c
+    last_write_checksum: sha1:2e9433eff1651ac77d6678ea76880d9a4980cbc2
+    pristine_git_object: e6e5a01c6e721e879e24a38a1f97e3e27d4686d4
+  internal/sdk/retry/config.go:
+    id: 7ea5fa9128b6
+    last_write_checksum: sha1:f565273be789ffe0e3c160de1ac72a63cfe67fbe
+    pristine_git_object: aa809fccb3445b1e2530a979dad620512f50e70f
+  internal/sdk/roles.go:
+    id: 5b6a722e8819
+    last_write_checksum: sha1:5f90e0201fcd30a1990cb03ee7585cbac3abbe7e
+    pristine_git_object: 3cddd3d51525ef23bb874b02968f432d58e470b1
+  internal/sdk/sdk.go:
+    id: 02d7190ee502
+    last_write_checksum: sha1:1fa698efcaa148f0184acd00e7c509a08eb5c2f1
+    pristine_git_object: 924295de680d4cf92a5e3b0e3692d9952d625d31
+  internal/sdk/types/bigint.go:
+    id: fc530b70337e
+    last_write_checksum: sha1:49b004005d0461fb04b846eca062b070b0360b31
+    pristine_git_object: 9c6a086d51595888a6ff787ebcb8693559afee95
+  internal/sdk/types/date.go:
+    id: c4bff082c66f
+    last_write_checksum: sha1:3036a2e1ed15a1d484c093367eba000c38f384d0
+    pristine_git_object: 5b2782f219efe6bfbce46fc2dec68998eb759438
+  internal/sdk/types/datetime.go:
+    id: a8109857c712
+    last_write_checksum: sha1:196d050af6450669214e9ae4fd28e56263ae2b5d
+    pristine_git_object: 3eff332daa04e34cec5ffb10add670bafd8ac454
+  internal/sdk/types/pointers.go:
+    id: 2f3f971639f6
+    last_write_checksum: sha1:fc2275ea006257ba9ba4ff6f2a2cdb6205371eef
+    pristine_git_object: 35c439d2661e08fcb6a854096fd7b9a8561b3938
+  internal/validators/DateValidator.go:
+    id: 4fdfa187ab97
+    last_write_checksum: sha1:29898957fd2619b25b1e8f7cf6b6d7db9d6a21d2
+    pristine_git_object: d8ed214492e8e08c869e64ac8e665493ea75552f
+  internal/validators/ExactlyOneChild.go:
+    id: 66e7bd50b47d
+    last_write_checksum: sha1:ab8e18d1763fbd5b262c3e7d917c81ac40ba839f
+    pristine_git_object: 1765a3a0b83d38a6cc8f118ea2cfab67ab44c910
+  internal/validators/JSONParseValidator.go:
+    id: ce72f37482f5
+    last_write_checksum: sha1:77af551821798350f868410aab90352f7ec7b370
+    pristine_git_object: b8bb96b5e0930635eb754f169b3eaf285d48dd1c
+  internal/validators/RFC3339Validator.go:
+    id: 0cf126c9a956
+    last_write_checksum: sha1:8d9accfc3aa477a74b0f927652f5e2ae3d28061d
+    pristine_git_object: f5e61466b5c639cb17d0cb2cfe28611957297ce9
+  internal/validators/boolvalidators/not_null.go:
+    id: 865145e65396
+    last_write_checksum: sha1:89a7362be9d519ed7c9fb7c4989d273a3aa5f279
+    pristine_git_object: 6eca17e0cff87f7682f8baa2cd81cd33bc972f4c
+  internal/validators/float32validators/not_null.go:
+    id: 330748f4ff91
+    last_write_checksum: sha1:4f0a859aa9d7348056c6559bad9ca336104beaef
+    pristine_git_object: c9a8973c7dc830b9c5aac546ea7cbe6021f01629
+  internal/validators/float64validators/not_null.go:
+    id: 8f5e6362f0f5
+    last_write_checksum: sha1:f2436a4a1323d58ffcff3b153167c4e463325c12
+    pristine_git_object: 8f786d278597ffac3c525755e429c9a3caa60b20
+  internal/validators/int32validators/not_null.go:
+    id: ea876d1f8b07
+    last_write_checksum: sha1:d08335af46ab809d0076da8543b3455662fb66a0
+    pristine_git_object: ec9a3f10adfdd29c3cca40e53dc42db329cf37d7
+  internal/validators/int64validators/not_null.go:
+    id: d3f822eb4c69
+    last_write_checksum: sha1:b5bf5b539f2631813ee8771cf00d8ea9744c6dd3
+    pristine_git_object: 707ff9573f026b7b7ee3f59462c7a8ba10a1aba9
+  internal/validators/listvalidators/not_null.go:
+    id: b3ee156dafa7
+    last_write_checksum: sha1:11f33dfa3cb1b9eadc7e4a8287518135ddae191e
+    pristine_git_object: 9b88e520b7d58c14c6844d3dbc26ce4f96d39af1
+  internal/validators/mapvalidators/not_null.go:
+    id: 9cff80d0791c
+    last_write_checksum: sha1:64117afe6cdb1a0e1b57df970da8df0e18d10442
+    pristine_git_object: dc6959e9cdadb16e0e1ea90f98b2d27f2d357b64
+  internal/validators/numbervalidators/not_null.go:
+    id: b335c948bcf4
+    last_write_checksum: sha1:54d925f13a630f21e14709ce6181e5eaf96bd6e3
+    pristine_git_object: 57d4da0ae000f671698384abc550196744884871
+  internal/validators/objectvalidators/not_null.go:
+    id: dd14631b3a38
+    last_write_checksum: sha1:5f897f5dcd2686d43c9bd683900572a8d7ef6473
+    pristine_git_object: bf0189497acb3b1214f2480e9db071186d85ecad
+  internal/validators/setvalidators/not_null.go:
+    id: e612a6618fac
+    last_write_checksum: sha1:de772bcb14615735a8ebd2a9ffaae06f464a86d5
+    pristine_git_object: f859d64810168dd4ec7bfb1ea1c0186c551f8987
+  internal/validators/stringvalidators/not_null.go:
+    id: 80be7ffedf6c
+    last_write_checksum: sha1:df498b49dd87f9508f3eaec3a63ed0a08ae3c16e
+    pristine_git_object: 1e40ac1b6ce68540327e01910f0dc91a60b62607
+  main.go:
+    id: 0607f785dfa3
+    last_write_checksum: sha1:c6846237a3b1f09f9dae9a5767b3f8f1587de471
+    pristine_git_object: b483f81c60d734d89829375c681de6660d560e88
+  terraform-registry-manifest.json:
+    id: fc3d63fd06e1
+    last_write_checksum: sha1:45b609f3f65164bc2f00b6e2b24faf64627e15b8
+    pristine_git_object: fec2a5691e493a1941bd79b312b3925403a91aa6
+  tools/tools.go:
+    id: 683390d33800
+    last_write_checksum: sha1:8239addbb5e66af0488adc7dc4aba098e4634d88
+    pristine_git_object: 36b25801b3a26b57ee042a610a3c35ca65b1376a
+examples:
+  addAssignment:
+    speakeasy-default-add-assignment:
+      parameters:
+        path:
+          userId: "1"
+          roleId: "123:owner"
+      responses:
+        "201":
+          application/json: {"roles": ["123:owner"], "user_id": "1"}
+  assignRoles:
+    speakeasy-default-assign-roles:
+      parameters:
+        path:
+          userId: "1"
+      requestBody:
+        application/json: ["123:owner"]
+      responses:
+        "200":
+          application/json: ["123:owner"]
+  getAssignedRolesForUser:
+    speakeasy-default-get-assigned-roles-for-user:
+      parameters:
+        path:
+          userId: "1"
+      responses:
+        "200":
+          application/json: ["123:owner"]
+  listAllAssignments:
+    speakeasy-default-list-all-assignments:
+      responses:
+        "200":
+          application/json: {"assignments": [{"roles": ["123:owner"], "user_id": "1"}]}
+  removeAssignment:
+    speakeasy-default-remove-assignment:
+      parameters:
+        path:
+          userId: "1"
+          roleId: "123:owner"
+      responses:
+        "200":
+          application/json: {"roles": ["123:owner"], "user_id": "1"}
+  createRole:
+    parent_role_invalid_type:
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "pricing_tier": "Professional", "slug": "owner", "type": "<value>"}
+      responses:
+        "400":
+          application/json: {"message": "Parent role must be org_role or share_role, got user_role"}
+    parent_role_different_org:
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "<value>"}
+      responses:
+        "400":
+          application/json: {"message": "Parent org_role must be in the same organization"}
+    parent_role_max_hierarchy:
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "partner_org_id": "123", "slug": "owner", "type": "<value>"}
+      responses:
+        "400":
+          application/json: {"message": "Parent role cannot itself have a parent (max 2 levels of hierarchy)"}
+    circular_dependency_self:
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "<value>"}
+      responses:
+        "400":
+          application/json: {"message": "Role cannot be its own parent"}
+    circular_dependency_detected:
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "partner_org_id": "123", "slug": "owner", "type": "<value>"}
+      responses:
+        "400":
+          application/json: {"message": "Circular dependency detected: role 123:child would create a cycle"}
+    speakeasy-default-create-role:
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "partner_org_id": "123", "slug": "owner", "type": "<value>"}
+      responses:
+        "200":
+          application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [], "id": "123:owner", "name": "Owner", "organization_id": "123", "parent_role": "123:owner", "slug": "owner", "type": "user_role"}
+        "400":
+          application/json: {"message": "Parent role 123:nonexistent does not exist"}
+  deleteRole:
+    speakeasy-default-delete-role:
+      parameters:
+        path:
+          roleId: "123:owner"
+      responses:
+        "200":
+          application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [], "id": "123:owner", "name": "Owner", "organization_id": "123", "partner_org_id": "123", "slug": "owner", "type": "partner_role"}
+  getRole:
+    speakeasy-default-get-role:
+      parameters:
+        path:
+          roleId: "123:owner"
+      responses:
+        "200":
+          application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "share_role"}
+  listAllRoles:
+    speakeasy-default-list-all-roles:
+      responses:
+        "200":
+          application/json: {"roles": [{"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "pricing_tier": "Professional", "slug": "owner", "type": "org_role"}]}
+  listCurrentRoles:
+    speakeasy-default-list-current-roles:
+      responses:
+        "200":
+          application/json: {"roles": [{"expires_at": "2028-07-21T17:32:28Z", "grants": [], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "share_role"}]}
+  putRole:
+    parent_role_invalid_type:
+      parameters:
+        path:
+          roleId: "123:owner"
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "share_role"}
+      responses:
+        "400":
+          application/json: {"message": "Parent role must be org_role or share_role, got user_role"}
+    parent_role_different_org:
+      parameters:
+        path:
+          roleId: "123:owner"
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "share_role"}
+      responses:
+        "400":
+          application/json: {"message": "Parent org_role must be in the same organization"}
+    parent_role_max_hierarchy:
+      parameters:
+        path:
+          roleId: "123:owner"
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "share_role"}
+      responses:
+        "400":
+          application/json: {"message": "Parent role cannot itself have a parent (max 2 levels of hierarchy)"}
+    circular_dependency_self:
+      parameters:
+        path:
+          roleId: "123:owner"
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "partner_org_id": "123", "slug": "owner", "type": "partner_role"}
+      responses:
+        "400":
+          application/json: {"message": "Role cannot be its own parent"}
+    circular_dependency_detected:
+      parameters:
+        path:
+          roleId: "123:owner"
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "portal_role"}
+      responses:
+        "400":
+          application/json: {"message": "Circular dependency detected: role 123:child would create a cycle"}
+    speakeasy-default-put-role:
+      parameters:
+        path:
+          roleId: "123:owner"
+      requestBody:
+        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "share_role"}
+      responses:
+        "200":
+          application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "parent_role": "123:owner", "slug": "owner", "type": "user_role"}
+        "400":
+          application/json: {"message": "Parent role 123:nonexistent does not exist"}
+  refreshPermissions: {}
+  searchRoles:
+    speakeasy-default-search-roles:
+      requestBody:
+        application/json: {"limit": 1, "offset": 1, "org_ids": ["123", "456"], "query": "Administrator", "role_ids": ["123:manager", "456:owner"], "slugs": ["manager", "owner"]}
+      responses:
+        "200":
+          application/json: {"results": [{"expires_at": "2028-07-21T17:32:28Z", "grants": [], "id": "123:owner", "name": "Owner", "organization_id": "123", "partner_org_id": "123", "slug": "owner", "type": "partner_role"}]}
+examplesVersion: 1.0.2
+generatedTests: {}
 generatedFiles:
   - .gitattributes
   - USAGE.md
@@ -142,111 +902,3 @@ generatedFiles:
   - main.go
   - terraform-registry-manifest.json
   - tools/tools.go
-examples:
-  addAssignment:
-    speakeasy-default-add-assignment:
-      parameters:
-        path:
-          userId: "1"
-          roleId: "123:owner"
-      responses:
-        "201":
-          application/json: {"roles": ["123:owner"], "user_id": "1"}
-  assignRoles:
-    speakeasy-default-assign-roles:
-      parameters:
-        path:
-          userId: "1"
-      requestBody:
-        application/json: ["123:owner"]
-      responses:
-        "200":
-          application/json: ["123:owner"]
-  getAssignedRolesForUser:
-    speakeasy-default-get-assigned-roles-for-user:
-      parameters:
-        path:
-          userId: "1"
-      responses:
-        "200":
-          application/json: ["123:owner"]
-  listAllAssignments:
-    speakeasy-default-list-all-assignments:
-      responses:
-        "200":
-          application/json: {"assignments": [{"roles": ["123:owner"], "user_id": "1"}, {"roles": ["123:owner"], "user_id": "1"}, {"roles": ["123:owner"], "user_id": "1"}]}
-  removeAssignment:
-    speakeasy-default-remove-assignment:
-      parameters:
-        path:
-          userId: "1"
-          roleId: "123:owner"
-      responses:
-        "200":
-          application/json: {"roles": ["123:owner"], "user_id": "1"}
-  deleteRole:
-    speakeasy-default-delete-role:
-      parameters:
-        path:
-          roleId: "123:owner"
-      responses:
-        "200":
-          application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "user_role"}
-  getRole:
-    speakeasy-default-get-role:
-      parameters:
-        path:
-          roleId: "123:owner"
-      responses:
-        "200":
-          application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [], "id": "123:owner", "name": "Owner", "organization_id": "123", "partner_org_id": "123", "slug": "owner", "type": "partner_role"}
-  listAllRoles:
-    speakeasy-default-list-all-roles:
-      responses:
-        "200":
-          application/json: {"roles": [{"expires_at": "2028-07-21T17:32:28Z", "grants": [], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "share_role"}, {"expires_at": "2028-07-21T17:32:28Z", "grants": [], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "user_role"}, {"expires_at": "2028-07-21T17:32:28Z", "grants": [], "id": "123:owner", "name": "Owner", "organization_id": "123", "pricing_tier": "Professional", "slug": "owner", "type": "org_role"}]}
-  listCurrentRoles:
-    speakeasy-default-list-current-roles:
-      responses:
-        "200":
-          application/json: {"roles": [{"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "pricing_tier": "Professional", "slug": "owner", "type": "org_role"}]}
-  putRole:
-    speakeasy-default-put-role:
-      parameters:
-        path:
-          roleId: "123:owner"
-      requestBody:
-        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "dependencies": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "dependencies": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "dependencies": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "user_role"}
-      responses:
-        "200":
-          application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "partner_org_id": "123", "slug": "owner", "type": "partner_role"}
-  refreshPermissions: {}
-  searchRoles:
-    speakeasy-default-search-roles:
-      requestBody:
-        application/json: {"limit": 1, "offset": 1, "org_ids": ["123"], "query": "Administrator", "role_ids": ["123:owner"], "slugs": ["owner"]}
-      responses:
-        "200":
-          application/json: {"results": [{"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "portal_role"}, {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "portal_role"}]}
-  getAllAssignments:
-    speakeasy-default-get-all-assignments:
-      responses:
-        "200":
-          application/json: {"assignments": [{"assignments": [{"roles": ["123:owner"], "userId": "1"}], "organizationId": "123"}]}
-  getAllRoles:
-    "":
-      parameters:
-        query:
-          limit: "25"
-      responses:
-        "200":
-          application/json: {"lastEvaluatedKey": {"pk": "ROLES", "sk": "ORG#ROLE#ROLE_ID"}, "roles": [{"organizationId": "123", "roles": [{"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "portal_role"}, {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "share_role"}]}, {"organizationId": "123", "roles": [{"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "user_role"}]}, {"organizationId": "123", "roles": [{"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "partner_org_id": "123", "slug": "owner", "type": "partner_role"}, {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}, {"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "share_role"}]}]}
-  createRole:
-    speakeasy-default-create-role:
-      requestBody:
-        application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "slug": "owner", "type": "share_role"}
-      responses:
-        "200":
-          application/json: {"expires_at": "2028-07-21T17:32:28Z", "grants": [{"action": "entity-read", "conditions": [{"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}, {"attribute": "workflows.primary.task_name", "operation": "equals", "values": ["Qualification"]}], "effect": "allow", "resource": "entity:123:contact:f7c22299-ca72-4bca-8538-0a88eeefc947"}], "id": "123:owner", "name": "Owner", "organization_id": "123", "partner_org_id": "123", "slug": "owner", "type": "partner_role"}
-examplesVersion: 1.0.0
-generatedTests: {}
