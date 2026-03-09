@@ -4,48 +4,137 @@ package shared
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/utils"
 	"time"
 )
 
-type RoleType string
+type SchemasPortalRoleType string
 
 const (
-	RoleTypeUserRole    RoleType = "user_role"
-	RoleTypeOrgRole     RoleType = "org_role"
-	RoleTypeShareRole   RoleType = "share_role"
-	RoleTypePartnerRole RoleType = "partner_role"
-	RoleTypePortalRole  RoleType = "portal_role"
+	SchemasPortalRoleTypePortalRole SchemasPortalRoleType = "portal_role"
 )
 
-func (e RoleType) ToPointer() *RoleType {
+func (e SchemasPortalRoleType) ToPointer() *SchemasPortalRoleType {
 	return &e
 }
-func (e *RoleType) UnmarshalJSON(data []byte) error {
+func (e *SchemasPortalRoleType) UnmarshalJSON(data []byte) error {
 	var v string
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 	switch v {
-	case "user_role":
-		fallthrough
-	case "org_role":
-		fallthrough
-	case "share_role":
-		fallthrough
-	case "partner_role":
-		fallthrough
 	case "portal_role":
-		*e = RoleType(v)
+		*e = SchemasPortalRoleType(v)
 		return nil
 	default:
-		return fmt.Errorf("invalid value for RoleType: %v", v)
+		return fmt.Errorf("invalid value for SchemasPortalRoleType: %v", v)
 	}
 }
 
-// Role - Represents any type of role that a user or partner might have.
-type Role struct {
+// PortalRoleSchemas - A role that is applied to end customers and installers using the Portals
+type PortalRoleSchemas struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	// List of grants (permissions) applied to the role
+	Grants []Grant `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID string `json:"id"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID string `json:"organization_id"`
+	// URL-friendly name for the role
+	Slug string                `json:"slug"`
+	Type SchemasPortalRoleType `json:"type"`
+}
+
+func (p PortalRoleSchemas) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(p, "", false)
+}
+
+func (p *PortalRoleSchemas) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &p, "", false, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *PortalRoleSchemas) GetExpiresAt() *time.Time {
+	if p == nil {
+		return nil
+	}
+	return p.ExpiresAt
+}
+
+func (p *PortalRoleSchemas) GetGrants() []Grant {
+	if p == nil {
+		return []Grant{}
+	}
+	return p.Grants
+}
+
+func (p *PortalRoleSchemas) GetID() string {
+	if p == nil {
+		return ""
+	}
+	return p.ID
+}
+
+func (p *PortalRoleSchemas) GetName() string {
+	if p == nil {
+		return ""
+	}
+	return p.Name
+}
+
+func (p *PortalRoleSchemas) GetOrganizationID() string {
+	if p == nil {
+		return ""
+	}
+	return p.OrganizationID
+}
+
+func (p *PortalRoleSchemas) GetSlug() string {
+	if p == nil {
+		return ""
+	}
+	return p.Slug
+}
+
+func (p *PortalRoleSchemas) GetType() SchemasPortalRoleType {
+	if p == nil {
+		return SchemasPortalRoleType("")
+	}
+	return p.Type
+}
+
+type SchemasType string
+
+const (
+	SchemasTypePartnerRole SchemasType = "partner_role"
+)
+
+func (e SchemasType) ToPointer() *SchemasType {
+	return &e
+}
+func (e *SchemasType) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "partner_role":
+		*e = SchemasType(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for SchemasType: %v", v)
+	}
+}
+
+// PartnerRoleSchemas - A role that appears in another organization's role list that can be assigned but not modified by the partner organization.
+type PartnerRoleSchemas struct {
 	// date and time then the role will expire
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 	// List of grants (permissions) applied to the role
@@ -57,83 +146,1139 @@ type Role struct {
 	// Id of an organization
 	OrganizationID string  `json:"organization_id"`
 	PartnerOrgID   *string `json:"partner_org_id,omitempty"`
-	// The pricing tier of the organization this root role is based on
-	PricingTier *string `json:"pricing_tier,omitempty"`
 	// URL-friendly name for the role
-	Slug string   `json:"slug"`
-	Type RoleType `json:"type"`
+	Slug string      `json:"slug"`
+	Type SchemasType `json:"type"`
+	// Maximum number of users that can be assigned this role (vendor-enforced limit, can only be set via internal auth)
+	VendorEnforcedUserLimit *int64 `json:"vendor_enforced_user_limit,omitempty"`
 }
 
-func (r Role) MarshalJSON() ([]byte, error) {
-	return utils.MarshalJSON(r, "", false)
+func (p PartnerRoleSchemas) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(p, "", false)
 }
 
-func (r *Role) UnmarshalJSON(data []byte) error {
-	if err := utils.UnmarshalJSON(data, &r, "", false, false); err != nil {
+func (p *PartnerRoleSchemas) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &p, "", false, nil); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *Role) GetExpiresAt() *time.Time {
+func (p *PartnerRoleSchemas) GetExpiresAt() *time.Time {
+	if p == nil {
+		return nil
+	}
+	return p.ExpiresAt
+}
+
+func (p *PartnerRoleSchemas) GetGrants() []Grant {
+	if p == nil {
+		return []Grant{}
+	}
+	return p.Grants
+}
+
+func (p *PartnerRoleSchemas) GetID() string {
+	if p == nil {
+		return ""
+	}
+	return p.ID
+}
+
+func (p *PartnerRoleSchemas) GetName() string {
+	if p == nil {
+		return ""
+	}
+	return p.Name
+}
+
+func (p *PartnerRoleSchemas) GetOrganizationID() string {
+	if p == nil {
+		return ""
+	}
+	return p.OrganizationID
+}
+
+func (p *PartnerRoleSchemas) GetPartnerOrgID() *string {
+	if p == nil {
+		return nil
+	}
+	return p.PartnerOrgID
+}
+
+func (p *PartnerRoleSchemas) GetSlug() string {
+	if p == nil {
+		return ""
+	}
+	return p.Slug
+}
+
+func (p *PartnerRoleSchemas) GetType() SchemasType {
+	if p == nil {
+		return SchemasType("")
+	}
+	return p.Type
+}
+
+func (p *PartnerRoleSchemas) GetVendorEnforcedUserLimit() *int64 {
+	if p == nil {
+		return nil
+	}
+	return p.VendorEnforcedUserLimit
+}
+
+type SchemasShareRoleType string
+
+const (
+	SchemasShareRoleTypeShareRole SchemasShareRoleType = "share_role"
+)
+
+func (e SchemasShareRoleType) ToPointer() *SchemasShareRoleType {
+	return &e
+}
+func (e *SchemasShareRoleType) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "share_role":
+		*e = SchemasShareRoleType(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for SchemasShareRoleType: %v", v)
+	}
+}
+
+// ShareRoleSchemas - A role that can be assigned to users in other organizations for sharing purposes.
+type ShareRoleSchemas struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	// List of grants (permissions) applied to the role
+	Grants []Grant `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID string `json:"id"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID string `json:"organization_id"`
+	// URL-friendly name for the role
+	Slug string               `json:"slug"`
+	Type SchemasShareRoleType `json:"type"`
+}
+
+func (s ShareRoleSchemas) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(s, "", false)
+}
+
+func (s *ShareRoleSchemas) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &s, "", false, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ShareRoleSchemas) GetExpiresAt() *time.Time {
+	if s == nil {
+		return nil
+	}
+	return s.ExpiresAt
+}
+
+func (s *ShareRoleSchemas) GetGrants() []Grant {
+	if s == nil {
+		return []Grant{}
+	}
+	return s.Grants
+}
+
+func (s *ShareRoleSchemas) GetID() string {
+	if s == nil {
+		return ""
+	}
+	return s.ID
+}
+
+func (s *ShareRoleSchemas) GetName() string {
+	if s == nil {
+		return ""
+	}
+	return s.Name
+}
+
+func (s *ShareRoleSchemas) GetOrganizationID() string {
+	if s == nil {
+		return ""
+	}
+	return s.OrganizationID
+}
+
+func (s *ShareRoleSchemas) GetSlug() string {
+	if s == nil {
+		return ""
+	}
+	return s.Slug
+}
+
+func (s *ShareRoleSchemas) GetType() SchemasShareRoleType {
+	if s == nil {
+		return SchemasShareRoleType("")
+	}
+	return s.Type
+}
+
+type Type string
+
+const (
+	TypeOrgRole Type = "org_role"
+)
+
+func (e Type) ToPointer() *Type {
+	return &e
+}
+func (e *Type) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "org_role":
+		*e = Type(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for Type: %v", v)
+	}
+}
+
+// Schemas - A role automatically applied to all users in an organization.
+type Schemas struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	// List of grants (permissions) applied to the role
+	Grants []Grant `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID string `json:"id"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID string `json:"organization_id"`
+	// The pricing tier of the organization this root role is based on
+	PricingTier *string `json:"pricing_tier,omitempty"`
+	// URL-friendly name for the role
+	Slug string `json:"slug"`
+	Type Type   `json:"type"`
+}
+
+func (s Schemas) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(s, "", false)
+}
+
+func (s *Schemas) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &s, "", false, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Schemas) GetExpiresAt() *time.Time {
+	if s == nil {
+		return nil
+	}
+	return s.ExpiresAt
+}
+
+func (s *Schemas) GetGrants() []Grant {
+	if s == nil {
+		return []Grant{}
+	}
+	return s.Grants
+}
+
+func (s *Schemas) GetID() string {
+	if s == nil {
+		return ""
+	}
+	return s.ID
+}
+
+func (s *Schemas) GetName() string {
+	if s == nil {
+		return ""
+	}
+	return s.Name
+}
+
+func (s *Schemas) GetOrganizationID() string {
+	if s == nil {
+		return ""
+	}
+	return s.OrganizationID
+}
+
+func (s *Schemas) GetPricingTier() *string {
+	if s == nil {
+		return nil
+	}
+	return s.PricingTier
+}
+
+func (s *Schemas) GetSlug() string {
+	if s == nil {
+		return ""
+	}
+	return s.Slug
+}
+
+func (s *Schemas) GetType() Type {
+	if s == nil {
+		return Type("")
+	}
+	return s.Type
+}
+
+type SchemasUserRoleType string
+
+const (
+	SchemasUserRoleTypeUserRole SchemasUserRoleType = "user_role"
+)
+
+func (e SchemasUserRoleType) ToPointer() *SchemasUserRoleType {
+	return &e
+}
+func (e *SchemasUserRoleType) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "user_role":
+		*e = SchemasUserRoleType(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for SchemasUserRoleType: %v", v)
+	}
+}
+
+// UserRoleSchemas - A standard user role. Must be explicitly assigned to users.
+type UserRoleSchemas struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	// List of grants (permissions) applied to the role
+	Grants []Grant `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID string `json:"id"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID string  `json:"organization_id"`
+	ParentRole     *string `json:"parent_role,omitempty"`
+	// URL-friendly name for the role
+	Slug string              `json:"slug"`
+	Type SchemasUserRoleType `json:"type"`
+}
+
+func (u UserRoleSchemas) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(u, "", false)
+}
+
+func (u *UserRoleSchemas) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &u, "", false, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *UserRoleSchemas) GetExpiresAt() *time.Time {
+	if u == nil {
+		return nil
+	}
+	return u.ExpiresAt
+}
+
+func (u *UserRoleSchemas) GetGrants() []Grant {
+	if u == nil {
+		return []Grant{}
+	}
+	return u.Grants
+}
+
+func (u *UserRoleSchemas) GetID() string {
+	if u == nil {
+		return ""
+	}
+	return u.ID
+}
+
+func (u *UserRoleSchemas) GetName() string {
+	if u == nil {
+		return ""
+	}
+	return u.Name
+}
+
+func (u *UserRoleSchemas) GetOrganizationID() string {
+	if u == nil {
+		return ""
+	}
+	return u.OrganizationID
+}
+
+func (u *UserRoleSchemas) GetParentRole() *string {
+	if u == nil {
+		return nil
+	}
+	return u.ParentRole
+}
+
+func (u *UserRoleSchemas) GetSlug() string {
+	if u == nil {
+		return ""
+	}
+	return u.Slug
+}
+
+func (u *UserRoleSchemas) GetType() SchemasUserRoleType {
+	if u == nil {
+		return SchemasUserRoleType("")
+	}
+	return u.Type
+}
+
+type RoleType string
+
+const (
+	RoleTypeUserRoleSchemas    RoleType = "UserRole_Schemas"
+	RoleTypeSchemas            RoleType = "Schemas"
+	RoleTypeShareRoleSchemas   RoleType = "ShareRole_Schemas"
+	RoleTypePartnerRoleSchemas RoleType = "PartnerRole_Schemas"
+	RoleTypePortalRoleSchemas  RoleType = "PortalRole_Schemas"
+)
+
+type Role struct {
+	UserRoleSchemas    *UserRoleSchemas    `queryParam:"inline" union:"member"`
+	Schemas            *Schemas            `queryParam:"inline" union:"member"`
+	ShareRoleSchemas   *ShareRoleSchemas   `queryParam:"inline" union:"member"`
+	PartnerRoleSchemas *PartnerRoleSchemas `queryParam:"inline" union:"member"`
+	PortalRoleSchemas  *PortalRoleSchemas  `queryParam:"inline" union:"member"`
+
+	Type RoleType
+}
+
+func CreateRoleUserRoleSchemas(userRoleSchemas UserRoleSchemas) Role {
+	typ := RoleTypeUserRoleSchemas
+
+	return Role{
+		UserRoleSchemas: &userRoleSchemas,
+		Type:            typ,
+	}
+}
+
+func CreateRoleSchemas(schemas Schemas) Role {
+	typ := RoleTypeSchemas
+
+	return Role{
+		Schemas: &schemas,
+		Type:    typ,
+	}
+}
+
+func CreateRoleShareRoleSchemas(shareRoleSchemas ShareRoleSchemas) Role {
+	typ := RoleTypeShareRoleSchemas
+
+	return Role{
+		ShareRoleSchemas: &shareRoleSchemas,
+		Type:             typ,
+	}
+}
+
+func CreateRolePartnerRoleSchemas(partnerRoleSchemas PartnerRoleSchemas) Role {
+	typ := RoleTypePartnerRoleSchemas
+
+	return Role{
+		PartnerRoleSchemas: &partnerRoleSchemas,
+		Type:               typ,
+	}
+}
+
+func CreateRolePortalRoleSchemas(portalRoleSchemas PortalRoleSchemas) Role {
+	typ := RoleTypePortalRoleSchemas
+
+	return Role{
+		PortalRoleSchemas: &portalRoleSchemas,
+		Type:              typ,
+	}
+}
+
+func (u *Role) UnmarshalJSON(data []byte) error {
+
+	var candidates []utils.UnionCandidate
+
+	// Collect all valid candidates
+	var userRoleSchemas UserRoleSchemas = UserRoleSchemas{}
+	if err := utils.UnmarshalJSON(data, &userRoleSchemas, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  RoleTypeUserRoleSchemas,
+			Value: &userRoleSchemas,
+		})
+	}
+
+	var schemas Schemas = Schemas{}
+	if err := utils.UnmarshalJSON(data, &schemas, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  RoleTypeSchemas,
+			Value: &schemas,
+		})
+	}
+
+	var shareRoleSchemas ShareRoleSchemas = ShareRoleSchemas{}
+	if err := utils.UnmarshalJSON(data, &shareRoleSchemas, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  RoleTypeShareRoleSchemas,
+			Value: &shareRoleSchemas,
+		})
+	}
+
+	var partnerRoleSchemas PartnerRoleSchemas = PartnerRoleSchemas{}
+	if err := utils.UnmarshalJSON(data, &partnerRoleSchemas, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  RoleTypePartnerRoleSchemas,
+			Value: &partnerRoleSchemas,
+		})
+	}
+
+	var portalRoleSchemas PortalRoleSchemas = PortalRoleSchemas{}
+	if err := utils.UnmarshalJSON(data, &portalRoleSchemas, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  RoleTypePortalRoleSchemas,
+			Value: &portalRoleSchemas,
+		})
+	}
+
+	if len(candidates) == 0 {
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for Role", string(data))
+	}
+
+	// Pick the best candidate using multi-stage filtering
+	best := utils.PickBestUnionCandidate(candidates, data)
+	if best == nil {
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for Role", string(data))
+	}
+
+	// Set the union type and value based on the best candidate
+	u.Type = best.Type.(RoleType)
+	switch best.Type {
+	case RoleTypeUserRoleSchemas:
+		u.UserRoleSchemas = best.Value.(*UserRoleSchemas)
+		return nil
+	case RoleTypeSchemas:
+		u.Schemas = best.Value.(*Schemas)
+		return nil
+	case RoleTypeShareRoleSchemas:
+		u.ShareRoleSchemas = best.Value.(*ShareRoleSchemas)
+		return nil
+	case RoleTypePartnerRoleSchemas:
+		u.PartnerRoleSchemas = best.Value.(*PartnerRoleSchemas)
+		return nil
+	case RoleTypePortalRoleSchemas:
+		u.PortalRoleSchemas = best.Value.(*PortalRoleSchemas)
+		return nil
+	}
+
+	return fmt.Errorf("could not unmarshal `%s` into any supported union types for Role", string(data))
+}
+
+func (u Role) MarshalJSON() ([]byte, error) {
+	if u.UserRoleSchemas != nil {
+		return utils.MarshalJSON(u.UserRoleSchemas, "", true)
+	}
+
+	if u.Schemas != nil {
+		return utils.MarshalJSON(u.Schemas, "", true)
+	}
+
+	if u.ShareRoleSchemas != nil {
+		return utils.MarshalJSON(u.ShareRoleSchemas, "", true)
+	}
+
+	if u.PartnerRoleSchemas != nil {
+		return utils.MarshalJSON(u.PartnerRoleSchemas, "", true)
+	}
+
+	if u.PortalRoleSchemas != nil {
+		return utils.MarshalJSON(u.PortalRoleSchemas, "", true)
+	}
+
+	return nil, errors.New("could not marshal union type Role: all fields are null")
+}
+
+// PortalRoleSchemas1 - A role that is applied to end customers and installers using the Portals
+type PortalRoleSchemas1 struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time              `json:"expires_at,omitempty"`
+	Grants    []GrantWithDependencies `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID string `json:"id"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID string `json:"organization_id"`
+	// URL-friendly name for the role
+	Slug string                `json:"slug"`
+	Type SchemasPortalRoleType `json:"type"`
+}
+
+func (p PortalRoleSchemas1) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(p, "", false)
+}
+
+func (p *PortalRoleSchemas1) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &p, "", false, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *PortalRoleSchemas1) GetExpiresAt() *time.Time {
+	if p == nil {
+		return nil
+	}
+	return p.ExpiresAt
+}
+
+func (p *PortalRoleSchemas1) GetGrants() []GrantWithDependencies {
+	if p == nil {
+		return []GrantWithDependencies{}
+	}
+	return p.Grants
+}
+
+func (p *PortalRoleSchemas1) GetID() string {
+	if p == nil {
+		return ""
+	}
+	return p.ID
+}
+
+func (p *PortalRoleSchemas1) GetName() string {
+	if p == nil {
+		return ""
+	}
+	return p.Name
+}
+
+func (p *PortalRoleSchemas1) GetOrganizationID() string {
+	if p == nil {
+		return ""
+	}
+	return p.OrganizationID
+}
+
+func (p *PortalRoleSchemas1) GetSlug() string {
+	if p == nil {
+		return ""
+	}
+	return p.Slug
+}
+
+func (p *PortalRoleSchemas1) GetType() SchemasPortalRoleType {
+	if p == nil {
+		return SchemasPortalRoleType("")
+	}
+	return p.Type
+}
+
+// SchemasInput - A role that appears in another organization's role list that can be assigned but not modified by the partner organization.
+type SchemasInput struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time              `json:"expires_at,omitempty"`
+	Grants    []GrantWithDependencies `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID string `json:"id"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID string  `json:"organization_id"`
+	PartnerOrgID   *string `json:"partner_org_id,omitempty"`
+	// URL-friendly name for the role
+	Slug string      `json:"slug"`
+	Type SchemasType `json:"type"`
+}
+
+func (s SchemasInput) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(s, "", false)
+}
+
+func (s *SchemasInput) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &s, "", false, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *SchemasInput) GetExpiresAt() *time.Time {
+	if s == nil {
+		return nil
+	}
+	return s.ExpiresAt
+}
+
+func (s *SchemasInput) GetGrants() []GrantWithDependencies {
+	if s == nil {
+		return []GrantWithDependencies{}
+	}
+	return s.Grants
+}
+
+func (s *SchemasInput) GetID() string {
+	if s == nil {
+		return ""
+	}
+	return s.ID
+}
+
+func (s *SchemasInput) GetName() string {
+	if s == nil {
+		return ""
+	}
+	return s.Name
+}
+
+func (s *SchemasInput) GetOrganizationID() string {
+	if s == nil {
+		return ""
+	}
+	return s.OrganizationID
+}
+
+func (s *SchemasInput) GetPartnerOrgID() *string {
+	if s == nil {
+		return nil
+	}
+	return s.PartnerOrgID
+}
+
+func (s *SchemasInput) GetSlug() string {
+	if s == nil {
+		return ""
+	}
+	return s.Slug
+}
+
+func (s *SchemasInput) GetType() SchemasType {
+	if s == nil {
+		return SchemasType("")
+	}
+	return s.Type
+}
+
+// ShareRoleSchemas1 - A role that can be assigned to users in other organizations for sharing purposes.
+type ShareRoleSchemas1 struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time              `json:"expires_at,omitempty"`
+	Grants    []GrantWithDependencies `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID string `json:"id"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID string `json:"organization_id"`
+	// URL-friendly name for the role
+	Slug string               `json:"slug"`
+	Type SchemasShareRoleType `json:"type"`
+}
+
+func (s ShareRoleSchemas1) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(s, "", false)
+}
+
+func (s *ShareRoleSchemas1) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &s, "", false, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ShareRoleSchemas1) GetExpiresAt() *time.Time {
+	if s == nil {
+		return nil
+	}
+	return s.ExpiresAt
+}
+
+func (s *ShareRoleSchemas1) GetGrants() []GrantWithDependencies {
+	if s == nil {
+		return []GrantWithDependencies{}
+	}
+	return s.Grants
+}
+
+func (s *ShareRoleSchemas1) GetID() string {
+	if s == nil {
+		return ""
+	}
+	return s.ID
+}
+
+func (s *ShareRoleSchemas1) GetName() string {
+	if s == nil {
+		return ""
+	}
+	return s.Name
+}
+
+func (s *ShareRoleSchemas1) GetOrganizationID() string {
+	if s == nil {
+		return ""
+	}
+	return s.OrganizationID
+}
+
+func (s *ShareRoleSchemas1) GetSlug() string {
+	if s == nil {
+		return ""
+	}
+	return s.Slug
+}
+
+func (s *ShareRoleSchemas1) GetType() SchemasShareRoleType {
+	if s == nil {
+		return SchemasShareRoleType("")
+	}
+	return s.Type
+}
+
+// OrgRoleSchemas - A role automatically applied to all users in an organization.
+type OrgRoleSchemas struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time              `json:"expires_at,omitempty"`
+	Grants    []GrantWithDependencies `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID string `json:"id"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID string `json:"organization_id"`
+	// The pricing tier of the organization this root role is based on
+	PricingTier *string `json:"pricing_tier,omitempty"`
+	// URL-friendly name for the role
+	Slug string `json:"slug"`
+	Type Type   `json:"type"`
+}
+
+func (o OrgRoleSchemas) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(o, "", false)
+}
+
+func (o *OrgRoleSchemas) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &o, "", false, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *OrgRoleSchemas) GetExpiresAt() *time.Time {
 	if o == nil {
 		return nil
 	}
 	return o.ExpiresAt
 }
 
-func (o *Role) GetGrants() []Grant {
+func (o *OrgRoleSchemas) GetGrants() []GrantWithDependencies {
 	if o == nil {
-		return []Grant{}
+		return []GrantWithDependencies{}
 	}
 	return o.Grants
 }
 
-func (o *Role) GetID() string {
+func (o *OrgRoleSchemas) GetID() string {
 	if o == nil {
 		return ""
 	}
 	return o.ID
 }
 
-func (o *Role) GetName() string {
+func (o *OrgRoleSchemas) GetName() string {
 	if o == nil {
 		return ""
 	}
 	return o.Name
 }
 
-func (o *Role) GetOrganizationID() string {
+func (o *OrgRoleSchemas) GetOrganizationID() string {
 	if o == nil {
 		return ""
 	}
 	return o.OrganizationID
 }
 
-func (o *Role) GetPartnerOrgID() *string {
-	if o == nil {
-		return nil
-	}
-	return o.PartnerOrgID
-}
-
-func (o *Role) GetPricingTier() *string {
+func (o *OrgRoleSchemas) GetPricingTier() *string {
 	if o == nil {
 		return nil
 	}
 	return o.PricingTier
 }
 
-func (o *Role) GetSlug() string {
+func (o *OrgRoleSchemas) GetSlug() string {
 	if o == nil {
 		return ""
 	}
 	return o.Slug
 }
 
-func (o *Role) GetType() RoleType {
+func (o *OrgRoleSchemas) GetType() Type {
 	if o == nil {
-		return RoleType("")
+		return Type("")
 	}
 	return o.Type
+}
+
+// UserRoleSchemas1 - A standard user role. Must be explicitly assigned to users.
+type UserRoleSchemas1 struct {
+	// date and time then the role will expire
+	ExpiresAt *time.Time              `json:"expires_at,omitempty"`
+	Grants    []GrantWithDependencies `json:"grants"`
+	// Format: <organization_id>:<slug>
+	ID string `json:"id"`
+	// Human-friendly name for the role
+	Name string `json:"name"`
+	// Id of an organization
+	OrganizationID string  `json:"organization_id"`
+	ParentRole     *string `json:"parent_role,omitempty"`
+	// URL-friendly name for the role
+	Slug string              `json:"slug"`
+	Type SchemasUserRoleType `json:"type"`
+}
+
+func (u UserRoleSchemas1) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(u, "", false)
+}
+
+func (u *UserRoleSchemas1) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &u, "", false, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *UserRoleSchemas1) GetExpiresAt() *time.Time {
+	if u == nil {
+		return nil
+	}
+	return u.ExpiresAt
+}
+
+func (u *UserRoleSchemas1) GetGrants() []GrantWithDependencies {
+	if u == nil {
+		return []GrantWithDependencies{}
+	}
+	return u.Grants
+}
+
+func (u *UserRoleSchemas1) GetID() string {
+	if u == nil {
+		return ""
+	}
+	return u.ID
+}
+
+func (u *UserRoleSchemas1) GetName() string {
+	if u == nil {
+		return ""
+	}
+	return u.Name
+}
+
+func (u *UserRoleSchemas1) GetOrganizationID() string {
+	if u == nil {
+		return ""
+	}
+	return u.OrganizationID
+}
+
+func (u *UserRoleSchemas1) GetParentRole() *string {
+	if u == nil {
+		return nil
+	}
+	return u.ParentRole
+}
+
+func (u *UserRoleSchemas1) GetSlug() string {
+	if u == nil {
+		return ""
+	}
+	return u.Slug
+}
+
+func (u *UserRoleSchemas1) GetType() SchemasUserRoleType {
+	if u == nil {
+		return SchemasUserRoleType("")
+	}
+	return u.Type
+}
+
+type RolePayloadType string
+
+const (
+	RolePayloadTypeUserRoleSchemas1   RolePayloadType = "UserRole_Schemas1"
+	RolePayloadTypeOrgRoleSchemas     RolePayloadType = "OrgRole_Schemas"
+	RolePayloadTypeShareRoleSchemas1  RolePayloadType = "ShareRole_Schemas1"
+	RolePayloadTypeSchemasInput       RolePayloadType = "Schemas_input"
+	RolePayloadTypePortalRoleSchemas1 RolePayloadType = "PortalRole_Schemas1"
+)
+
+type RolePayload struct {
+	UserRoleSchemas1   *UserRoleSchemas1   `queryParam:"inline" union:"member"`
+	OrgRoleSchemas     *OrgRoleSchemas     `queryParam:"inline" union:"member"`
+	ShareRoleSchemas1  *ShareRoleSchemas1  `queryParam:"inline" union:"member"`
+	SchemasInput       *SchemasInput       `queryParam:"inline" union:"member"`
+	PortalRoleSchemas1 *PortalRoleSchemas1 `queryParam:"inline" union:"member"`
+
+	Type RolePayloadType
+}
+
+func CreateRolePayloadUserRoleSchemas1(userRoleSchemas1 UserRoleSchemas1) RolePayload {
+	typ := RolePayloadTypeUserRoleSchemas1
+
+	return RolePayload{
+		UserRoleSchemas1: &userRoleSchemas1,
+		Type:             typ,
+	}
+}
+
+func CreateRolePayloadOrgRoleSchemas(orgRoleSchemas OrgRoleSchemas) RolePayload {
+	typ := RolePayloadTypeOrgRoleSchemas
+
+	return RolePayload{
+		OrgRoleSchemas: &orgRoleSchemas,
+		Type:           typ,
+	}
+}
+
+func CreateRolePayloadShareRoleSchemas1(shareRoleSchemas1 ShareRoleSchemas1) RolePayload {
+	typ := RolePayloadTypeShareRoleSchemas1
+
+	return RolePayload{
+		ShareRoleSchemas1: &shareRoleSchemas1,
+		Type:              typ,
+	}
+}
+
+func CreateRolePayloadSchemasInput(schemasInput SchemasInput) RolePayload {
+	typ := RolePayloadTypeSchemasInput
+
+	return RolePayload{
+		SchemasInput: &schemasInput,
+		Type:         typ,
+	}
+}
+
+func CreateRolePayloadPortalRoleSchemas1(portalRoleSchemas1 PortalRoleSchemas1) RolePayload {
+	typ := RolePayloadTypePortalRoleSchemas1
+
+	return RolePayload{
+		PortalRoleSchemas1: &portalRoleSchemas1,
+		Type:               typ,
+	}
+}
+
+func (u *RolePayload) UnmarshalJSON(data []byte) error {
+
+	var candidates []utils.UnionCandidate
+
+	// Collect all valid candidates
+	var userRoleSchemas1 UserRoleSchemas1 = UserRoleSchemas1{}
+	if err := utils.UnmarshalJSON(data, &userRoleSchemas1, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  RolePayloadTypeUserRoleSchemas1,
+			Value: &userRoleSchemas1,
+		})
+	}
+
+	var orgRoleSchemas OrgRoleSchemas = OrgRoleSchemas{}
+	if err := utils.UnmarshalJSON(data, &orgRoleSchemas, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  RolePayloadTypeOrgRoleSchemas,
+			Value: &orgRoleSchemas,
+		})
+	}
+
+	var shareRoleSchemas1 ShareRoleSchemas1 = ShareRoleSchemas1{}
+	if err := utils.UnmarshalJSON(data, &shareRoleSchemas1, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  RolePayloadTypeShareRoleSchemas1,
+			Value: &shareRoleSchemas1,
+		})
+	}
+
+	var schemasInput SchemasInput = SchemasInput{}
+	if err := utils.UnmarshalJSON(data, &schemasInput, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  RolePayloadTypeSchemasInput,
+			Value: &schemasInput,
+		})
+	}
+
+	var portalRoleSchemas1 PortalRoleSchemas1 = PortalRoleSchemas1{}
+	if err := utils.UnmarshalJSON(data, &portalRoleSchemas1, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  RolePayloadTypePortalRoleSchemas1,
+			Value: &portalRoleSchemas1,
+		})
+	}
+
+	if len(candidates) == 0 {
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for RolePayload", string(data))
+	}
+
+	// Pick the best candidate using multi-stage filtering
+	best := utils.PickBestUnionCandidate(candidates, data)
+	if best == nil {
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for RolePayload", string(data))
+	}
+
+	// Set the union type and value based on the best candidate
+	u.Type = best.Type.(RolePayloadType)
+	switch best.Type {
+	case RolePayloadTypeUserRoleSchemas1:
+		u.UserRoleSchemas1 = best.Value.(*UserRoleSchemas1)
+		return nil
+	case RolePayloadTypeOrgRoleSchemas:
+		u.OrgRoleSchemas = best.Value.(*OrgRoleSchemas)
+		return nil
+	case RolePayloadTypeShareRoleSchemas1:
+		u.ShareRoleSchemas1 = best.Value.(*ShareRoleSchemas1)
+		return nil
+	case RolePayloadTypeSchemasInput:
+		u.SchemasInput = best.Value.(*SchemasInput)
+		return nil
+	case RolePayloadTypePortalRoleSchemas1:
+		u.PortalRoleSchemas1 = best.Value.(*PortalRoleSchemas1)
+		return nil
+	}
+
+	return fmt.Errorf("could not unmarshal `%s` into any supported union types for RolePayload", string(data))
+}
+
+func (u RolePayload) MarshalJSON() ([]byte, error) {
+	if u.UserRoleSchemas1 != nil {
+		return utils.MarshalJSON(u.UserRoleSchemas1, "", true)
+	}
+
+	if u.OrgRoleSchemas != nil {
+		return utils.MarshalJSON(u.OrgRoleSchemas, "", true)
+	}
+
+	if u.ShareRoleSchemas1 != nil {
+		return utils.MarshalJSON(u.ShareRoleSchemas1, "", true)
+	}
+
+	if u.SchemasInput != nil {
+		return utils.MarshalJSON(u.SchemasInput, "", true)
+	}
+
+	if u.PortalRoleSchemas1 != nil {
+		return utils.MarshalJSON(u.PortalRoleSchemas1, "", true)
+	}
+
+	return nil, errors.New("could not marshal union type RolePayload: all fields are null")
 }

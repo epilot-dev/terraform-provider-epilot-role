@@ -10,6 +10,8 @@ import (
 type CreateRoleResponse struct {
 	// HTTP response content type for this operation
 	ContentType string
+	// Invalid role configuration
+	Error *shared.Error
 	// ok
 	Role *shared.Role
 	// HTTP response status code for this operation
@@ -18,30 +20,37 @@ type CreateRoleResponse struct {
 	RawResponse *http.Response
 }
 
-func (o *CreateRoleResponse) GetContentType() string {
-	if o == nil {
+func (c *CreateRoleResponse) GetContentType() string {
+	if c == nil {
 		return ""
 	}
-	return o.ContentType
+	return c.ContentType
 }
 
-func (o *CreateRoleResponse) GetRole() *shared.Role {
-	if o == nil {
+func (c *CreateRoleResponse) GetError() *shared.Error {
+	if c == nil {
 		return nil
 	}
-	return o.Role
+	return c.Error
 }
 
-func (o *CreateRoleResponse) GetStatusCode() int {
-	if o == nil {
+func (c *CreateRoleResponse) GetRole() *shared.Role {
+	if c == nil {
+		return nil
+	}
+	return c.Role
+}
+
+func (c *CreateRoleResponse) GetStatusCode() int {
+	if c == nil {
 		return 0
 	}
-	return o.StatusCode
+	return c.StatusCode
 }
 
-func (o *CreateRoleResponse) GetRawResponse() *http.Response {
-	if o == nil {
+func (c *CreateRoleResponse) GetRawResponse() *http.Response {
+	if c == nil {
 		return nil
 	}
-	return o.RawResponse
+	return c.RawResponse
 }
