@@ -12,11 +12,11 @@ type ListAllRolesResponseBody struct {
 	Roles []shared.Role `json:"roles,omitempty"`
 }
 
-func (o *ListAllRolesResponseBody) GetRoles() []shared.Role {
-	if o == nil {
+func (l *ListAllRolesResponseBody) GetRoles() []shared.Role {
+	if l == nil {
 		return nil
 	}
-	return o.Roles
+	return l.Roles
 }
 
 type ListAllRolesResponse struct {
@@ -30,30 +30,30 @@ type ListAllRolesResponse struct {
 	Object *ListAllRolesResponseBody
 }
 
-func (o *ListAllRolesResponse) GetContentType() string {
-	if o == nil {
+func (l *ListAllRolesResponse) GetContentType() string {
+	if l == nil {
 		return ""
 	}
-	return o.ContentType
+	return l.ContentType
 }
 
-func (o *ListAllRolesResponse) GetStatusCode() int {
-	if o == nil {
+func (l *ListAllRolesResponse) GetStatusCode() int {
+	if l == nil {
 		return 0
 	}
-	return o.StatusCode
+	return l.StatusCode
 }
 
-func (o *ListAllRolesResponse) GetRawResponse() *http.Response {
-	if o == nil {
+func (l *ListAllRolesResponse) GetRawResponse() *http.Response {
+	if l == nil {
 		return nil
 	}
-	return o.RawResponse
+	return l.RawResponse
 }
 
-func (o *ListAllRolesResponse) GetObject() *ListAllRolesResponseBody {
-	if o == nil {
+func (l *ListAllRolesResponse) GetObject() *ListAllRolesResponseBody {
+	if l == nil {
 		return nil
 	}
-	return o.Object
+	return l.Object
 }

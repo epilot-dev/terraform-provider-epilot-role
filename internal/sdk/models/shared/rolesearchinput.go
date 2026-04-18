@@ -26,50 +26,50 @@ func (r RoleSearchInput) MarshalJSON() ([]byte, error) {
 }
 
 func (r *RoleSearchInput) UnmarshalJSON(data []byte) error {
-	if err := utils.UnmarshalJSON(data, &r, "", false, false); err != nil {
+	if err := utils.UnmarshalJSON(data, &r, "", false, nil); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *RoleSearchInput) GetLimit() *float64 {
-	if o == nil {
+func (r *RoleSearchInput) GetLimit() *float64 {
+	if r == nil {
 		return nil
 	}
-	return o.Limit
+	return r.Limit
 }
 
-func (o *RoleSearchInput) GetOffset() *float64 {
-	if o == nil {
+func (r *RoleSearchInput) GetOffset() *float64 {
+	if r == nil {
 		return nil
 	}
-	return o.Offset
+	return r.Offset
 }
 
-func (o *RoleSearchInput) GetOrgIds() []string {
-	if o == nil {
+func (r *RoleSearchInput) GetOrgIds() []string {
+	if r == nil {
 		return nil
 	}
-	return o.OrgIds
+	return r.OrgIds
 }
 
-func (o *RoleSearchInput) GetQuery() *string {
-	if o == nil {
+func (r *RoleSearchInput) GetQuery() *string {
+	if r == nil {
 		return nil
 	}
-	return o.Query
+	return r.Query
 }
 
-func (o *RoleSearchInput) GetRoleIds() []string {
-	if o == nil {
+func (r *RoleSearchInput) GetRoleIds() []string {
+	if r == nil {
 		return nil
 	}
-	return o.RoleIds
+	return r.RoleIds
 }
 
-func (o *RoleSearchInput) GetSlugs() []string {
-	if o == nil {
+func (r *RoleSearchInput) GetSlugs() []string {
+	if r == nil {
 		return nil
 	}
-	return o.Slugs
+	return r.Slugs
 }

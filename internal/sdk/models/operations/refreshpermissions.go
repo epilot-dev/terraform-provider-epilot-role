@@ -15,23 +15,23 @@ type RefreshPermissionsResponse struct {
 	RawResponse *http.Response
 }
 
-func (o *RefreshPermissionsResponse) GetContentType() string {
-	if o == nil {
+func (r *RefreshPermissionsResponse) GetContentType() string {
+	if r == nil {
 		return ""
 	}
-	return o.ContentType
+	return r.ContentType
 }
 
-func (o *RefreshPermissionsResponse) GetStatusCode() int {
-	if o == nil {
+func (r *RefreshPermissionsResponse) GetStatusCode() int {
+	if r == nil {
 		return 0
 	}
-	return o.StatusCode
+	return r.StatusCode
 }
 
-func (o *RefreshPermissionsResponse) GetRawResponse() *http.Response {
-	if o == nil {
+func (r *RefreshPermissionsResponse) GetRawResponse() *http.Response {
+	if r == nil {
 		return nil
 	}
-	return o.RawResponse
+	return r.RawResponse
 }
