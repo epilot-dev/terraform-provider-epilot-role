@@ -11,12 +11,14 @@ import (
 type GrantConditionType string
 
 const (
-	GrantConditionTypeEqualsCondition GrantConditionType = "EqualsCondition"
+	GrantConditionTypeEqualsCondition            GrantConditionType = "EqualsCondition"
+	GrantConditionTypeEqualsCurrentUserCondition GrantConditionType = "EqualsCurrentUserCondition"
 )
 
 // GrantCondition - An additional condition that must be met for the grant
 type GrantCondition struct {
-	EqualsCondition *EqualsCondition `queryParam:"inline"`
+	EqualsCondition            *EqualsCondition            `queryParam:"inline" union:"member"`
+	EqualsCurrentUserCondition *EqualsCurrentUserCondition `queryParam:"inline" union:"member"`
 
 	Type GrantConditionType
 }
@@ -30,12 +32,54 @@ func CreateGrantConditionEqualsCondition(equalsCondition EqualsCondition) GrantC
 	}
 }
 
+func CreateGrantConditionEqualsCurrentUserCondition(equalsCurrentUserCondition EqualsCurrentUserCondition) GrantCondition {
+	typ := GrantConditionTypeEqualsCurrentUserCondition
+
+	return GrantCondition{
+		EqualsCurrentUserCondition: &equalsCurrentUserCondition,
+		Type:                       typ,
+	}
+}
+
 func (u *GrantCondition) UnmarshalJSON(data []byte) error {
 
+	var candidates []utils.UnionCandidate
+
+	// Collect all valid candidates
 	var equalsCondition EqualsCondition = EqualsCondition{}
-	if err := utils.UnmarshalJSON(data, &equalsCondition, "", true, true); err == nil {
-		u.EqualsCondition = &equalsCondition
-		u.Type = GrantConditionTypeEqualsCondition
+	if err := utils.UnmarshalJSON(data, &equalsCondition, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  GrantConditionTypeEqualsCondition,
+			Value: &equalsCondition,
+		})
+	}
+
+	var equalsCurrentUserCondition EqualsCurrentUserCondition = EqualsCurrentUserCondition{}
+	if err := utils.UnmarshalJSON(data, &equalsCurrentUserCondition, "", true, nil); err == nil {
+		candidates = append(candidates, utils.UnionCandidate{
+			Type:  GrantConditionTypeEqualsCurrentUserCondition,
+			Value: &equalsCurrentUserCondition,
+		})
+	}
+
+	if len(candidates) == 0 {
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for GrantCondition", string(data))
+	}
+
+	// Pick the best candidate using multi-stage filtering
+	best := utils.PickBestUnionCandidate(candidates, data)
+	if best == nil {
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for GrantCondition", string(data))
+	}
+
+	// Set the union type and value based on the best candidate
+	u.Type = best.Type.(GrantConditionType)
+	switch best.Type {
+	case GrantConditionTypeEqualsCondition:
+		u.EqualsCondition = best.Value.(*EqualsCondition)
+		return nil
+	case GrantConditionTypeEqualsCurrentUserCondition:
+		u.EqualsCurrentUserCondition = best.Value.(*EqualsCurrentUserCondition)
 		return nil
 	}
 
@@ -45,6 +89,10 @@ func (u *GrantCondition) UnmarshalJSON(data []byte) error {
 func (u GrantCondition) MarshalJSON() ([]byte, error) {
 	if u.EqualsCondition != nil {
 		return utils.MarshalJSON(u.EqualsCondition, "", true)
+	}
+
+	if u.EqualsCurrentUserCondition != nil {
+		return utils.MarshalJSON(u.EqualsCurrentUserCondition, "", true)
 	}
 
 	return nil, errors.New("could not marshal union type GrantCondition: all fields are null")

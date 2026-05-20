@@ -7,7 +7,7 @@ import (
 	"fmt"
 	tfTypes "github.com/epilot-dev/terraform-provider-epilot-role/internal/provider/types"
 	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk"
-	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/models/operations"
+	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -24,20 +24,19 @@ func NewRoleDataSource() datasource.DataSource {
 
 // RoleDataSource is the data source implementation.
 type RoleDataSource struct {
+	// Provider configured SDK client.
 	client *sdk.SDK
 }
 
 // RoleDataSourceModel describes the data model.
 type RoleDataSourceModel struct {
-	ExpiresAt      types.String     `tfsdk:"expires_at"`
-	Grants         []tfTypes.Grant1 `tfsdk:"grants"`
-	ID             types.String     `tfsdk:"id"`
-	Name           types.String     `tfsdk:"name"`
-	OrganizationID types.String     `tfsdk:"organization_id"`
-	PartnerOrgID   types.String     `tfsdk:"partner_org_id"`
-	PricingTier    types.String     `tfsdk:"pricing_tier"`
-	Slug           types.String     `tfsdk:"slug"`
-	Type           types.String     `tfsdk:"type"`
+	ExpiresAt      types.String      `tfsdk:"expires_at"`
+	ID             types.String      `tfsdk:"id"`
+	Name           types.String      `tfsdk:"name"`
+	OrganizationID types.String      `tfsdk:"organization_id"`
+	Schemas        *tfTypes.Schemas1 `queryParam:"inline" tfsdk:"schemas"`
+	Slug           types.String      `tfsdk:"slug"`
+	Type           types.String      `tfsdk:"type"`
 }
 
 // Metadata returns the data source type name.
@@ -55,48 +54,8 @@ func (r *RoleDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 				Computed:    true,
 				Description: `date and time then the role will expire`,
 			},
-			"grants": schema.ListNestedAttribute{
-				Computed: true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"action": schema.StringAttribute{
-							Computed: true,
-						},
-						"conditions": schema.ListNestedAttribute{
-							Computed: true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"equals_condition": schema.SingleNestedAttribute{
-										Computed: true,
-										Attributes: map[string]schema.Attribute{
-											"attribute": schema.StringAttribute{
-												Computed: true,
-											},
-											"operation": schema.StringAttribute{
-												Computed: true,
-											},
-											"values": schema.ListAttribute{
-												Computed:    true,
-												ElementType: types.StringType,
-											},
-										},
-										Description: `Check if attribute equals to any of the values`,
-									},
-								},
-							},
-						},
-						"effect": schema.StringAttribute{
-							Computed: true,
-						},
-						"resource": schema.StringAttribute{
-							Computed: true,
-						},
-					},
-				},
-				Description: `List of grants (permissions) applied to the role`,
-			},
 			"id": schema.StringAttribute{
-				Computed:    true,
+				Required:    true,
 				Description: `Format: <organization_id>:<slug>`,
 			},
 			"name": schema.StringAttribute{
@@ -107,12 +66,94 @@ func (r *RoleDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 				Computed:    true,
 				Description: `Id of an organization`,
 			},
-			"partner_org_id": schema.StringAttribute{
+			"schemas": schema.SingleNestedAttribute{
 				Computed: true,
-			},
-			"pricing_tier": schema.StringAttribute{
-				Computed:    true,
-				Description: `The pricing tier of the organization this root role is based on`,
+				Attributes: map[string]schema.Attribute{
+					"expires_at": schema.StringAttribute{
+						Computed:    true,
+						Description: `date and time then the role will expire`,
+					},
+					"grants": schema.ListNestedAttribute{
+						Computed: true,
+						NestedObject: schema.NestedAttributeObject{
+							Attributes: map[string]schema.Attribute{
+								"action": schema.StringAttribute{
+									Computed: true,
+								},
+								"conditions": schema.ListNestedAttribute{
+									Computed: true,
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: map[string]schema.Attribute{
+											"equals_condition": schema.SingleNestedAttribute{
+												Computed: true,
+												Attributes: map[string]schema.Attribute{
+													"attribute": schema.StringAttribute{
+														Computed: true,
+													},
+													"operation": schema.StringAttribute{
+														Computed: true,
+													},
+													"values": schema.ListAttribute{
+														Computed:    true,
+														ElementType: jsontypes.NormalizedType{},
+													},
+												},
+												Description: `Check if attribute equals to any of the values`,
+											},
+											"equals_current_user_condition": schema.SingleNestedAttribute{
+												Computed: true,
+												Attributes: map[string]schema.Attribute{
+													"attribute": schema.StringAttribute{
+														Computed:    true,
+														Description: `Optional JSON path to a specific user attribute. When omitted, all relation_user attributes on the entity are scanned.`,
+													},
+													"operation": schema.StringAttribute{
+														Computed: true,
+													},
+												},
+												Description: `Check if any relation_user attribute on the entity contains the current user. When attribute is provided, only that specific attribute path is checked.`,
+											},
+										},
+									},
+								},
+								"effect": schema.StringAttribute{
+									Computed: true,
+								},
+								"resource": schema.StringAttribute{
+									Computed: true,
+								},
+							},
+						},
+						Description: `List of grants (permissions) applied to the role`,
+					},
+					"id": schema.StringAttribute{
+						Computed:    true,
+						Description: `Format: <organization_id>:<slug>`,
+					},
+					"name": schema.StringAttribute{
+						Computed:    true,
+						Description: `Human-friendly name for the role`,
+					},
+					"organization_id": schema.StringAttribute{
+						Computed:    true,
+						Description: `Id of an organization`,
+					},
+					"parent_role": schema.StringAttribute{
+						Computed: true,
+					},
+					"slug": schema.StringAttribute{
+						Computed:    true,
+						Description: `URL-friendly name for the role`,
+					},
+					"type": schema.StringAttribute{
+						Computed: true,
+					},
+					"vendor_created": schema.BoolAttribute{
+						Computed:    true,
+						Description: `Indicates whether this role was created by a vendor organization on behalf of the partner organization.`,
+					},
+				},
+				Description: `A role that is applied to end customers and installers using the Portals`,
 			},
 			"slug": schema.StringAttribute{
 				Computed:    true,
@@ -163,13 +204,13 @@ func (r *RoleDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		return
 	}
 
-	var roleID string
-	roleID = data.ID.ValueString()
+	request, requestDiags := data.ToOperationsGetRoleRequest(ctx)
+	resp.Diagnostics.Append(requestDiags...)
 
-	request := operations.GetRoleRequest{
-		RoleID: roleID,
+	if resp.Diagnostics.HasError() {
+		return
 	}
-	res, err := r.client.Roles.GetRole(ctx, request)
+	res, err := r.client.Roles.GetRole(ctx, *request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		if res != nil && res.RawResponse != nil {
@@ -181,10 +222,6 @@ func (r *RoleDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		resp.Diagnostics.AddError("unexpected response from API", fmt.Sprintf("%v", res))
 		return
 	}
-	if res.StatusCode == 404 {
-		resp.State.RemoveResource(ctx)
-		return
-	}
 	if res.StatusCode != 200 {
 		resp.Diagnostics.AddError(fmt.Sprintf("unexpected response from API. Got an unexpected response code %v", res.StatusCode), debugResponse(res.RawResponse))
 		return
@@ -193,7 +230,11 @@ func (r *RoleDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		resp.Diagnostics.AddError("unexpected response from API. Got an unexpected response body", debugResponse(res.RawResponse))
 		return
 	}
-	data.RefreshFromSharedRole(res.Role)
+	resp.Diagnostics.Append(data.RefreshFromSharedRole(ctx, res.Role)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

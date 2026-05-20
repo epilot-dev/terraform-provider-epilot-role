@@ -13,18 +13,18 @@ type SearchRolesResponseBody struct {
 	Results []shared.Role `json:"results,omitempty"`
 }
 
-func (o *SearchRolesResponseBody) GetHits() *float64 {
-	if o == nil {
+func (s *SearchRolesResponseBody) GetHits() *float64 {
+	if s == nil {
 		return nil
 	}
-	return o.Hits
+	return s.Hits
 }
 
-func (o *SearchRolesResponseBody) GetResults() []shared.Role {
-	if o == nil {
+func (s *SearchRolesResponseBody) GetResults() []shared.Role {
+	if s == nil {
 		return nil
 	}
-	return o.Results
+	return s.Results
 }
 
 type SearchRolesResponse struct {
@@ -38,30 +38,30 @@ type SearchRolesResponse struct {
 	Object *SearchRolesResponseBody
 }
 
-func (o *SearchRolesResponse) GetContentType() string {
-	if o == nil {
+func (s *SearchRolesResponse) GetContentType() string {
+	if s == nil {
 		return ""
 	}
-	return o.ContentType
+	return s.ContentType
 }
 
-func (o *SearchRolesResponse) GetStatusCode() int {
-	if o == nil {
+func (s *SearchRolesResponse) GetStatusCode() int {
+	if s == nil {
 		return 0
 	}
-	return o.StatusCode
+	return s.StatusCode
 }
 
-func (o *SearchRolesResponse) GetRawResponse() *http.Response {
-	if o == nil {
+func (s *SearchRolesResponse) GetRawResponse() *http.Response {
+	if s == nil {
 		return nil
 	}
-	return o.RawResponse
+	return s.RawResponse
 }
 
-func (o *SearchRolesResponse) GetObject() *SearchRolesResponseBody {
-	if o == nil {
+func (s *SearchRolesResponse) GetObject() *SearchRolesResponseBody {
+	if s == nil {
 		return nil
 	}
-	return o.Object
+	return s.Object
 }
