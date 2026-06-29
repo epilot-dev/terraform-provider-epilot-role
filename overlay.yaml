@@ -52,3 +52,11 @@ actions:
   - target: $["components"]["schemas"]["GrantWithDependencies"]["allOf"][1]["properties"]["dependencies"]
     update:
       x-speakeasy-type-override: any
+
+  - target: $["components"]["schemas"]["Role"]["allOf"][1]["properties"]["type"]
+    update:
+      description: >-
+        The type of role. Note: "portal_role" roles (such as the default end
+        customer portal role) are required by the Customer and Installer
+        Portals; deleting a "portal_role" will break portal access for your end
+        users, so do not delete it unless you know what you are doing.

@@ -181,7 +181,7 @@ func (r *RoleResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 			},
 			"type": schema.StringAttribute{
 				Required:    true,
-				Description: `must be one of ["user_role", "org_role", "share_role", "partner_role", "portal_role"]`,
+				Description: `The type of role. Note: "portal_role" roles (such as the default end customer portal role) are required by the Customer and Installer Portals; deleting a "portal_role" will break portal access for your end users. must be one of ["user_role", "org_role", "share_role", "partner_role", "portal_role"]`,
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"user_role",

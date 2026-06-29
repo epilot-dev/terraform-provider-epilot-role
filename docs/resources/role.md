@@ -52,7 +52,7 @@ resource "epilot-role_role" "my_role" {
 - `grants` (Attributes List) (see [below for nested schema](#nestedatt--grants))
 - `name` (String) Human-friendly name for the role
 - `slug` (String) URL-friendly name for the role
-- `type` (String) must be one of ["user_role", "org_role", "share_role", "partner_role", "portal_role"]
+- `type` (String) The type of role. Note: "portal_role" roles (such as the default end customer portal role) are required by the Customer and Installer Portals; deleting a "portal_role" will break portal access for your end users. must be one of ["user_role", "org_role", "share_role", "partner_role", "portal_role"]
 
 ### Optional
 
