@@ -2,10 +2,13 @@
 
 package types
 
-import "github.com/hashicorp/terraform-plugin-framework/types"
+import (
+	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+)
 
 type EqualsCondition struct {
-	Attribute types.String   `tfsdk:"attribute"`
-	Operation types.String   `tfsdk:"operation"`
-	Values    []types.String `tfsdk:"values"`
+	Attribute types.String           `tfsdk:"attribute"`
+	Operation types.String           `tfsdk:"operation"`
+	Values    []jsontypes.Normalized `tfsdk:"values"`
 }

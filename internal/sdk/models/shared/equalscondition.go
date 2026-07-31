@@ -5,6 +5,7 @@ package shared
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/epilot-dev/terraform-provider-epilot-role/internal/sdk/internal/utils"
 )
 
 type Operation string
@@ -37,23 +38,34 @@ type EqualsCondition struct {
 	Values    []any     `json:"values"`
 }
 
-func (o *EqualsCondition) GetAttribute() string {
-	if o == nil {
+func (e EqualsCondition) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(e, "", false)
+}
+
+func (e *EqualsCondition) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &e, "", false, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (e *EqualsCondition) GetAttribute() string {
+	if e == nil {
 		return ""
 	}
-	return o.Attribute
+	return e.Attribute
 }
 
-func (o *EqualsCondition) GetOperation() Operation {
-	if o == nil {
+func (e *EqualsCondition) GetOperation() Operation {
+	if e == nil {
 		return Operation("")
 	}
-	return o.Operation
+	return e.Operation
 }
 
-func (o *EqualsCondition) GetValues() []any {
-	if o == nil {
+func (e *EqualsCondition) GetValues() []any {
+	if e == nil {
 		return []any{}
 	}
-	return o.Values
+	return e.Values
 }

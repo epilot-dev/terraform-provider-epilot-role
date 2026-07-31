@@ -12,18 +12,18 @@ type RemoveAssignmentRequest struct {
 	UserID string `pathParam:"style=simple,explode=false,name=userId"`
 }
 
-func (o *RemoveAssignmentRequest) GetRoleID() string {
-	if o == nil {
+func (r *RemoveAssignmentRequest) GetRoleID() string {
+	if r == nil {
 		return ""
 	}
-	return o.RoleID
+	return r.RoleID
 }
 
-func (o *RemoveAssignmentRequest) GetUserID() string {
-	if o == nil {
+func (r *RemoveAssignmentRequest) GetUserID() string {
+	if r == nil {
 		return ""
 	}
-	return o.UserID
+	return r.UserID
 }
 
 type RemoveAssignmentResponse struct {
@@ -37,30 +37,30 @@ type RemoveAssignmentResponse struct {
 	RawResponse *http.Response
 }
 
-func (o *RemoveAssignmentResponse) GetAssignment() *shared.Assignment {
-	if o == nil {
+func (r *RemoveAssignmentResponse) GetAssignment() *shared.Assignment {
+	if r == nil {
 		return nil
 	}
-	return o.Assignment
+	return r.Assignment
 }
 
-func (o *RemoveAssignmentResponse) GetContentType() string {
-	if o == nil {
+func (r *RemoveAssignmentResponse) GetContentType() string {
+	if r == nil {
 		return ""
 	}
-	return o.ContentType
+	return r.ContentType
 }
 
-func (o *RemoveAssignmentResponse) GetStatusCode() int {
-	if o == nil {
+func (r *RemoveAssignmentResponse) GetStatusCode() int {
+	if r == nil {
 		return 0
 	}
-	return o.StatusCode
+	return r.StatusCode
 }
 
-func (o *RemoveAssignmentResponse) GetRawResponse() *http.Response {
-	if o == nil {
+func (r *RemoveAssignmentResponse) GetRawResponse() *http.Response {
+	if r == nil {
 		return nil
 	}
-	return o.RawResponse
+	return r.RawResponse
 }
